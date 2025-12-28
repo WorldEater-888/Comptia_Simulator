@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_FINAL_RESTORED_V2</title>
+    <title>SYSTEM_ROOT_FINAL_RESTORED</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Dynamic Variables */
+            /* Dynamic Variables - Controlled by JS */
             --term-color: #0affba; 
             --split-1: #ff0000; 
             --split-2: #00ffff; 
-            --glow-color: rgba(10, 255, 186, 0.85);
+            --glow-color: rgba(10, 255, 186, 0.85); /* Increased Phosphorus */
             
             --edge-opacity: 0; 
             --shake-amp: 0px; 
@@ -21,6 +21,7 @@
             --sway-speed: 5s; 
         }
 
+        /* --- GLOBAL RESETS --- */
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
@@ -38,7 +39,7 @@
             display: flex;
             flex-direction: column;
             
-            /* High Phosphorus Glow */
+            /* HIGH PHOSPHORUS EFFECT */
             text-shadow: 0 0 4px var(--glow-color), 0 0 8px var(--glow-color); 
             box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
             
@@ -56,8 +57,7 @@
 
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
         
-        /* Rain Opacity Increased */
-        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.6; }
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.3; }
         
         .retro-grid {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3;
@@ -68,6 +68,7 @@
             animation: grid-move 10s linear infinite;
         }
 
+        /* Panic Pulse - Opacity controlled by JS Integrity */
         #panic-pulse {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 850;
             box-shadow: inset 0 0 150px #ff0000; 
@@ -80,9 +81,9 @@
         .terminal-window {
             width: 100%; height: 100%;
             border: none;
-            /* INCREASED TRANSPARENCY FOR RAIN VISIBILITY */
-            background: rgba(0, 5, 5, 0.40); 
-            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+            /* High transparency to see Matrix rain */
+            background: rgba(0, 5, 5, 0.65); 
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
             padding: 10px;
             display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
@@ -106,6 +107,7 @@
             font-weight: normal;
         }
 
+        /* Donation Buttons */
         .donate-group { display: flex; gap: 6px; }
         .sys-btn {
             background: rgba(0, 0, 0, 0.8);
@@ -121,6 +123,7 @@
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
 
+        /* Integrity & Temp Bars */
         .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
         .bars-group { display: flex; flex-direction: column; gap: 4px; width: 65%; }
         .integrity-wrapper { width: 100%; display: flex; align-items: center; gap: 5px; }
@@ -138,17 +141,17 @@
             background: repeating-linear-gradient(90deg, var(--term-color), var(--term-color) 4px, transparent 4px, transparent 6px);
             animation: health-pulse 1s infinite alternate;
         }
+        /* Shock effect on damage */
         .dmg-shock { animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
 
-        /* THEMED AUDIO BUTTON */
+        /* Audio Toggle - Slimmed & Interactive */
         .audio-btn { 
-            font-size: 0.8rem; background: rgba(0,0,0,0.5); 
-            border: 1px solid var(--term-color); color: inherit; 
-            padding: 4px 8px; font-weight: bold;
+            font-size: 0.8rem; background: transparent; 
+            border: 1px solid var(--term-color); color: inherit; padding: 2px 5px;
             cursor: pointer; position: relative; overflow: hidden;
-            transition: 0.2s; box-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+            transition: 0.2s;
         }
-        .audio-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); }
+        .audio-btn:active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
 
         /* --- MENUS & BUTTONS --- */
         .menu-grid { 
@@ -169,6 +172,7 @@
         }
         .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.4s ease, transform 0.4s ease; }
         
+        /* RESTORED HOVER EFFECT via ACTIVE STATE */
         .btn:active { 
             background: #fff; color: #000; 
             box-shadow: 0 0 30px #fff; border-color: #fff; 
@@ -239,13 +243,28 @@
         .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
 
-        /* --- ANIMATIONS --- */
+        /* --- ANIMATIONS (RESTORED ALL) --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 20% { clip-path: inset(85% 0 5% 0); transform: translate(5px, -2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
-        @keyframes stress-shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } }
+        
+        /* SHAKE REDUCED BY 50% & MORE RANDOM */
+        @keyframes stress-shake { 
+            0% { transform: translate(0, 0); } 
+            20% { transform: translate(-1px, 1px); } 
+            40% { transform: translate(1px, -1px); } 
+            60% { transform: translate(-0.5px, 0.5px); } 
+            80% { transform: translate(0.5px, -0.5px); } 
+            100% { transform: translate(0, 0); } 
+        }
+        
         @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
         @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
-        @keyframes rgb-split-hover { 0% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 25% { text-shadow: 2px 0 red, -2px 0 blue; transform: translate(-2px, 1px); } 50% { text-shadow: 0 -2px red, 0 2px blue; transform: translate(2px, -1px); } 100% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } }
+        @keyframes rgb-split-hover { 
+            0% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 
+            25% { text-shadow: 2px 0 red, -2px 0 blue; transform: translate(-2px, 1px); } 
+            50% { text-shadow: 0 -2px red, 0 2px blue; transform: translate(2px, -1px); }
+            100% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 
+        }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
         @keyframes damage-flash { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.15); filter: brightness(5) hue-rotate(180deg); } 100% { transform: scale(1); filter: brightness(1); } }
@@ -270,9 +289,10 @@
         .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
-        /* SCREENS */
+        /* --- SCREENS --- */
         #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         
+        /* FIXED: System Corrupt Screen Clipping */
         #fail-ui { 
             display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; 
             z-index: 2000; background: rgba(5, 0, 0, 0.95); 
@@ -281,6 +301,7 @@
         }
         .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: fail-entry 0.3s ease-out forwards; color: #ccffff; }
         .fail-text { font-size: 4rem; word-break: break-word; color:#fff; animation: vertical-rgb-split 0.15s infinite; }
+
         .hidden { display: none !important; }
 
     </style>
@@ -301,7 +322,7 @@
         >> TAP_TO_INITIALIZE <<
     </div>
     <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V2.1 // FIXES_APPLIED
+        MOBILE_CORE_V2.0 // SOUL_RESTORED
     </div>
 </div>
 
@@ -353,42 +374,42 @@
     <div id="core1-menu" class="hidden">
         <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color);">> CORE_1 // MODULES:</p>
         <div class="menu-grid">
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Hardware', 'A+ CORE 1')">[A] HARDWARE_CORE</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Networking', 'A+ CORE 1')">[B] NETWORKING</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Mobile', 'A+ CORE 1')">[C] MOBILE</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Cloud', 'A+ CORE 1')">[D] CLOUD_OPS</button>
-            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE1', 'A+ EXAM SIM')">[X] EXAM_SIMULATION</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Hardware')">[A] HARDWARE_CORE</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Networking')">[B] NETWORKING</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Mobile')">[C] MOBILE</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Cloud')">[D] CLOUD_OPS</button>
+            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE1')">[X] EXAM_SIMULATION</button>
             <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
         </div>
     </div>
     
     <div id="core2-menu" class="hidden">
         <div class="menu-grid">
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'OS', 'A+ CORE 2')">[A] OS_CONCEPTS</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Security', 'A+ CORE 2')">[B] SECURITY</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Software', 'A+ CORE 2')">[C] SOFTWARE</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Ops', 'A+ CORE 2')">[D] OPS_PROCEDURES</button>
-            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE2', 'A+ EXAM SIM')">[X] EXAM_SIMULATION</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'OS')">[A] OS_CONCEPTS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Security')">[B] SECURITY</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Software')">[C] SOFTWARE</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Ops')">[D] OPS_PROCEDURES</button>
+            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE2')">[X] EXAM_SIMULATION</button>
             <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK </button>
         </div>
     </div>
     <div id="net-menu" class="hidden">
         <div class="menu-grid">
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Fundamentals', 'NETWORK+')">[A] FUNDAMENTALS</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Implement', 'NETWORK+')">[B] IMPLEMENTATION</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Ops', 'NETWORK+')">[C] OPERATIONS</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Security', 'NETWORK+')">[D] SECURITY</button>
-            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('NET', 'NET+ EXAM SIM')">[X] EXAM_SIMULATION</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Fundamentals')">[A] FUNDAMENTALS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Implement')">[B] IMPLEMENTATION</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Ops')">[C] OPERATIONS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Security')">[D] SECURITY</button>
+            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('NET')">[X] EXAM_SIMULATION</button>
             <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK </button>
         </div>
     </div>
     <div id="sec-menu" class="hidden">
         <div class="menu-grid">
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Attacks', 'SECURITY+')">[A] THREATS_ATTACKS</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Arch', 'SECURITY+')">[B] ARCHITECTURE</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Implement', 'SECURITY+')">[C] IMPLEMENTATION</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Gov', 'SECURITY+')">[D] GOVERNANCE</button>
-            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('SEC', 'SEC+ EXAM SIM')">[X] EXAM_SIMULATION</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Attacks')">[A] THREATS_ATTACKS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Arch')">[B] ARCHITECTURE</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Implement')">[C] IMPLEMENTATION</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Gov')">[D] GOVERNANCE</button>
+            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('SEC')">[X] EXAM_SIMULATION</button>
             <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK </button>
         </div>
     </div>
@@ -427,7 +448,7 @@
 
 <script>
     /* ========================================================================= */
-    /* AUDIO ENGINE                                                              */
+    /* SECTION: AUDIO ENGINE (ORIGINAL RESTORED)                                 */
     /* ========================================================================= */
     const AudioEngine = {
         ctx: null, masterGain: null, delayNode: null, isPlaying: false, isMuted: false, 
@@ -486,7 +507,7 @@
     };
 
     /* ========================================================================= */
-    /* GAME LOGIC                                                                */
+    /* SECTION: VARS & HELPERS                                                   */
     /* ========================================================================= */
     let matchState = { selected: null, pairsFound: 0 };
     let qQueue = []; let currentScore = 0; window.integrity = 100;
@@ -504,7 +525,7 @@
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
 
     /* ========================================================================= */
-    /* VISUAL EFFECTS                                                            */
+    /* SECTION: VISUAL EFFECTS (RESTORED ALL)                                    */
     /* ========================================================================= */
     function spawnScanline() {
         if(isDead) return;
@@ -517,19 +538,19 @@
     }
     spawnScanline();
 
-    // ENHANCED GLITCH LOOP
+    // GLITCH LOOP
     function triggerRandomGlitch() {
         if(isDead) return;
-        // Increased probability and frequency
-        if(Math.random() < 0.2) {
+        const chaos = 1 - (integrity / 100);
+        if(Math.random() < 0.05 + (chaos * 0.5)) {
             const targets = document.querySelectorAll('.btn, .question-box, h1');
             if(targets.length > 0) {
                 const target = targets[Math.floor(Math.random()*targets.length)];
                 target.classList.add('random-glitch-active');
-                setTimeout(() => target.classList.remove('random-glitch-active'), 300);
+                setTimeout(() => target.classList.remove('random-glitch-active'), 200);
             }
         }
-        setTimeout(triggerRandomGlitch, 400 + (Math.random() * 1000));
+        setTimeout(triggerRandomGlitch, 200 + (integrity * 5));
     }
     
     function spawnHexDump() {
@@ -543,12 +564,13 @@
         setTimeout(spawnHexDump, Math.random() * 3000 + 2000);
     }
     
-    // MATRIX RAIN
+    // RESTORED: Persistent Matrix Rain
     const canvas = document.getElementById('matrix-canvas'); const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     const fontSize = 14; const columns = Math.floor(canvas.width / fontSize); const drops = Array(columns).fill(1); 
     const baseChars = "01010x<>!@#{}[]ZEUS"; 
     function drawRain() {
+        // Reduced frequency slightly for mobile perf, but preserved look
         if(Math.random() > 0.5) { requestAnimationFrame(drawRain); return; } 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--term-color'); 
@@ -576,7 +598,7 @@
             }
             element.innerText = txt;
             charCount++;
-            if(charCount % 2 === 0) AudioEngine.playSFX('type');
+            if(charCount % 2 === 0) AudioEngine.playSFX('type'); // RESTORED TYPING SOUNDS
             requestAnimationFrame(update);
         }
         update();
@@ -629,7 +651,7 @@
     }
 
     /* ========================================================================= */
-    /* SYSTEM LOGIC                                                              */
+    /* SECTION: SYSTEM LOGIC                                                     */
     /* ========================================================================= */
     function bootSystem() {
         document.getElementById('start-overlay').style.display = 'none';
@@ -641,15 +663,12 @@
         spawnHexDump(); triggerRandomGlitch();
     }
 
-    // UPDATED: HEADER NAME CHANGE
-    function updateHeader(titleName) {
+    function goToSubMenu(type, titleName) {
+        // Change header name
         const header = document.getElementById('main-header');
         header.innerHTML = `SYSTEM <span style="font-size:0.6em; color:#fff;">${titleName || 'ROOT'}</span>`;
         header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
-    }
 
-    function goToSubMenu(type, titleName) {
-        updateHeader(titleName);
         document.getElementById('root-menu').classList.add('hidden');
         document.getElementById(type + '-menu').classList.remove('hidden');
         const target = document.getElementById(type + '-menu');
@@ -658,21 +677,19 @@
     }
 
     function goToRoot() {
-        updateHeader('ROOT');
+        document.getElementById('main-header').innerHTML = 'SYSTEM <span style="font-size:0.6em; color:#fff;">ROOT</span>';
         document.querySelectorAll('[id$="-menu"]').forEach(m => m.classList.add('hidden'));
         document.getElementById('root-menu').classList.remove('hidden');
     }
     
-    function transitionToQuiz(certTag, moduleTag, headerName) {
-        updateHeader(headerName);
+    function transitionToQuiz(certTag, moduleTag) {
         qQueue = fetchQuestions([certTag, moduleTag]);
         if(qQueue.length === 0) { alert("NO DATA"); return; }
         for (let i = qQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; }
         startQuiz();
     }
     
-    function startExam(certTag, headerName) {
-        updateHeader(headerName);
+    function startExam(certTag) {
         qQueue = fetchQuestions([certTag]).slice(0, 90);
         startQuiz();
     }
@@ -689,6 +706,7 @@
         updateSystemState();
     }
 
+    // --- RESTORED: INTEGRITY EFFECTS ---
     function updateSystemState() {
         if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
         
@@ -698,6 +716,7 @@
 
         const root = document.documentElement; 
         
+        // RESTORED HSL COLOR MATH
         let hue, sat, light;
         if(integrity > 50) {
              hue = 140 + ((integrity - 50) * 0.4); 
@@ -710,9 +729,10 @@
         root.style.setProperty('--term-color', newColor);
         root.style.setProperty('--glow-color', glowColor);
         
+        // Edge Pulse & Shake
         const panicLevel = (100 - integrity) / 100;
         root.style.setProperty('--edge-opacity', panicLevel * 0.8);
-        root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px');
+        root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px'); // Reduced shake by 50%
 
         const termWindow = document.getElementById('term-win');
         if(integrity < 30) {
@@ -790,8 +810,11 @@
                 prev.classList.add('matched'); el.classList.add('matched');
                 AudioEngine.playSFX('click'); matchState.pairsFound++; matchState.selected = null;
             } else {
+                // WRONG MATCH LOGIC (-1 penalty)
                 prev.classList.remove('selected'); el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'), 400);
                 AudioEngine.playSFX('error'); matchState.selected = null; integrity-=1; updateSystemState(); 
+                
+                // Random Error Message
                 const errs = ["SEG_FAULT", "NaN", "0x00DEAD", "NULL_REF", "BIT_FLIP"];
                 showFloatText(errs[Math.floor(Math.random()*errs.length)], el, 'red');
             }
@@ -817,6 +840,8 @@
         } else {
             btn.classList.add('wrong'); integrity -= 15;
             AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
+            
+            // DAMAGE SHOCK EFFECT
             const wrap = document.getElementById('integrity-wrap');
             wrap.classList.remove('dmg-shock'); void wrap.offsetWidth; wrap.classList.add('dmg-shock');
         }
@@ -837,17 +862,18 @@
         setTimeout(() => floatEl.remove(), 2000);
     }
     
-    // UPDATED: Kaspa Popup (Fixed Mobile Width/Position)
+    // RESTORED: Secure Channel Modal
     function showCrypto() {
         AudioEngine.playSFX('success');
         const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq"; 
         
         const popup = document.createElement('div');
-        popup.style.cssText = "position:fixed; top:20%; left:5%; width:90vw; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:15px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px); animation: turnOn 0.3s forwards;";
+        // Fixed positioning and z-index for mobile
+        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px); animation: turnOn 0.3s forwards;";
         
         popup.innerHTML = `
-            <h2 style="color:#70c7ba; margin:0 0 10px 0; font-size:1.6rem; font-family:'VT323'; text-shadow:0 0 5px #70c7ba;">>> SECURE CHANNEL <<</h2>
-            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-size:0.8rem; font-family:monospace;">${walletAddress}</div>
+            <h2 style="color:#70c7ba; margin:0 0 10px 0; font-size:1.8rem; font-family:'VT323'; text-shadow:0 0 5px #70c7ba;">>> SECURE CHANNEL <<</h2>
+            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-size:0.9rem; font-family:monospace;">${walletAddress}</div>
             <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
             <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
         `;
@@ -864,6 +890,7 @@
         };
     }
 
+    // RESTORED: Percentage Calculation
     function finish() {
         document.getElementById('quiz-ui').classList.add('hidden');
         document.getElementById('results-ui').classList.remove('hidden');
