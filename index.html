@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_MOBILE_FINAL_V3</title>
+    <title>SYSTEM_ROOT_FINAL_RESTORED_V2</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
@@ -16,7 +16,7 @@
             
             --edge-opacity: 0; 
             --shake-amp: 0px; 
-            --glitch-offset: 2px; /* Increases as health drops */
+            --glitch-amp: 1px;
             
             --sway-speed: 5s; 
         }
@@ -56,7 +56,7 @@
 
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
         
-        /* Rain Opacity */
+        /* Rain Opacity Increased */
         #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.6; }
         
         .retro-grid {
@@ -68,13 +68,11 @@
             animation: grid-move 10s linear infinite;
         }
 
-        /* Panic Pulse - Fixed Visibility */
         #panic-pulse {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 850;
             box-shadow: inset 0 0 150px #ff0000; 
             opacity: var(--edge-opacity); 
-            mix-blend-mode: normal; /* Changed from overlay for better visibility */
-            transition: opacity 0.5s ease;
+            mix-blend-mode: overlay;
             animation: pulse-breath-erratic 2s infinite; 
         }
 
@@ -82,6 +80,7 @@
         .terminal-window {
             width: 100%; height: 100%;
             border: none;
+            /* INCREASED TRANSPARENCY FOR RAIN VISIBILITY */
             background: rgba(0, 5, 5, 0.40); 
             backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
             padding: 10px;
@@ -135,20 +134,13 @@
         .integrity-fill { 
             height: 100%; width: 100%; 
             box-shadow: 0 0 15px var(--term-color); 
-            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.5s ease; /* Smoother color shift */
-            background: var(--term-color);
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.2s ease;
+            background: repeating-linear-gradient(90deg, var(--term-color), var(--term-color) 4px, transparent 4px, transparent 6px);
             animation: health-pulse 1s infinite alternate;
         }
         .dmg-shock { animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
 
-        /* TEMP GAUGE SPECIAL FX */
-        @keyframes critical-flash {
-            0% { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
-            50% { background: #ffffff; box-shadow: 0 0 30px #ffffff, -2px 0 blue, 2px 0 red; }
-            100% { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
-        }
-        .temp-critical-active { animation: critical-flash 0.15s infinite !important; }
-
+        /* THEMED AUDIO BUTTON */
         .audio-btn { 
             font-size: 0.8rem; background: rgba(0,0,0,0.5); 
             border: 1px solid var(--term-color); color: inherit; 
@@ -177,7 +169,6 @@
         }
         .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.4s ease, transform 0.4s ease; }
         
-        /* HOVER / ACTIVE STATE WITH DYNAMIC GLITCH OFFSET */
         .btn:active { 
             background: #fff; color: #000; 
             box-shadow: 0 0 30px #fff; border-color: #fff; 
@@ -238,13 +229,6 @@
         .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 50px red !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
 
         /* --- PBQ --- */
-        #pbq-submit-btn {
-            background: var(--term-color); 
-            color: #fff !important; /* TEXT WHITE */
-            text-shadow: 0 0 5px #fff;
-            font-weight: bold; margin-top: 10px;
-        }
-
         .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
         .cmd-input-line { display: flex; align-items: center; background: rgba(0,0,0,0.8); border: 1px solid var(--term-color); padding: 10px; font-size: 1.3rem; }
         #cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
@@ -261,29 +245,14 @@
         @keyframes stress-shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } }
         @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
         @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
-        
-        /* Dynamic Glitch Offset */
-        @keyframes rgb-split-hover { 
-            0% { text-shadow: calc(var(--glitch-offset) * -1) 0 red, var(--glitch-offset) 0 blue; transform: translate(0,0); } 
-            25% { text-shadow: var(--glitch-offset) 0 red, calc(var(--glitch-offset) * -1) 0 blue; transform: translate(-2px, 1px); } 
-            50% { text-shadow: 0 calc(var(--glitch-offset) * -1) red, 0 var(--glitch-offset) blue; transform: translate(2px, -1px); } 
-            100% { text-shadow: calc(var(--glitch-offset) * -1) 0 red, var(--glitch-offset) 0 blue; transform: translate(0,0); } 
-        }
-        
+        @keyframes rgb-split-hover { 0% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 25% { text-shadow: 2px 0 red, -2px 0 blue; transform: translate(-2px, 1px); } 50% { text-shadow: 0 -2px red, 0 2px blue; transform: translate(2px, -1px); } 100% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
         @keyframes damage-flash { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.15); filter: brightness(5) hue-rotate(180deg); } 100% { transform: scale(1); filter: brightness(1); } }
         @keyframes intense-pulse { 0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); } 100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); } }
         @keyframes label-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #fff; text-shadow: 0 0 2px #fff; } }
         @keyframes fail-entry { 0% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        
-        /* MORE INTENSE FAIL GLITCH */
-        @keyframes vertical-rgb-split { 
-            0% { text-shadow: 0 -4px #ff0000, 0 4px #00ffff; transform: translate(0,0); } 
-            25% { text-shadow: 4px -2px #ff0000, -4px 2px #00ffff; transform: translate(2px, 0); }
-            50% { text-shadow: -4px 0 #ff0000, 4px 0 #00ffff; transform: translate(-2px, 1px); }
-            100% { text-shadow: 0 -4px #ff0000, 0 4px #00ffff; transform: translate(0,0); } 
-        }
+        @keyframes vertical-rgb-split { 0% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } 100% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes pulse-breath-erratic { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.4); } 100% { opacity: var(--edge-opacity); } }
         @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 100px #fff; } 100% { transform: scale(1); } }
@@ -309,12 +278,9 @@
             z-index: 2000; background: rgba(5, 0, 0, 0.95); 
             flex-direction: column; justify-content: center; align-items: center; 
             opacity: 0; pointer-events: none; padding: 20px; overflow: hidden;
-            /* Added background glitch */
-            animation: intense-pulse 0.1s infinite;
         }
         .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: fail-entry 0.3s ease-out forwards; color: #ccffff; }
-        .fail-text { font-size: 2.5rem; word-break: break-word; color:#fff; animation: vertical-rgb-split 0.08s infinite; } /* FASTER GLITCH */
-
+        .fail-text { font-size: 4rem; word-break: break-word; color:#fff; animation: vertical-rgb-split 0.15s infinite; }
         .hidden { display: none !important; }
 
     </style>
@@ -335,7 +301,7 @@
         >> TAP_TO_INITIALIZE <<
     </div>
     <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V3.0 // SOUL_RESTORED
+        MOBILE_CORE_V2.1 // FIXES_APPLIED
     </div>
 </div>
 
@@ -368,7 +334,7 @@
                 </div>
             </div>
             <div style="text-align: right;">
-                 <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">STREAK: 0</div>
+                 <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">PTS: 0</div>
                  <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO:ON]</button>
             </div>
         </div>
@@ -440,7 +406,7 @@
         <div class="options-list" id="opts-list"></div>
 
         <div id="pbq-area" class="pbq-wrapper"></div>
-        <button id="pbq-submit-btn" class="btn" onclick="submitPBQ()" style="display:none; background: var(--term-color);">[ EXECUTE ]</button>
+        <button id="pbq-submit-btn" class="btn" onclick="submitPBQ()" style="display:none; background: var(--term-color); color:#000; font-weight:bold; margin-top:10px;">[ EXECUTE_COMMAND ]</button>
         
         <button class="nav-btn hidden" id="next-btn" onclick="nextSeq()">>> NEXT_PACKET >></button>
     </div>
@@ -455,7 +421,7 @@
     <div id="fail-ui">
         <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
         <p style="font-size: 1.5rem; color: #ccffff;">> ALL_IS_LOST</p>
-        <button class="nav-btn" style="background: red; border-color: red; color:#fff !important; position: relative; margin-top:20px;" onclick="AudioEngine.playMenuHover(); location.reload()">>> EMERGENCY RESTART</button>
+        <button class="nav-btn" style="background: red; border-color: red; position: relative; margin-top:20px;" onclick="AudioEngine.playMenuHover(); location.reload()">>> EMERGENCY RESTART</button>
     </div>
 </div>
 
@@ -523,7 +489,7 @@
     /* GAME LOGIC                                                                */
     /* ========================================================================= */
     let matchState = { selected: null, pairsFound: 0 };
-    let qQueue = []; let currentStreak = 0; window.integrity = 100;
+    let qQueue = []; let currentScore = 0; window.integrity = 100;
     let explainTimer = null; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
     let hudInterval = null; let sessionTime = 5400; let tempLevel = 0; const TEMP_MAX = 60;
     
@@ -651,22 +617,14 @@
         const pct = tempLevel / TEMP_MAX;
         bar.style.width = `${pct * 100}%`;
 
-        // Smooth transition logic with CSS + classes for critical
         if (tempLevel >= 50) {
-            label.innerText = "!! OVERHEAT !!"; label.style.color = "#ff0000"; label.classList.add('label-crit'); 
-            bar.classList.add('temp-critical-active'); // RGB SPLIT STROBE
+            label.innerText = "!! OVERHEAT !!"; label.style.color = "#ff0000"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "red";
         } else if (tempLevel >= 40) {
-            label.innerText = ">> DANGER <<"; label.style.color = "#ff4400"; label.classList.add('label-crit'); 
-            bar.classList.remove('temp-critical-active');
-            bar.style.background = "#ff4400";
+            label.innerText = ">> DANGER <<"; label.style.color = "#ff4400"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "orange";
         } else if (tempLevel >= 30) {
-            label.innerText = ">> WARM <<"; label.style.color = "#ffaa00"; 
-            bar.classList.remove('temp-critical-active');
-            bar.style.background = "#ffaa00";
+            label.innerText = ">> WARM <<"; label.style.color = "#ffaa00"; bar.classList.remove('temp-pulse-active'); bar.style.background = "yellow";
         } else {
-            label.innerText = "TEMP"; label.style.color = "#ffffff"; label.classList.remove('label-crit'); 
-            bar.classList.remove('temp-critical-active');
-            bar.style.background = "#0affba";
+            label.innerText = "TEMP"; label.style.color = "#ffffff"; label.classList.remove('label-crit'); bar.classList.remove('temp-pulse-active'); bar.style.background = "#0affba";
         }
     }
 
@@ -683,6 +641,7 @@
         spawnHexDump(); triggerRandomGlitch();
     }
 
+    // UPDATED: HEADER NAME CHANGE
     function updateHeader(titleName) {
         const header = document.getElementById('main-header');
         header.innerHTML = `SYSTEM <span style="font-size:0.6em; color:#fff;">${titleName || 'ROOT'}</span>`;
@@ -725,7 +684,7 @@
     }
     
     function resetGame() {
-        currentStreak = 0; integrity = 100; tempLevel = 0; isDead = false; questionsCorrect = 0; questionsAttempted = 0;
+        currentScore = 0; integrity = 100; tempLevel = 0; isDead = false; questionsCorrect = 0; questionsAttempted = 0;
         document.getElementById('fail-ui').classList.remove('fail-visible'); 
         updateSystemState();
     }
@@ -735,26 +694,24 @@
         
         const bar = document.getElementById('integrity-bar');
         bar.style.width = `${integrity}%`;
-        document.getElementById('score-ui').innerText = `STREAK: ${currentStreak}`;
+        document.getElementById('score-ui').innerText = `PTS: ${currentScore}`;
 
         const root = document.documentElement; 
         
-        // HSL Transition for colors
-        let hue;
-        if(integrity > 50) { hue = 140 + ((integrity - 50) * 0.4); } 
-        else { hue = integrity * 1.2; }
-        
+        let hue, sat, light;
+        if(integrity > 50) {
+             hue = 140 + ((integrity - 50) * 0.4); 
+        } else {
+             hue = integrity * 1.2; 
+        }
         const newColor = `hsl(${hue}, 100%, 50%)`;
         const glowColor = `hsla(${hue}, 100%, 50%, 0.85)`;
         
         root.style.setProperty('--term-color', newColor);
         root.style.setProperty('--glow-color', glowColor);
         
-        // Integrity based visual chaos
         const panicLevel = (100 - integrity) / 100;
-        // Increase glitch offset based on panic
-        root.style.setProperty('--glitch-offset', (2 + (panicLevel * 8)) + 'px');
-        root.style.setProperty('--edge-opacity', panicLevel * 1.0); // Boosted visibility
+        root.style.setProperty('--edge-opacity', panicLevel * 0.8);
         root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px');
 
         const termWindow = document.getElementById('term-win');
@@ -855,10 +812,10 @@
         
         if (isCorrect) {
             questionsCorrect++;
-            btn.classList.add('correct'); currentStreak++; integrity += 5;
+            btn.classList.add('correct'); currentScore++; integrity += 5;
             AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, '#0f0');
         } else {
-            btn.classList.add('wrong'); integrity -= 15; currentStreak = 0;
+            btn.classList.add('wrong'); integrity -= 15;
             AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
             const wrap = document.getElementById('integrity-wrap');
             wrap.classList.remove('dmg-shock'); void wrap.offsetWidth; wrap.classList.add('dmg-shock');
@@ -870,6 +827,15 @@
     }
 
     function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
+    
+    function showFloatText(text, element, color) {
+        const floatEl = document.createElement('div'); floatEl.className = 'float-text'; floatEl.innerText = text;
+        floatEl.style.color = color; floatEl.style.textShadow = `0 0 10px ${color}`;
+        document.body.appendChild(floatEl); 
+        const rect = element.getBoundingClientRect();
+        floatEl.style.left = (rect.left + rect.width/2 - 20) + 'px'; floatEl.style.top = rect.top + 'px';
+        setTimeout(() => floatEl.remove(), 2000);
+    }
     
     // UPDATED: Kaspa Popup (Fixed Mobile Width/Position)
     function showCrypto() {
