@@ -574,13 +574,12 @@
     
     // --- DATA ---
     const MASTER_DATABASE = [
-        /* --- CORE 1: HARDWARE --- */
         { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
         { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity." },
         { tags: ["CORE1", "Hardware"], question: "A projector's image is flickering. What is the most likely cause?", options: ["Bulb life ending", "Loose cable", "Keystone setting", "Incompatible resolution"], answer: 1, explanation: "Flickering is often caused by a loose VGA or HDMI cable connection. A dying bulb usually dims." },
-
-        
-        /* --- PBQ ADDITIONS (CORE 1) --- */
+        { tags: ["CORE1", "Hardware"], type: "match", question: "Match the cable standard to its maximum transfer speed.", pairs: [ { left: "Cat 5e", right: "1 Gbps" }, { left: "Cat 6a", right: "10 Gbps" }, { left: "USB 2.0", right: "480 Mbps" }, { left: "Thunderbolt 3", right: "40 Gbps" } ], explanation: "Cat5e is limited to 1Gbps. Cat6a supports 10Gbps up to 100m. USB 2.0 is 480Mbps." },
+        { tags: ["CORE1", "Troubleshooting"], type: "terminal", question: "A user suspects a specific application is causing the CPU to overheat. Enter the command to view running processes.", validCommands: ["tasklist", "tasklist | more"], hint: "Lists all tasks.", explanation: "The 'tasklist' command displays currently running processes." },
+                /* --- PBQ ADDITIONS (CORE 1) --- */
         { 
             tags: ["CORE1", "Hardware"], 
             type: "match",
@@ -11709,7 +11708,16 @@
 
     ];
 
-    
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ];
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
 
     /* ========================================================================= */
