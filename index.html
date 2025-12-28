@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_V6_FINAL_TWEAKS</title>
+    <title>SYSTEM_ROOT_V7_FINAL</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Dynamic Variables */
+            /* Core Colors */
             --term-color: #0affba; 
             --term-hue: 150; 
-            --edge-opacity: 0; 
             
-            /* Animation Controls */
-            --pulse-speed: 3s;
-            --drift-amp: 3px;
-            --drift-speed: 4s;
+            /* Dynamic Physics (Controlled by JS) */
+            --edge-opacity: 0; 
+            --drift-amp: 2px;       /* Amplitude of float */
+            --drift-speed: 5s;      /* Speed of float */
+            --rgb-offset: 1px;      /* RGB split distance */
+            --shake-intensity: 0px; /* Screen shake */
+            --glow-str: 5px;        /* Text shadow bloom */
         }
 
         /* --- GLOBAL RESETS --- */
@@ -31,8 +33,10 @@
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            text-shadow: 0 0 5px var(--term-color); 
-            transition: color 0.4s ease, text-shadow 0.4s ease;
+            
+            /* Dynamic Text Glow/Shadow */
+            text-shadow: 0 0 var(--glow-str) var(--term-color); 
+            transition: color 0.4s ease, text-shadow 0.2s ease;
         }
 
         /* --- BACKGROUND LAYERS --- */
@@ -45,7 +49,7 @@
         
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
         
-        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.5; }
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.6; }
         
         .retro-grid {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3;
@@ -56,33 +60,30 @@
             animation: grid-move 10s linear infinite;
         }
 
-        /* --- VIGNETTE GLOW (Reduced Intensity) --- */
+        /* --- VIGNETTE GLOW (Matches Integrity) --- */
         #vignette-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 800;
-            /* Reduced spread from 150px to 80px */
-            box-shadow: inset 0 0 80px 10px var(--term-color);
+            /* Matches system color, opacity controlled by damage */
+            box-shadow: inset 0 0 80px 20px var(--term-color);
             opacity: var(--edge-opacity); 
             mix-blend-mode: hard-light;
-            animation: panic-breath var(--pulse-speed) ease-in-out infinite;
+            animation: panic-breath 2s ease-in-out infinite;
             transition: box-shadow 0.5s ease;
         }
-        
-        @keyframes panic-breath {
-            0% { transform: scale(1); opacity: var(--edge-opacity); }
-            50% { transform: scale(1.02); opacity: calc(var(--edge-opacity) * 0.7); }
-            100% { transform: scale(1); opacity: var(--edge-opacity); }
-        }
+        @keyframes panic-breath { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.7); } 100% { opacity: var(--edge-opacity); } }
 
-        /* --- TERMINAL WINDOW (Reduced Blur) --- */
+        /* --- TERMINAL WINDOW (High Transparency) --- */
         .terminal-window {
             width: 100%; height: 100%; border: none;
-            background: rgba(0, 10, 10, 0.35); 
-            /* Reduced blur from 4px to 2px */
+            /* VERY TRANSPARENT per request */
+            background: rgba(0, 5, 5, 0.15); 
             backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
             padding: 10px;
             display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
+            /* Container Shake on damage */
+            transform: translate(var(--shake-intensity), var(--shake-intensity));
         }
         .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 
@@ -100,10 +101,10 @@
         .header-controls { display: flex; align-items: center; gap: 8px; }
 
         .sys-btn {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.4); /* More transp */
             font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
             cursor: pointer; padding: 4px 8px;
-            border: 1px solid; box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+            border: 1px solid; box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
             transition: all 0.2s ease; text-transform: uppercase;
         }
         .sys-btn:active { transform: translate(1px, 1px); background: var(--term-color); color: #000; }
@@ -120,12 +121,10 @@
         /* --- BARS LAYOUT --- */
         .bars-container { display: flex; flex-direction: column; width: 100%; gap: 6px; }
         .bar-row { display: flex; align-items: center; width: 100%; gap: 10px; }
-        .bar-label { 
-            min-width: 110px; font-size: 0.9rem; font-weight: bold; text-align: right; letter-spacing: 1px;
-        }
+        .bar-label { min-width: 110px; font-size: 0.9rem; font-weight: bold; text-align: right; letter-spacing: 1px; }
         
         .bar-track {
-            flex-grow: 1; height: 12px; background: rgba(0,0,0,0.4);
+            flex-grow: 1; height: 12px; background: rgba(0,0,0,0.3);
             border: 1px solid var(--term-color); position: relative;
             transition: border-color 0.5s ease;
         }
@@ -134,81 +133,66 @@
             height: 100%; width: 100%; 
             background: var(--term-color);
             box-shadow: 0 0 10px var(--term-color);
-            opacity: 0.85; /* 15% Transparency */
+            opacity: 0.85; 
             transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.5s linear, box-shadow 0.5s linear;
         }
         
         .temp-fill {
-            height: 100%; width: 0%; background: #0affba; opacity: 0.85; /* 15% Transparency */
+            height: 100%; width: 0%; background: #0affba; opacity: 0.85; 
             transition: width 1s linear;
         }
         
-        /* Overheat Flash Animation */
         .temp-flash-bar { animation: white-flash 0.15s infinite; }
         .label-crit { animation: text-flash 0.2s infinite; }
         
         @keyframes white-flash { 0% { background: #fff; box-shadow: 0 0 20px #fff; } 50% { background: #ff0000; box-shadow: 0 0 5px red; } 100% { background: #fff; box-shadow: 0 0 20px #fff; } }
         @keyframes text-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px red; } 50% { color: #fff; text-shadow: 0 0 10px #fff; } }
 
-        /* COOL DAMAGE EFFECT */
-        @keyframes bar-shock {
-            0% { filter: invert(0); transform: translate(0); }
-            10% { filter: invert(1); transform: translate(-2px, 1px); }
-            20% { filter: invert(0); transform: translate(2px, -1px); background: #fff; }
-            100% { filter: invert(0); transform: translate(0); }
-        }
-        .bar-damaged { animation: bar-shock 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important; }
-
-        /* --- BUTTONS & ANIMATION --- */
-        /* Base Float Animation */
-        .btn, .option-btn {
-            animation: floating-glow var(--drift-speed) ease-in-out infinite alternate;
+        /* --- COMPLEX FLOAT ANIMATION (No Left Skew) --- */
+        /* Moves in a figure-8 / circular pattern centered on 0,0 */
+        @keyframes float-complex {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(var(--drift-amp), calc(var(--drift-amp) * 0.5)); }
+            50% { transform: translate(0, var(--drift-amp)); }
+            75% { transform: translate(calc(var(--drift-amp) * -1), calc(var(--drift-amp) * 0.5)); }
+            100% { transform: translate(0, 0); }
         }
 
-        @keyframes floating-glow {
-            0% { transform: translate(0, 0); box-shadow: 4px 4px 0px rgba(0,0,0,0.5), 0 0 2px var(--term-color); }
-            100% { transform: translate(calc(var(--drift-amp) * -1), var(--drift-amp)); box-shadow: 4px 4px 0px rgba(0,0,0,0.5), 0 0 10px var(--term-color); }
-        }
-
-        /* Erratic Active State (Hover/Click) */
-        @keyframes glitch-shake {
-            0% { transform: translate(0); }
-            25% { transform: translate(-3px, 3px) skewX(5deg); }
-            50% { transform: translate(3px, -3px) skewX(-5deg); filter: brightness(2); }
-            75% { transform: translate(-1px, 1px); }
-            100% { transform: translate(0); }
-        }
-
-        .btn:active, .option-btn:active { 
-            animation: glitch-shake 0.2s infinite linear !important; 
-            background: #fff !important; color: #000 !important; 
-            box-shadow: 0 0 30px var(--term-color), 0 0 50px #fff !important; 
-            border-color: #fff !important; 
-        }
-
-        /* EXAM MODE BUTTON (Red/White) */
-        .btn.exam-mode {
-            border-color: #ff0000 !important;
-            color: #ffffff !important;
-            background: rgba(200, 0, 0, 0.25) !important;
-            text-shadow: 0 0 5px #ff0000;
-        }
-        .btn.exam-mode:active {
-            background: #ff0000 !important;
-            box-shadow: 0 0 50px #ff0000 !important;
-        }
-
-        /* --- MENUS --- */
+        /* --- BUTTONS --- */
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
+        
         .btn { 
-            background: rgba(0,0,0,0.4); border: 1px solid var(--term-color); 
+            background: rgba(0,0,0,0.25); /* More transparent */
+            border: 1px solid var(--term-color); 
             color: var(--term-color); font-family: 'VT323', monospace; 
             font-size: 1.4rem; padding: 12px 15px; cursor: pointer; text-align: left; 
             transition: opacity 0.4s ease; position: relative; overflow: hidden; 
             opacity: 0; 
+            /* Main chaotic movement */
+            animation: float-complex var(--drift-speed) ease-in-out infinite;
         }
         .btn.visible { opacity: 1 !important; }
-        
+
+        /* Erratic Active State */
+        @keyframes glitch-shake {
+            0% { transform: translate(0); }
+            25% { transform: translate(-3px, 3px); }
+            50% { transform: translate(3px, -3px); filter: brightness(2); }
+            75% { transform: translate(-1px, 1px); }
+            100% { transform: translate(0); }
+        }
+        .btn:active { 
+            animation: glitch-shake 0.2s infinite linear !important; 
+            background: #fff !important; color: #000 !important; 
+            box-shadow: 0 0 30px var(--term-color), 0 0 50px #fff !important; 
+        }
+
+        .btn.exam-mode {
+            border-color: #ff0000 !important; color: #ffffff !important;
+            background: rgba(200, 0, 0, 0.25) !important; text-shadow: 0 0 5px #ff0000;
+        }
+        .btn.exam-mode:active { background: #ff0000 !important; box-shadow: 0 0 50px #ff0000 !important; }
+
         .nav-btn { 
             position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px);
             font-weight: bold; text-align: center; 
@@ -218,7 +202,7 @@
         }
         .nav-btn:active { animation: glitch-shake 0.2s infinite; background: var(--term-color); color: #000; }
 
-        /* --- QUIZ --- */
+        /* --- QUIZ UI --- */
         .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; }
         .quiz-header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem; }
         
@@ -226,18 +210,27 @@
             font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; 
             background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
             border-left: 6px solid var(--term-color); padding: 10px; color: #ffffff !important;
-            /* Drifts opposite to buttons for parallax feel */
-            animation: floating-glow 6s ease-in-out infinite alternate-reverse; 
+            animation: float-complex 6s ease-in-out infinite reverse; 
         }
         #explanation-box { margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color); background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none; }
         .options-list { display: flex; flex-direction: column; gap: 10px; }
         
+        /* ANSWER SELECTION: 50% movement, Haze feel */
         .option-btn { 
-            background: rgba(0, 0, 0, 0.5); border: 2px solid var(--term-color); 
+            background: rgba(0, 0, 0, 0.4); border: 2px solid var(--term-color); 
             color: #ffffff !important; padding: 12px; 
             font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
             cursor: pointer; position: relative; 
+            /* Slower, smaller movement + Haze Pulse */
+            animation: float-complex 7s ease-in-out infinite, haze-pulse 3s ease-in-out infinite; 
+            transform-origin: center;
         }
+        
+        @keyframes haze-pulse {
+            0%, 100% { box-shadow: 0 0 2px rgba(255,255,255,0.1); }
+            50% { box-shadow: 0 0 15px rgba(var(--term-hue), 100%, 50%, 0.4); }
+        }
+
         .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; }
         .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; }
 
@@ -254,46 +247,70 @@
 
         /* --- ANIMATIONS --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
-        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 20% { clip-path: inset(85% 0 5% 0); transform: translate(5px, -2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
-        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 100% { transform: translate(0, 0); } }
-        @keyframes chaotic-rotate { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-2deg) scale(1.05); } 50% { transform: rotate(2deg) scale(0.95); } 75% { transform: rotate(-1deg) scale(1.02); } 100% { transform: rotate(0deg) scale(1); } }
+        @keyframes blink-slow { 0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--term-color); } 50% { opacity: 0.6; text-shadow: 0 0 2px var(--term-color); } }
 
-        /* Text Glitch Effect */
+        /* Text RGB Glitch Effect */
         .text-glitch-active {
             animation: text-skew 0.3s infinite linear;
             color: #fff !important;
-            text-shadow: 2px 0 #ff0000, -2px 0 #00ffff !important;
+            text-shadow: var(--rgb-offset) 0 #ff0000, calc(var(--rgb-offset) * -1) 0 #00ffff !important;
         }
         @keyframes text-skew {
             0% { transform: skew(0deg); } 20% { transform: skew(-10deg) translateX(-2px); } 40% { transform: skew(10deg) translateX(2px); } 60% { transform: skew(-5deg); } 100% { transform: skew(0deg); }
         }
 
-        /* Helpers */
-        .logo-glitch { animation: slice-glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite !important; color: #fff !important; }
-        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--term-color); }
-        .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
-
         /* --- SCREENS --- */
         #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         
+        /* Opening Screen Enhancements */
+        .title-glow {
+            font-size: 3rem; color: #fff; letter-spacing: 5px; margin-bottom: 50px;
+            /* Less flash, more glow/drift */
+            text-shadow: 0 0 10px var(--term-color), 0 0 20px var(--term-color);
+            animation: float-complex 6s ease-in-out infinite; 
+        }
+
+        /* FAIL SCREEN (RESTORED & ENHANCED) */
         #fail-ui { 
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; 
             z-index: 2000; background: #000; 
             flex-direction: column; justify-content: center; align-items: center; 
             opacity: 0; pointer-events: none; padding: 20px; overflow: hidden;
             border: 5px solid red; box-shadow: inset 0 0 50px red;
-            animation: stress-shake 0.4s infinite; /* Whole screen jitters */
         }
         .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: turnOn 0.3s ease-out forwards; }
-        .fail-text { font-size: 4rem; word-break: break-word; color:red; text-shadow: 2px 2px 0px #fff; animation: text-skew 0.2s infinite; margin-bottom: 20px; }
-        .fail-dump { font-family: monospace; color: #ff5555; font-size: 0.8rem; text-align: left; width: 90%; height: 30%; overflow: hidden; opacity: 0.7; margin-bottom: 20px; border-top: 1px solid red; border-bottom: 1px solid red; padding: 10px; }
-        /* Fail button chaos */
-        #fail-ui .nav-btn { animation: chaotic-rotate 0.5s infinite linear; border-color: #fff; color: #fff; background: red; }
+        
+        /* Phosphorus/Ghostly Text */
+        .fail-text { 
+            font-size: 4rem; word-break: break-word; color:red; 
+            /* Phosphorus Burn Effect */
+            text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000;
+            animation: ghost-sway 4s ease-in-out infinite; 
+            margin-bottom: 10px;
+        }
+        
+        .fail-sub {
+            font-size: 2rem; color: #fff; text-transform: uppercase; letter-spacing: 3px;
+            text-shadow: 0 0 10px #fff;
+            animation: ghost-sway 5s ease-in-out infinite reverse;
+            margin-bottom: 30px;
+        }
 
+        @keyframes ghost-sway {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; }
+            50% { transform: translate(-5px, 2px) rotate(-1deg); opacity: 1; filter: blur(1px); }
+            100% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; }
+        }
+
+        .fail-dump { font-family: monospace; color: #ff5555; font-size: 0.8rem; text-align: left; width: 90%; height: 30%; overflow: hidden; opacity: 0.7; margin-bottom: 20px; border-top: 1px solid red; border-bottom: 1px solid red; padding: 10px; }
+        
         .hidden { display: none !important; }
+
+        /* Hex Dump Helper */
+        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--term-color); }
+        .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
     </style>
 </head>
@@ -306,14 +323,14 @@
 <div id="scan-container"></div> 
 
 <div id="start-overlay" onclick="bootSystem()">
-    <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 #ff0000, -4px 0 #00ffff;" class="logo-glitch">
+    <div class="title-glow">
         [ SYSTEM_ROOT ]
     </div>
-    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
+    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink-slow 3s infinite;">
         >> TAP_TO_INITIALIZE <<
     </div>
     <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V6.0 // CHAOS_EDITION
+        MOBILE_CORE_V7.0 // FINAL_RELEASE
     </div>
 </div>
 
@@ -430,10 +447,10 @@
     </div>
 
     <div id="fail-ui">
-        <h1 class="fail-text">KERNEL_PANIC</h1>
+        <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
+        <div class="fail-sub">>> ALL_IS_LOST <<</div>
         <div class="fail-dump" id="fail-dump-text"></div>
-        <p style="font-size: 1.5rem; color: #fff;">>> CRITICAL_FAILURE_DETECTED</p>
-        <button class="nav-btn" style="position: relative; margin-top:20px;" onclick="AudioEngine.playMenuHover(); location.reload()">[ FORCE_RESTART ]</button>
+        <button class="nav-btn" style="background: red; border-color: #fff; color: #fff; position: relative; margin-top:20px;" onclick="AudioEngine.playMenuHover(); location.reload()">[ FORCE_RESTART ]</button>
     </div>
 </div>
 
@@ -533,7 +550,7 @@
     }
     spawnScanline();
 
-    // Random Text Glitch
+    // Random Text Glitch (RGB Shifts increase with damage)
     function triggerRandomGlitch() {
         if(isDead) return;
         const damage = 100 - integrity;
@@ -629,7 +646,6 @@
         }, 1000);
     }
 
-    // Temp Text Logic & Flash
     function updateTempVisuals() {
         const bar = document.getElementById('temp-bar');
         const label = document.getElementById('temp-label');
@@ -715,7 +731,7 @@
         updateSystemState();
     }
 
-    // Updated Color Logic: Force Mint if > 90%
+    // UPDATED INTEGRITY PHYSICS (Erratic Behavior)
     function updateSystemState() {
         if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
         
@@ -725,29 +741,39 @@
 
         // Color Logic
         let hue;
-        if(integrity > 90) {
-             hue = 150; // Lock to Neon Mint
-        } else {
-             // Map 0-90 integrity to 0-140 hue
-             hue = Math.floor(integrity * 1.55); 
-        }
+        if(integrity > 90) hue = 150; // Lock to Neon Mint
+        else hue = Math.floor(integrity * 1.55); 
         
         const root = document.documentElement; 
         root.style.setProperty('--term-hue', hue);
         root.style.setProperty('--term-color', `hsl(${hue}, 100%, 50%)`);
         
-        // Edge Glow Opacity & Chaos Factors
-        const panicLevel = (100 - integrity) / 100; 
+        // Physics Calculation
+        const damage = 100 - integrity;
+        const panicLevel = damage / 100; // 0.0 to 1.0
         
-        root.style.setProperty('--edge-opacity', panicLevel * 0.5); // Reduced strength by 50%
+        // 1. Edge Glow
+        root.style.setProperty('--edge-opacity', panicLevel * 0.7); 
         
-        // Chaos
-        const newSpeed = Math.max(0.5, 4 - (panicLevel * 3.5)) + 's';
-        const newAmp = (3 + (panicLevel * 6)) + 'px'; 
-        
+        // 2. Drift (Gets wider and faster)
+        const newSpeed = Math.max(0.2, 5 - (panicLevel * 4)) + 's'; // 5s -> 1s
+        const newAmp = (2 + (panicLevel * 8)) + 'px'; // 2px -> 10px
         root.style.setProperty('--drift-speed', newSpeed);
         root.style.setProperty('--drift-amp', newAmp);
-        root.style.setProperty('--pulse-speed', Math.max(0.5, 3 - (panicLevel * 2)) + 's');
+
+        // 3. RGB Shift (Wider split)
+        const rgbOffset = (1 + (panicLevel * 4)) + 'px';
+        root.style.setProperty('--rgb-offset', rgbOffset);
+        
+        // 4. Screen Shake (Only at low health)
+        if(integrity < 50) {
+            root.style.setProperty('--shake-intensity', (panicLevel * 2) + 'px');
+        } else {
+            root.style.setProperty('--shake-intensity', '0px');
+        }
+        
+        // 5. Glow Strength
+        root.style.setProperty('--glow-str', (5 + (panicLevel * 10)) + 'px');
 
         if(integrity <= 0 && !isDead) triggerFailure();
     }
