@@ -106,29 +106,11 @@
         }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
         
-        /* RETRO CYBERPUNK LOGO STYLE */
+        /* RESTORED: Original Header Style */
         .h-left h1 { 
             margin: 0; font-size: 2.2rem; letter-spacing: 2px; line-height: 1;
+            text-shadow: 2px 0 var(--split-1), -2px 0 var(--split-2);
             font-weight: normal;
-            position: relative;
-            color: #fff;
-            text-shadow: 
-                2px 0 var(--term-color), 
-                -2px 0 var(--split-1),
-                0 0 10px var(--term-color);
-            animation: cyber-glitch-anim 3s infinite alternate-reverse;
-        }
-
-        @keyframes cyber-glitch-anim {
-            0% { text-shadow: 2px 0 var(--term-color), -2px 0 var(--split-1); transform: skew(0deg); }
-            20% { text-shadow: 2px 0 var(--term-color), -2px 0 var(--split-1); transform: skew(0deg); }
-            21% { text-shadow: -2px 0 #ff00de, 2px 0 #00ffff; transform: skew(-10deg); }
-            22% { text-shadow: 2px 0 var(--term-color), -2px 0 var(--split-1); transform: skew(0deg); }
-            50% { opacity: 1; }
-            51% { opacity: 0.8; }
-            52% { opacity: 1; }
-            80% { text-shadow: 0px 2px #ff0000, 0px -2px #0000ff; }
-            100% { text-shadow: 2px 0 var(--term-color), -2px 0 var(--split-1); }
         }
 
         /* Donation Buttons */
@@ -166,7 +148,7 @@
             animation: health-pulse 1s infinite alternate;
         }
         
-        /* UPDATED: Phosphorus Flash Damage Effect */
+        /* Phosphorus Flash Damage Effect */
         .dmg-shock { 
             animation: phosphorus-flash 0.5s ease-out; 
         }
@@ -179,16 +161,12 @@
             100% { filter: brightness(1); }
         }
 
-        /* Audio Toggle */
+        /* Audio Toggle - RESTORED ORIGINAL */
         .audio-btn { 
             font-size: 0.8rem; background: transparent; 
             border: 1px solid var(--term-color); color: inherit; padding: 2px 5px;
             cursor: pointer; position: relative; overflow: hidden;
             transition: 0.2s;
-        }
-        .audio-btn:hover {
-            background: rgba(255,255,255,0.2);
-            box-shadow: 0 0 10px var(--term-color);
         }
         .audio-btn:active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
 
@@ -211,6 +189,7 @@
         }
         .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.4s ease, transform 0.4s ease; }
         
+        /* RESTORED: RGB Split on Active */
         .btn:active { 
             background: #fff; color: #000; 
             box-shadow: 0 0 30px #fff; border-color: #fff; 
@@ -261,7 +240,7 @@
             font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
             cursor: pointer; position: relative; 
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-            /* NEW: Answer text glow */
+            /* Answer text glow (Retained) */
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px var(--term-color);
             animation: text-pulse-glow 3s infinite alternate;
         }
@@ -746,7 +725,7 @@
         // Change header name
         const header = document.getElementById('main-header');
         header.innerHTML = `SYSTEM <span style="font-size:0.6em; color:#fff;">${titleName || 'ROOT'}</span>`;
-        // header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
+        header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
 
         document.getElementById('root-menu').classList.add('hidden');
         document.getElementById(type + '-menu').classList.remove('hidden');
@@ -893,6 +872,10 @@
                 prev.classList.remove('selected'); el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'), 400);
                 AudioEngine.playSFX('error'); matchState.selected = null; integrity-=1; updateSystemState(); 
                 
+                // ADDED: Damage Shock Trigger for Mix/Match
+                const wrap = document.getElementById('integrity-wrap');
+                wrap.classList.remove('dmg-shock'); void wrap.offsetWidth; wrap.classList.add('dmg-shock');
+
                 // Random Error Message
                 const errs = ["SEG_FAULT", "NaN", "0x00DEAD", "NULL_REF", "BIT_FLIP"];
                 showFloatText(errs[Math.floor(Math.random()*errs.length)], el, 'red');
@@ -943,18 +926,17 @@
         setTimeout(() => floatEl.remove(), 2000);
     }
     
-    // RESTORED: Secure Channel Modal
+    // RESTORED: Secure Channel Modal (Original Version)
     function showCrypto() {
         AudioEngine.playSFX('success');
         const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq"; 
         
         const popup = document.createElement('div');
-        // Fixed positioning and z-index for mobile
-        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px); animation: turnOn 0.3s forwards;";
+        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:80%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3);";
         
         popup.innerHTML = `
-            <h2 style="color:#70c7ba; margin:0 0 10px 0; font-size:1.8rem; font-family:'VT323'; text-shadow:0 0 5px #70c7ba;">>> SECURE CHANNEL <<</h2>
-            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-size:0.9rem; font-family:monospace;">${walletAddress}</div>
+            <h2 style="color:#70c7ba; margin:0 0 10px 0;">>> SECURE CHANNEL <<</h2>
+            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all;">${walletAddress}</div>
             <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
             <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
         `;
