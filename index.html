@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_MOBILE_V2</title>
+    <title>SYSTEM_ROOT_MOBILE_FIXED</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
@@ -12,7 +12,7 @@
             --term-color: #0affba; 
             --split-1: #ff0000; 
             --split-2: #00ffff; 
-            /* [7] INCREASED GLOW to match original */
+            /* [7] INTENSE GLOW */
             --glow-color: rgba(10, 255, 186, 0.85);
             
             --edge-opacity: 0; 
@@ -30,6 +30,9 @@
             cursor: auto !important; 
         }
         
+        /* CRITICAL FIX: The missing class that broke the previous version */
+        .hidden { display: none !important; }
+
         body {
             background-color: #000000;
             margin: 0; padding: 0;
@@ -45,15 +48,15 @@
             box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
             
             animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
-            transition: color 0.2s ease, text-shadow 0.2s ease; 
         }
 
         /* --- BACKGROUND LAYERS --- */
         /* [4] Thematic Effects: Scanline */
         .scan-line {
-            position: fixed; left: 0; width: 100%;
+            position: fixed; left: 0; width: 100%; height: 5px;
             background: var(--term-color); opacity: 0.25; z-index: 600;
             pointer-events: none; box-shadow: 0 0 11px var(--term-color);
+            animation: scan-drop 3s linear infinite;
         }
         @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
 
@@ -89,7 +92,6 @@
             padding: 10px;
             display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
-            transition: border-color 0.2s ease, filter 0.2s ease; 
         }
         .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 
@@ -99,7 +101,6 @@
             padding-bottom: 5px; margin-bottom: 10px; 
             display: flex; flex-direction: column; gap: 5px;
             flex-shrink: 0; position: relative;
-            transition: border-color 0.2s ease;
         }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
         
@@ -134,7 +135,6 @@
         .integrity-container { 
             flex-grow: 1; height: 10px; border: 1px solid var(--term-color); 
             background: rgba(0,0,0,0.8); 
-            transition: border-color 0.2s ease;
         }
         .integrity-fill { 
             height: 100%; width: 100%; 
@@ -146,18 +146,12 @@
         
         /* [2] Temp Pulse Animation */
         .temp-pulse-active {
-            animation: intense-pulse 0.5s infinite alternate !important;
+            animation: intense-pulse 0.2s infinite alternate !important;
         }
         @keyframes intense-pulse {
             0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); }
             100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); }
         }
-        /* Overheat Label Flash */
-        @keyframes label-flash {
-            0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; }
-            50% { color: #fff; text-shadow: 0 0 2px #fff; }
-        }
-        .label-crit { animation: label-flash 0.3s infinite; }
 
         .dmg-shock { animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
 
@@ -172,7 +166,6 @@
             font-size: 0.8rem; background: transparent; 
             border: 1px solid var(--term-color); color: inherit; padding: 2px 5px;
             cursor: pointer; position: relative; overflow: hidden;
-            transition: 0.2s;
         }
         .audio-btn:active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
 
@@ -279,13 +272,13 @@
             color: #ccffff;
         }
         .fail-text { 
-            /* Reduced font size by 2 (Original ~8rem -> 6rem mobile) */
+            /* Reduced font size by 2 (Original ~8rem -> 4rem mobile) */
             font-size: 4rem; margin-bottom: 20px; color: #fff;
             animation: vertical-rgb-split 0.15s infinite, slice-glitch 0.3s infinite;
             text-shadow: 0 0 20px #ff0000;
         }
 
-        /* --- ANIMATIONS (RESTORED ALL) --- */
+        /* --- ANIMATIONS --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         
         @keyframes slice-glitch { 
@@ -450,7 +443,7 @@
         <button class="nav-btn hidden" id="next-btn" onclick="nextSeq()">>> NEXT_PACKET >></button>
     </div>
 
-    <div id="fail-ui">
+    <div id="fail-ui" class="hidden">
         <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
         <button class="nav-btn" style="position:static; margin-top:20px; background:red; color:white; border-color:red;" onclick="location.reload()">>> REBOOT_SYSTEM</button>
     </div>
@@ -634,6 +627,14 @@
             const term = document.getElementById('term-win');
             term.style.display = 'flex';
             term.classList.add('power-on');
+
+            // --- CRITICAL INITIALIZATION FIX ---
+            // Ensure all submenus and quiz UI are hidden on boot
+            document.querySelectorAll('[id$="-menu"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('quiz-ui').classList.add('hidden');
+            document.getElementById('fail-ui').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('root-menu').classList.remove('hidden'); // Show Root Menu
             
             const btns = document.querySelectorAll('#root-menu .btn');
             btns.forEach((b, i) => { 
@@ -790,6 +791,7 @@
             isDead = true;
             setTimeout(() => {
                 document.getElementById('quiz-ui').classList.add('hidden');
+                document.getElementById('fail-ui').classList.remove('hidden');
                 document.getElementById('fail-ui').style.display = 'flex';
                 // Trigger animation
                 setTimeout(() => document.getElementById('fail-ui').classList.add('fail-visible'), 10);
