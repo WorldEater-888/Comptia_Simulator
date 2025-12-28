@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_MOBILE_V1</title>
+    <title>SYSTEM_ROOT_MOBILE_FINAL</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
@@ -13,7 +13,7 @@
             --split-1: #ff0000; 
             --split-2: #00ffff; 
             --glow-color: rgba(10, 255, 186, 0.5);
-            --hint-color: #ffd700; /* Gold for hints */
+            --hint-color: #ffd700; 
             
             --edge-opacity: 0; 
             --shake-amp: 0px; 
@@ -22,39 +22,40 @@
             --sway-speed: 5s; 
         }
 
-        /* --- 0. GLOBAL RESETS --- */
+        /* --- GLOBAL RESETS & MOBILE FIXES --- */
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
             user-select: none; 
-            cursor: auto !important; /* Revert cursor for mobile */
+            cursor: auto !important; /* Cursor removed for mobile */
         }
         
-        body {
-            background-color: #000000;
-            margin: 0;
-            padding: 0; /* Remove padding for full screen */
-            font-family: 'VT323', monospace;
-            color: var(--term-color);
-            overflow: hidden;
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Dynamic Viewport Height for Mobile */
-            display: flex;
-            flex-direction: column;
-            text-shadow: 0 0 5px var(--glow-color); 
-            box-shadow: inset 0 0 80px var(--glow-color);
-            transition: color 0.4s ease, text-shadow 0.4s ease; 
-        }
-
         /* SCROLLBAR STYLING */
         ::-webkit-scrollbar { width: 4px; background: #000; }
         ::-webkit-scrollbar-thumb { 
             background: var(--term-color); 
             border: none;
+            box-shadow: 0 0 5px var(--term-color);
         }
-        ::-webkit-scrollbar-track { background: rgba(0, 20, 20, 0.5); }
 
-        /* --- 1. BACKGROUND LAYERS --- */
+        body {
+            background-color: #000000;
+            margin: 0;
+            padding: 0;
+            font-family: 'VT323', monospace;
+            color: var(--term-color);
+            overflow: hidden;
+            height: 100dvh; /* Dynamic viewport height */
+            display: flex;
+            flex-direction: column;
+            text-shadow: 0 0 5px var(--glow-color); 
+            box-shadow: inset 0 0 80px var(--glow-color);
+            /* Restored Sway Animation */
+            animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
+            transition: color 0.4s ease, text-shadow 0.4s ease; 
+        }
+
+        /* --- ORIGINAL BACKGROUND LAYERS (Restored) --- */
         .scan-line {
             position: fixed; left: 0; width: 100%;
             background: var(--term-color); opacity: 0.25; z-index: 600;
@@ -84,256 +85,216 @@
             mix-blend-mode: overlay;
             animation: pulse-breath-erratic 4s infinite; 
         }
-        @keyframes pulse-breath-erratic {
-            0% { opacity: var(--edge-opacity); }
-            50% { opacity: calc(var(--edge-opacity) * 0.4); } 
-            100% { opacity: var(--edge-opacity); }
-        }
 
-        /* --- 2. MAIN CONTAINER --- */
+        /* --- MOBILE OPTIMIZED UI CONTAINER --- */
         .terminal-window {
             width: 100%; height: 100%;
-            /* Removed heavy borders/margins for mobile optimization */
-            border: none;
-            background: rgba(0, 5, 5, 0.85); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
+            border: none; /* Removed heavy border for mobile */
+            /* Restored Transparency and Blur */
+            background: rgba(0, 5, 5, 0.70); 
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(10px);
             padding: 10px;
             display: none; flex-direction: column; position: relative;
+            /* Restored Dynamic Shake Logic via JS */
+            transition: border-color 0.2s ease, filter 0.2s ease, transform 0.1s; 
             z-index: 100; overflow: hidden;
         }
-        .power-on { display: flex !important; animation: turnOn 0.5s ease-out forwards; }
-        .terminal-window * { text-shadow: 1px 1px 2px #000; }
+        .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 
-        /* --- 3. REORGANIZED HEADER --- */
+        /* --- REORGANIZED HEADER (Mobile Friendly) --- */
         .header { 
             border-bottom: 2px solid var(--term-color); 
             padding-bottom: 5px; margin-bottom: 10px; 
-            display: flex; flex-direction: column; 
-            gap: 5px;
-            flex-shrink: 0;
-            position: relative;
+            display: flex; flex-direction: column; gap: 5px;
+            flex-shrink: 0; position: relative;
+            transition: border-color 0.2s ease;
         }
-
-        /* Top Row: Logo + Donation Buttons */
-        .header-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
+        
+        .header-top {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
         }
 
         .h-left h1 { 
-            margin: 0; font-size: 2.2rem; letter-spacing: 2px; line-height: 1;
+            margin: 0; font-size: 2.5rem; letter-spacing: 2px; line-height: 1;
             text-shadow: 2px 0 var(--split-1), -2px 0 var(--split-2);
             font-weight: normal;
         }
 
-        /* Donation Buttons - Moved Top Right */
-        .donate-group {
-            display: flex;
-            gap: 5px;
-        }
+        /* Donation Buttons - Moved Top Right & Slimmed */
+        .donate-group { display: flex; gap: 8px; }
         .sys-btn {
             background: rgba(0, 0, 0, 0.8);
             font-family: 'VT323', monospace;
-            font-size: 1rem; 
-            font-weight: bold;
-            cursor: pointer;
-            padding: 2px 8px;
+            font-size: 1rem; font-weight: bold;
+            cursor: pointer; padding: 2px 8px;
             border: 1px solid;
-            text-transform: uppercase;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-            transition: all 0.1s;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
         }
         .sys-btn:active { transform: translate(1px, 1px); box-shadow: none; }
-        
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
 
-        /* Second Row: Status, Integrity, Temp (Grouped Left) */
-        .header-status-row {
-            display: flex;
-            flex-direction: column; /* Stack vertically on very small screens, or adjust */
-            gap: 2px;
+        /* Status Row - Left Aligned Integrity/Temp */
+        .header-stats-row {
+            display: flex; align-items: flex-end; justify-content: space-between;
             width: 100%;
         }
         
-        .status-line { font-size: 1rem; opacity: 0.9; color: var(--term-color); letter-spacing: 1px; margin-bottom: 2px; }
-
-        .meter-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+        .bars-group { display: flex; flex-direction: column; gap: 4px; width: 60%; }
         
-        .integrity-wrapper { 
-            flex-grow: 1; /* Allow bars to take width */
-            max-width: 150px; 
-        }
-        .integrity-label { font-size: 0.7rem; letter-spacing: 1px; font-weight:bold; margin-bottom: 1px; }
+        .integrity-wrapper { width: 100%; display: flex; align-items: center; gap: 5px; }
+        .integrity-label { font-size: 0.8rem; letter-spacing: 1px; font-weight:bold; min-width: 70px; }
         
         .integrity-container { 
-            width: 100%; height: 10px; border: 1px solid var(--term-color); 
+            flex-grow: 1; height: 10px; border: 1px solid var(--term-color); 
             background: rgba(0,0,0,0.8); 
         }
+        
         .integrity-fill { 
             height: 100%; width: 100%; 
-            background: var(--term-color);
-            box-shadow: 0 0 5px var(--term-color);
-            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--term-color); 
+            transition: width 0.5s ease, background 0.2s ease;
+            background: repeating-linear-gradient(90deg, var(--term-color), var(--term-color) 4px, transparent 4px, transparent 6px);
+            animation: health-pulse 1s infinite alternate;
         }
-        .integrity-critical { background: #ff0000 !important; box-shadow: 0 0 10px #ff0000 !important; animation: crit-pulse 0.2s infinite; }
 
-        /* Score & Audio - Absolute Right of 2nd row or inline? Let's keep score subtle */
-        .score-box { 
-            position: absolute; right: 0; bottom: 5px; 
-            font-size: 1.2rem; font-weight: bold; 
-        }
         .audio-btn {
-            position: absolute; right: 0; top: 35px; /* Adjust based on layout */
-            font-size: 0.7rem; background: transparent; 
-            border: 1px solid var(--term-color); color: inherit; padding: 1px 4px;
+            font-size: 0.9rem; background: transparent; border: 1px solid var(--term-color);
+            color: inherit; padding: 2px 6px;
         }
 
-        /* --- 4. MENUS & BUTTONS (SLIMMED) --- */
+        /* --- RESTORED GLITCH CLASSES --- */
+        .logo-glitch { animation: slice-glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite !important; color: #fff !important; }
+        .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important; color: #fff !important; }
+        .stress-active { animation: stress-shake 0.4s infinite !important; }
+        .integrity-critical { animation: crit-pulse 0.2s infinite !important; background: #ff0000 !important; box-shadow: 0 0 20px #ff0000 !important; }
+        .temp-pulse-active { animation: intense-pulse 0.5s infinite alternate !important; }
+        .label-crit { animation: label-flash 0.3s infinite; }
+
+        /* --- MOBILE OPTIMIZED MENU & BUTTONS --- */
         .menu-grid { 
             display: grid; grid-template-columns: 1fr; 
-            gap: 6px; /* Tighter gap */
-            overflow-y: auto; 
-            padding-bottom: 20px;
-            flex-grow: 1;
+            gap: 8px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px;
         }
 
         .btn { 
-            background: rgba(0,0,0,0.6); 
-            border: 1px solid var(--term-color); 
+            background: rgba(0,0,0,0.5); 
+            border: 2px solid var(--term-color); 
             color: var(--term-color); 
             font-family: 'VT323', monospace; 
-            font-size: 1.3rem; /* Slightly smaller text */
-            padding: 8px 10px; /* Slimmer padding */
-            cursor: pointer; 
-            text-align: left; 
-            position: relative; overflow: hidden; 
-            box-shadow: 3px 3px 0px rgba(0,0,0,0.5); 
+            /* Slimmer for Mobile */
+            font-size: 1.35rem; padding: 10px 12px;
+            cursor: pointer; text-align: left; 
+            transition: 0.1s; position: relative; overflow: hidden; 
             opacity: 0; transform: translateY(10px);
-            width: 100%;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5); 
         }
-        .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.3s, transform 0.3s; }
-        .btn:active { background: #fff; color: #000; transform: translate(1px, 1px); }
-        .btn.exam-mode { border-color: #ff4444; color: #ff4444; }
+        .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.5s ease, transform 0.5s ease; }
+        /* Active state for mobile touch feedback */
+        .btn:active { background: #fff; color: #000; transform: translate(-1px, -1px); box-shadow: 0 0 20px #fff; }
+        .btn.drift-active { animation: random-drift 6s ease-in-out infinite alternate; }
 
-        /* --- 5. QUIZ UI --- */
+        /* --- QUIZ UI --- */
         .quiz-container { 
             display: flex; flex-direction: column; flex-grow: 1; 
-            overflow-y: auto; overflow-x: hidden;
-            padding-bottom: 60px; /* Space for next button */
+            overflow-y: auto; overflow-x: hidden; padding-bottom: 70px; /* Space for footer button */
         }
         
         .quiz-header-bar {
             display:flex; justify-content:space-between; align-items:center; 
             border-bottom: 1px solid var(--term-color); 
-            padding-bottom: 5px; margin-bottom: 10px; 
-            font-size: 1rem; flex-shrink: 0;
+            padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem;
         }
 
         .question-box { 
-            font-size: 1.4rem; line-height: 1.2; margin-bottom: 15px; 
-            background: rgba(255,255,255,0.05);
-            border-left: 4px solid var(--term-color); padding: 10px; 
+            font-size: 1.5rem; line-height: 1.2; margin-bottom: 15px; 
+            background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+            border-left: 6px solid var(--term-color); padding: 10px; 
             color: #ffffff !important;
-            flex-shrink: 0;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3), 1px 0 var(--split-1);
+            animation: random-drift 7s ease-in-out infinite alternate;
         }
         
         #explanation-box {
-            margin-bottom: 15px; padding: 10px;
-            border: 1px dashed var(--term-color);
-            background: rgba(0,10,0,0.6);
-            font-size: 1.2rem; color: #ffffff; 
+            margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color);
+            background: rgba(0,10,0,0.6); font-size: 1.3rem; color: #ffffff; 
             display: none;
         }
-
-        .options-list { display: flex; flex-direction: column; gap: 8px; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
         
         .option-btn { 
-            background: rgba(0, 0, 0, 0.7); border: 1px solid var(--term-color); 
-            color: #ffffff !important;
-            padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; text-align: left; 
-            cursor: pointer; position: relative;
-            box-shadow: 3px 3px 0px rgba(0,0,0,0.5); 
+            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); 
+            color: #ffffff !important; padding: 12px; 
+            font-family: 'VT323', monospace; font-size: 1.3rem; text-align: left; 
+            cursor: pointer; position: relative; 
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            animation: random-drift 5s ease-in-out infinite alternate-reverse;
         }
         .option-btn:active { background: #fff !important; color: #000 !important; }
-        .option-btn.correct { background: var(--term-color) !important; color: black !important; }
-        .option-btn.wrong { background: #a00 !important; color: white !important; }
+        .option-btn.correct { background: var(--term-color) !important; color: black !important; animation: answer-thump 0.3s ease-out forwards !important; }
+        .option-btn.wrong { background: #a00 !important; color: white !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
 
-        /* Navigation Button (Next) */
+        /* FIXED NAV BUTTON FOR MOBILE THUMB REACH */
         .nav-btn { 
             position: fixed; bottom: 10px; left: 10px; width: calc(100% - 20px);
             font-weight: bold; text-align: center; 
-            background: #000; color: #fff; border: 1px solid #fff; 
-            font-size: 1.5rem; padding: 10px; z-index: 500;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.9); color: #ffffff; 
+            border: 2px solid #ffffff; font-size: 1.6rem; padding: 12px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500;
         }
 
-        /* --- PBQ SPECIFIC --- */
-        .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 10px; }
+        /* --- PBQ STYLES --- */
+        .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
         .cmd-input-line { 
-            display: flex; align-items: center; 
-            background: rgba(0,0,0,0.8); border: 1px solid var(--term-color);
-            padding: 5px; font-family: 'VT323', monospace; font-size: 1.2rem;
+            display: flex; align-items: center; background: rgba(0,0,0,0.8); 
+            border: 1px solid var(--term-color); padding: 8px; font-size: 1.3rem;
         }
-        #cmd-input { 
-            flex-grow: 1; background: transparent; border: none; color: #fff; 
-            font-family: inherit; font-size: inherit; text-transform: lowercase; outline: none;
-        }
-        .match-container { display: flex; justify-content: space-between; gap: 5px; }
-        .match-col { display: flex; flex-direction: column; gap: 8px; width: 49%; }
+        #cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
+        
+        .match-container { display: flex; justify-content: space-between; gap: 10px; }
+        .match-col { display: flex; flex-direction: column; gap: 10px; width: 48%; }
         .match-item {
             border: 1px solid var(--term-color); background: rgba(0, 20, 20, 0.6);
-            padding: 8px 2px; text-align: center; font-size: 1rem; color: #fff;
-            word-wrap: break-word;
+            padding: 8px; text-align: center; font-size: 1.1rem; color: #fff;
         }
         .match-item.selected { background: var(--term-color); color: #000; }
         .match-item.matched { opacity: 0.5; text-decoration: line-through; }
 
-        /* --- OVERLAYS --- */
-        #start-overlay { 
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background-color: #000; z-index: 2000; 
-            display: flex; justify-content: center; align-items: center; flex-direction: column; 
-        }
-        
-        #fail-ui { 
-            display: none; text-align: center; 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
-            background: rgba(5, 0, 0, 0.95); 
-            flex-direction: column; justify-content: center; align-items: center;
-        }
-        .fail-visible { display: flex !important; animation: fail-entry 0.3s ease-out forwards; }
-        
-        .hidden { display: none !important; }
-
-        /* Helper Classes */
-        .logo-glitch { animation: slice-glitch 0.3s infinite; }
-        .stress-active { animation: stress-shake 0.4s infinite; }
-        .temp-pulse-active { animation: intense-pulse 0.5s infinite alternate; }
-
-        /* --- ANIMATIONS --- */
-        @keyframes turnOn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
-        @keyframes slice-glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(2px, -2px); } 60% { transform: translate(-1px, 0); } 100% { transform: translate(0); } }
-        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-1px, 1px); } 75% { transform: translate(1px, -1px); } 100% { transform: translate(0, 0); } }
-        @keyframes crit-pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        @keyframes intense-pulse { 0% { box-shadow: 0 0 2px currentColor; } 100% { box-shadow: 0 0 10px currentColor; } }
+        /* --- ANIMATIONS (All Restored) --- */
+        @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
+        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
+        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 100% { transform: translate(0, 0); } }
+        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
+        @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
+        @keyframes rgb-split-hover { 0% { text-shadow: -2px 0 red, 2px 0 blue; } 50% { text-shadow: 2px 0 red, -2px 0 blue; } 100% { text-shadow: -2px 0 red, 2px 0 blue; } }
+        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
+        @keyframes intense-pulse { 0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); } 100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); } }
+        @keyframes label-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #fff; text-shadow: 0 0 2px #fff; } }
+        @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes answer-shake { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } 100% { transform: translateX(0); } }
         @keyframes fail-entry { 0% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes vertical-rgb-split { 0% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } 100% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Floating Text */
-        .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 1.5s forwards; z-index: 2000; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-30px); } }
+        /* --- DECORATION --- */
+        .hex-dump { position: absolute; font-family: monospace; font-size: 10px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; }
+        .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+
+        /* --- SCREENS --- */
+        #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        #fail-ui { display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; background: rgba(5, 0, 0, 0.95); flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; }
+        .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: fail-entry 0.3s ease-out forwards; color: #ccffff; }
+        .hidden { display: none !important; }
 
     </style>
 </head>
-<body>
+<body class="glitch-active">
 
 <div class="pixel-overlay"></div>
 <canvas id="matrix-canvas"></canvas>
@@ -342,21 +303,21 @@
 <div id="scan-container"></div> 
 
 <div id="start-overlay" onclick="bootSystem()">
-    <div style="margin-bottom: 40px; font-size: 2.5rem; color: #fff; letter-spacing: 4px; text-shadow: 3px 0 var(--split-1), -3px 0 var(--split-2);" class="logo-glitch">
+    <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);" class="logo-glitch">
         [ SYSTEM_ROOT ]
     </div>
-    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 2px; animation: blink 2s infinite;">
+    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
         >> TAP_TO_INITIALIZE <<
     </div>
-    <div style="margin-top: 80px; font-size: 0.7rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V1 // OPTIMIZED
+    <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
+        MOBILE_CORE_V1.5 // RESTORED_EFFECTS
     </div>
 </div>
 
 <div class="terminal-window" id="term-win">
     
     <div class="header">
-        <div class="header-top-row">
+        <div class="header-top">
             <div class="h-left">
                 <h1 id="main-header">SYSTEM <span style="font-size: 0.6em; color:#fff;">ROOT</span></h1>
             </div>
@@ -365,33 +326,32 @@
                 <button class="sys-btn kas-btn" onclick="showCrypto()">[KAS]</button>
             </div>
         </div>
-
-        <div class="header-status-row">
-            <div class="status-line" id="status-text">> NET: SECURE</div>
-            
-            <div class="meter-container">
-                <div class="integrity-wrapper">
+        
+        <div class="header-stats-row">
+            <div class="bars-group">
+                <div class="integrity-wrapper" id="integrity-wrap">
                     <div class="integrity-label">INTEGRITY</div>
                     <div class="integrity-container">
                         <div class="integrity-fill" id="integrity-bar"></div>
                     </div>
                 </div>
-
-                <div class="integrity-wrapper">
-                    <div class="integrity-label" id="temp-label">TEMP</div>
-                    <div class="integrity-container">
+                <div class="integrity-wrapper" id="temp-wrap">
+                    <div class="integrity-label" id="temp-label" style="color: #fff;">TEMP</div>
+                    <div class="integrity-container" style="border: 1px solid var(--term-color);">
                         <div class="integrity-fill" id="temp-bar" style="width: 0%; background: #0affba;"></div>
                     </div>
                 </div>
             </div>
             
-            <div class="score-box" id="score-ui">PTS: 0</div>
-            <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[SND:ON]</button>
+            <div style="text-align: right;">
+                 <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">PTS: 0</div>
+                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO:ON]</button>
+            </div>
         </div>
     </div>
 
     <div id="root-menu">
-        <p style="font-size: 1rem; border-bottom: 1px dashed var(--term-color); padding-bottom: 5px; margin-top: 0;">> SELECT_MODULE:</p>
+        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color); padding-bottom: 5px;">> SELECT_CERTIFICATION:</p>
         <div class="menu-grid">
             <button class="btn" onclick="goToSubMenu('core1')">[1] COMPTIA A+ CORE 1</button>
             <button class="btn" onclick="goToSubMenu('core2')">[2] COMPTIA A+ CORE 2</button>
@@ -401,53 +361,55 @@
     </div>
 
     <div id="core1-menu" class="hidden">
-        <p style="font-size: 1rem; border-bottom: 1px dashed var(--term-color); padding-bottom: 5px;">> CORE_1 // MODULES:</p>
+        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color);">> CORE_1 // MODULES:</p>
         <div class="menu-grid">
-            <button class="btn" onclick="transitionToQuiz('CORE1', 'Hardware')">[A] HARDWARE</button>
+            <button class="btn" onclick="transitionToQuiz('CORE1', 'Hardware')">[A] HARDWARE_CORE</button>
             <button class="btn" onclick="transitionToQuiz('CORE1', 'Networking')">[B] NETWORKING</button>
             <button class="btn" onclick="transitionToQuiz('CORE1', 'Mobile')">[C] MOBILE</button>
             <button class="btn" onclick="transitionToQuiz('CORE1', 'Cloud')">[D] CLOUD_OPS</button>
-            <button class="btn exam-mode" onclick="startExam('CORE1')">[X] EXAM SIM</button>
-            <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()">< BACK</button>
+            <button class="btn exam-mode" onclick="startExam('CORE1')">[X] EXAM_SIMULATION</button>
+            <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+
+    <div id="core2-menu" class="hidden">
+        <div class="menu-grid">
+            <button class="btn" onclick="transitionToQuiz('CORE2', 'OS')">[A] OS_CONCEPTS</button>
+            <button class="btn" onclick="transitionToQuiz('CORE2', 'Security')">[B] SECURITY</button>
+            <button class="btn" onclick="transitionToQuiz('CORE2', 'Software')">[C] SOFTWARE</button>
+            <button class="btn" onclick="transitionToQuiz('CORE2', 'Ops')">[D] OPS_PROCEDURES</button>
+            <button class="btn exam-mode" onclick="startExam('CORE2')">[X] EXAM_SIMULATION</button>
+            <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()"> < BACK </button>
         </div>
     </div>
     
-    <div id="core2-menu" class="hidden">
-        <div class="menu-grid">
-            <button class="btn" onclick="transitionToQuiz('CORE2', 'OS')">[A] OS CONCEPTS</button>
-            <button class="btn" onclick="transitionToQuiz('CORE2', 'Security')">[B] SECURITY</button>
-            <button class="btn" onclick="transitionToQuiz('CORE2', 'Software')">[C] SOFTWARE</button>
-            <button class="btn" onclick="transitionToQuiz('CORE2', 'Ops')">[D] OPS PROCEDURES</button>
-            <button class="btn exam-mode" onclick="startExam('CORE2')">[X] EXAM SIM</button>
-            <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()">< BACK</button>
-        </div>
-    </div>
     <div id="net-menu" class="hidden">
         <div class="menu-grid">
             <button class="btn" onclick="transitionToQuiz('NET', 'Fundamentals')">[A] FUNDAMENTALS</button>
             <button class="btn" onclick="transitionToQuiz('NET', 'Implement')">[B] IMPLEMENTATION</button>
             <button class="btn" onclick="transitionToQuiz('NET', 'Ops')">[C] OPERATIONS</button>
             <button class="btn" onclick="transitionToQuiz('NET', 'Security')">[D] SECURITY</button>
-            <button class="btn exam-mode" onclick="startExam('NET')">[X] EXAM SIM</button>
-            <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()">< BACK</button>
+            <button class="btn exam-mode" onclick="startExam('NET')">[X] EXAM_SIMULATION</button>
+            <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()"> < BACK </button>
         </div>
     </div>
+    
     <div id="sec-menu" class="hidden">
         <div class="menu-grid">
-            <button class="btn" onclick="transitionToQuiz('SEC', 'Attacks')">[A] THREATS</button>
+            <button class="btn" onclick="transitionToQuiz('SEC', 'Attacks')">[A] THREATS_ATTACKS</button>
             <button class="btn" onclick="transitionToQuiz('SEC', 'Arch')">[B] ARCHITECTURE</button>
             <button class="btn" onclick="transitionToQuiz('SEC', 'Implement')">[C] IMPLEMENTATION</button>
             <button class="btn" onclick="transitionToQuiz('SEC', 'Gov')">[D] GOVERNANCE</button>
-            <button class="btn exam-mode" onclick="startExam('SEC')">[X] EXAM SIM</button>
-            <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()">< BACK</button>
+            <button class="btn exam-mode" onclick="startExam('SEC')">[X] EXAM_SIMULATION</button>
+            <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()"> < BACK </button>
         </div>
     </div>
 
     <div id="quiz-ui" class="hidden quiz-container">
         <div class="quiz-header-bar">
-            <span onclick="shutdownSystem()" style="color:#fff; text-decoration:underline;">< ABORT</span>
-            <span id="session-timer" style="color:#fff;">90:00</span>
-            <span>PKT: <span id="packet-counter">00</span></span>
+            <span onclick="shutdownSystem()" style="color:#fff; text-decoration:underline; font-weight:bold;">< ABORT</span>
+            <span style="opacity:0.8;">[TIME]: <span id="session-timer" style="color:#fff;">90:00</span></span>
+            <span style="opacity:0.8;">[PKT]: <span id="packet-counter" style="color:#fff;">00</span></span>
         </div>
         
         <div class="question-box"><span id="q-text"></span></div>
@@ -456,30 +418,34 @@
         <div class="options-list" id="opts-list"></div>
 
         <div id="pbq-area" class="pbq-wrapper"></div>
-        <button id="pbq-submit-btn" class="btn" onclick="submitPBQ()" style="display:none; margin-top:10px; border-color:#fff;">[ EXECUTE ]</button>
+        <button id="pbq-submit-btn" class="btn" onclick="submitPBQ()" style="display:none; background: var(--term-color); color:#000; font-weight:bold; margin-top:10px;">[ EXECUTE_COMMAND ]</button>
         
-        <button class="nav-btn hidden" id="next-btn" onclick="nextSeq()">>> NEXT >></button>
+        <button class="nav-btn hidden" id="next-btn" onclick="nextSeq()">>> NEXT_PACKET >></button>
     </div>
 
-    <div id="results-ui" class="hidden" style="text-align: center; padding-top: 20px; overflow-y: auto; height: 100%;">
-        <h1 style="font-size: 4rem; margin: 0;" id="final-percent">0%</h1>
-        <p style="font-size: 1.5rem;">> DIAGNOSTIC COMPLETE</p>
-        <div id="breakdown-container" style="text-align:left; margin-top:20px;"></div>
-        <button class="nav-btn" onclick="location.reload()" style="position:relative; margin-top:30px;">REBOOT SYSTEM</button>
+    <div id="secondary-status" style="position: absolute; bottom: 5px; left: 5px; font-size: 0.8rem; opacity: 0.5;"></div>
+    <div id="warning-area" style="text-align: center; margin-top: auto;"><div id="crit-warn" class="system-msg" style="display:none; color:red; font-size:1.5rem; font-weight:bold;"></div></div>
+
+    <div id="results-ui" class="hidden" style="text-align: center; padding-top: 10px; overflow-y: auto; height: 100%;">
+        <h1 style="font-size: 5rem; margin-bottom: 0px;" id="final-percent">0%</h1>
+        <p style="font-size: 2rem; margin-bottom: 10px;">> DIAGNOSTIC COMPLETE</p>
+        <div id="breakdown-container" style="text-align:left; margin:20px;"></div>
+        <button class="nav-btn" style="position:relative; margin-top:30px;" onclick="location.reload()">>> REBOOT_SYSTEM</button>
     </div>
 
     <div id="fail-ui">
-        <h1 style="font-size: 4rem; color: #fff; animation: slice-glitch 0.2s infinite;">FATAL_ERROR</h1>
-        <p style="font-size: 1.5rem; color: #ccffff;">SYSTEM HALTED</p>
-        <button class="nav-btn" style="background: red; border-color: red; position: relative; margin-top: 20px;" onclick="location.reload()">EMERGENCY RESET</button>
+        <h1 style="font-size: 5rem; color:#fff; animation: vertical-rgb-split 0.15s infinite;">SYSTEM_CORRUPTED</h1>
+        <p style="font-size: 1.5rem; color: #ccffff;">> ALL_IS_LOST</p>
+        <button class="nav-btn" style="background: red; border-color: red; position: relative; margin-top:20px;" onclick="location.reload()">>> EMERGENCY RESTART</button>
     </div>
-
 </div>
 
 <script>
-    // --- AUDIO ENGINE ---
+    /* ========================================================================= */
+    /* SECTION: AUDIO ENGINE (RESTORED ORIGINAL)                                 */
+    /* ========================================================================= */
     const AudioEngine = {
-        ctx: null, masterGain: null, isMuted: false, 
+        ctx: null, masterGain: null, delayNode: null, isPlaying: false, isMuted: false, 
         init: function() {
             try {
                 const AC = window.AudioContext || window.webkitAudioContext;
@@ -487,555 +453,383 @@
                 this.masterGain = this.ctx.createGain();
                 this.masterGain.gain.value = 0.3;
                 this.masterGain.connect(this.ctx.destination);
+                this.delayNode = this.ctx.createDelay(); this.delayNode.delayTime.value = 0.35; 
+                const feedback = this.ctx.createGain(); feedback.gain.value = 0.4;
+                this.delayNode.connect(feedback); feedback.connect(this.delayNode); this.delayNode.connect(this.masterGain);
                 if (this.ctx.state === 'suspended') this.ctx.resume();
+                this.startMusic();
             } catch(e) {}
+        },
+        startMusic: function() { if(this.isPlaying) return; this.isPlaying = true; this.musicLoop(); },
+        musicLoop: function() {
+            if (!this.isPlaying) return;
+            const now = this.ctx.currentTime;
+            const drone = this.ctx.createOscillator(); const droneGain = this.ctx.createGain();
+            drone.type = 'sine'; drone.frequency.value = 55; 
+            droneGain.gain.setValueAtTime(0.05, now); droneGain.gain.linearRampToValueAtTime(0, now + 6);
+            drone.connect(droneGain); droneGain.connect(this.masterGain); drone.start(now); drone.stop(now + 6);
+            
+            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            osc.type = 'triangle'; osc.frequency.value = [43.65, 55, 65.41][Math.floor(Math.random()*3)];
+            g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.1, now + 2); g.gain.linearRampToValueAtTime(0, now + 7); 
+            osc.connect(g); g.connect(this.masterGain); g.connect(this.delayNode); osc.start(now); osc.stop(now + 7);
+            setTimeout(() => this.musicLoop(), 4500); 
         },
         playSFX: function(type) {
             if (!this.ctx || this.isMuted) return;
             const t = this.ctx.currentTime;
             const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
             osc.connect(g); g.connect(this.masterGain);
-            if (type === 'click') { osc.type = 'square'; osc.frequency.setValueAtTime(800, t); g.gain.setValueAtTime(0.05, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05); osc.start(t); osc.stop(t+0.05); } 
-            else if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.1); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2); osc.start(t); osc.stop(t+0.2); } 
-            else if (type === 'error') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, t); osc.frequency.linearRampToValueAtTime(50, t+0.3); g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.3); osc.start(t); osc.stop(t+0.3); } 
+            if (type === 'click') { osc.type = 'square'; osc.frequency.setValueAtTime(800, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05); osc.start(t); osc.stop(t+0.05); } 
+            else if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.1); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.2); } 
+            else if (type === 'error') { osc.type = 'triangle'; osc.frequency.setValueAtTime(150+Math.random()*50, t); osc.frequency.linearRampToValueAtTime(50, t+0.4); g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4); osc.start(t); osc.stop(t+0.4); } 
+            else if (type === 'healthup') { osc.type = 'triangle'; osc.frequency.setValueAtTime(400, t); osc.frequency.linearRampToValueAtTime(800, t+0.2); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.3); osc.start(t); osc.stop(t+0.3); }
         },
         toggleMute: function() {
             this.isMuted = !this.isMuted;
-            document.getElementById('sound-toggle').innerText = this.isMuted ? "[SND:OFF]" : "[SND:ON]";
+            if(this.masterGain) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : 0.3, this.ctx.currentTime, 0.1);
+            document.getElementById('sound-toggle').innerText = this.isMuted ? "[AUDIO:OFF]" : "[AUDIO:ON]";
         }
     };
 
-    // --- GAME VARIABLES ---
-    let qQueue = []; let currentScore = 0; let integrity = 100;
-    let tempLevel = 0; const TEMP_MAX = 60;
-    let hudInterval = null; let sessionTime = 5400;
-    let quizHistory = []; let questionsAttempted = 0; let questionsCorrect = 0;
-    let isDead = false; let matchState = { selected: null, pairsFound: 0 };
+    /* ========================================================================= */
+    /* SECTION: VARIABLES & HELPERS                                              */
+    /* ========================================================================= */
+    let matchState = { selected: null, pairsFound: 0 };
+    let qQueue = []; let currentScore = 0; window.integrity = 100;
+    let explainTimer = null;
+    let currentStreak = 0; let isExam = false; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
+    let quizHistory = []; 
+    let hudInterval = null;
+    let sessionTime = 5400; 
+    let tempLevel = 0; 
+    const TEMP_MAX = 60;
 
-    // --- DATA (Minified for brevity - Replace with your full array) ---
+    // --- DATA (Same as before) ---
     const MASTER_DATABASE = [
-        /* --- CORE 1: HARDWARE --- */
         { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
         { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity." },
         { tags: ["CORE1", "Hardware"], question: "A projector's image is flickering. What is the most likely cause?", options: ["Bulb life ending", "Loose cable", "Keystone setting", "Incompatible resolution"], answer: 1, explanation: "Flickering is often caused by a loose VGA or HDMI cable connection. A dying bulb usually dims." },
-
-        
-        /* --- PBQ ADDITIONS (CORE 1) --- */
-        { 
-            tags: ["CORE1", "Hardware"], 
-            type: "match",
-            question: "Match the cable standard to its maximum transfer speed.", 
-            pairs: [
-                { left: "Cat 5e", right: "1 Gbps" },
-                { left: "Cat 6a", right: "10 Gbps" },
-                { left: "USB 2.0", right: "480 Mbps" },
-                { left: "Thunderbolt 3", right: "40 Gbps" }
-            ],
-            explanation: "Cat5e is limited to 1Gbps. Cat6a supports 10Gbps up to 100m. USB 2.0 is 480Mbps. Thunderbolt 3 creates a massive 40Gbps pipe."
-        },
-{
-    tags: ["CORE1", "Hardware"],
-    question: "A technician is applying thermal paste to a CPU during a new build. Which of the following describes the primary function of this material?",
-    options: ["To glue the heatsink to the processor permanently", "To fill microscopic air gaps between the CPU lid and the heatsink", "To provide electrical insulation to the CPU pins", "To cool the CPU using active airflow"],
-    answer: 1,
-    explanation: "The purpose of thermal paste is to fill microscopic air gaps between the CPU lid and the heatsink base. Air is a thermal insulator, while the paste is a thermal conductor, ensuring efficient heat transfer."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "Which specific DC voltage rail is primarily used to power high-load components such as motors in hard drives, fans, and the CPU?",
-    options: ["3.3 Volts", "5 Volts", "12 Volts", "115 Volts"],
-    answer: 2,
-    explanation: "The 12 Volt (12V) rail is used for high-power components like motors (fans/drives) and the CPU/GPU."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "A user wants to improve airflow inside their computer case and reduce cable clutter. Which type of Power Supply Unit (PSU) cabling style should they select?",
-    options: ["Non-Modular", "Modular", "Redundant", "Auto-Switching"],
-    answer: 1,
-    explanation: "Modular PSUs allow cables to be detached. You only plug in the specific cables needed, which reduces clutter and improves case airflow compared to non-modular units where all cables are permanently soldered."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "You are installing a high-performance Graphics Card (GPU) that requires 150W of supplemental power. Which PSU connector should you use?",
-    options: ["8-pin PCIe", "8-pin EPS (CPU)", "20+4 pin Main", "Molex"],
-    answer: 0,
-    explanation: "The 8-pin PCIe connector provides +150W of power for expansion cards like GPUs. It should not be confused with the 8-pin CPU (EPS) connector."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "A technician accidentally sets the manual voltage switch on a PSU to 115V and plugs it into a 230V outlet. What is the likely result?",
-    options: ["The system will run slower due to throttling", "The system will not turn on but will sustain no damage", "The PSU will likely fail catastrophically, smoke, or catch fire", "The PSU will automatically switch to the correct voltage"],
-    answer: 2,
-    explanation: "Setting a PSU to 115V and plugging it into a 230V outlet results in the unit receiving double the expected voltage, causing catastrophic failure, smoke, or fire."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "Which of the following represents the correct order of operations for installing a CPU cooling solution?",
-    options: ["Mount Heatsink > Apply Paste > Install CPU > Connect Fan", "Install CPU > Apply Paste > Mount Heatsink > Connect Fan", "Apply Paste > Install CPU > Connect Fan > Mount Heatsink", "Connect Fan > Mount Heatsink > Install CPU > Apply Paste"],
-    answer: 1,
-    explanation: "The Golden Rule for installation is: 1. Install CPU into socket. 2. Apply Thermal Paste. 3. Mount Heatsink (pressure spreads paste). 4. Connect Fan Power."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "Which component in a liquid cooling system acts as the heat exchanger where fans blow air through fins to cool the liquid?",
-    options: ["Water Block", "Reservoir", "Pump", "Radiator"],
-    answer: 3,
-    explanation: "The Radiator is the heat exchanger. Hot liquid flows through it, and fans blow air through the fins to cool the liquid down before it returns to the components."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "A technician observes an L-shaped, 15-pin power connector. Which device is this connector designed to power?",
-    options: ["Legacy Case Fan", "SATA Hard Drive", "High-end Graphics Card", "Motherboard Bus"],
-    answer: 1,
-    explanation: "The SATA power connector is 15-pins and L-shaped (keyed). It is the modern standard for powering internal storage like HDDs and SSDs."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "What is the primary function of a Redundant Power Supply in a server environment?",
-    options: ["To convert AC to DC more efficiently", "To provide cleaner power for audio recording", "To allow for failover so the server does not crash if one unit fails", "To reduce the electric bill by using less wattage"],
-    answer: 2,
-    explanation: "Redundant PSUs are used in servers to provide failover. If one unit fails, the other takes over immediately so the system does not turn off."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "A user reports their PC shuts down immediately after booting. The technician notices the new CPU heatsink was installed without thermal paste. What is the cause of the shutdown?",
-    options: ["Power Supply failure", "Thermal throttling / Overheating", "Voltage mismatch", "Defective RAM"],
-    answer: 1,
-    explanation: "Without thermal paste, air gaps insulate the heat, preventing it from moving to the heatsink. This causes the CPU to overheat rapidly and shut down to prevent damage."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "Which legacy connector with a 4-pin white or black housing is used for older PATA hard drives and case fans?",
-    options: ["SATA", "PCIe", "Molex", "EPS"],
-    answer: 2,
-    explanation: "The Molex connector is a legacy 4-pin connector used for older IDE/PATA drives and some case fans."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "A technician manually sets a PSU voltage switch to 230V but plugs it into a 115V US outlet. What is the expected outcome?",
-    options: ["The PSU will explode", "The PC will not turn on", "The PC will operate normally", "The fan will spin backwards"],
-    answer: 1,
-    explanation: "If set to 230V but provided only 115V, the system will not turn on because it is not receiving enough power to operate the transformer. It usually does not cause permanent damage."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "Which cooling method relies on physical design and thermodynamics to dissipate heat without using moving parts?",
-    options: ["Active Cooling", "Liquid Cooling", "Passive Cooling", "AIO Cooling"],
-    answer: 2,
-    explanation: "Passive cooling relies on physical design (like a heatsink with fins) to dissipate heat without moving parts or power. It is silent but limited in capacity."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "You are calculating the wattage requirements for a new gaming PC. The total power draw of all components is estimated at 614 Watts. Which PSU wattage would be the most appropriate choice to ensure stability and headroom?",
-    options: ["500W", "600W", "750W", "1000W"],
-    answer: 2,
-    explanation: "You must buy a PSU with more wattage than the total components require. A 750W PSU covers the 614W requirement and provides headroom. 500W and 600W are insufficient."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "What is the specific purpose of the 4+4 Pin CPU power connector configuration?",
-    options: ["To power two separate CPUs", "To function as either a single 8-pin block or split for a 4-pin socket", "To convert a CPU cable into a PCIe cable", "To provide redundancy for the motherboard"],
-    answer: 1,
-    explanation: "The 4+4 Pin connector is splittable. It can be used as a single 8-pin block for modern motherboards or split to fit older motherboards that only have a 4-pin socket."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "When installing a PSU in a modern case with a bottom vent, how should the PSU fan be oriented?",
-    options: ["Fan facing up", "Fan facing down", "Fan facing the side panel", "Fan removed completely"],
-    answer: 1,
-    explanation: "The PSU should be installed with the fan facing down. This allows it to pull cool air from outside the bottom of the case and exhaust heat out the back, independent of the internal case airflow."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "Which feature allows a server administrator to replace a faulty power supply while the machine is still running?",
-    options: ["Hot-Swappable", "Auto-Switching", "Active Cooling", "Overclocking"],
-    answer: 0,
-    explanation: "Hot-Swappable capability allows a technician to remove a broken component (like a Redundant PSU) and insert a new one while the system is still running."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    question: "Which of the following describes an '80 Plus' efficiency rating?",
-    options: ["The PSU delivers 80% more power than rated", "The PSU outputs 80V DC", "The PSU draws more power from the wall than it delivers to components, losing the rest as heat", "The PSU is 80% smaller than a standard unit"],
-    answer: 2,
-    explanation: "Efficiency ratings indicate how much power is drawn from the wall vs. delivered to the PC. An 80% efficient PSU draws more from the wall (e.g., 625W) to deliver the rated power (e.g., 500W), losing the difference as heat."
-},
-{
-    tags: ["CORE1", "Troubleshooting"],
-    type: "terminal",
-    question: "A user suspects a specific application is causing the CPU to overheat and throttle. Enter the command to view currently running processes to identify the culprit.",
-    validCommands: ["tasklist", "tasklist | more"],
-    hint: "This command lists all tasks currently running.",
-    explanation: "The 'tasklist' command displays a list of currently running processes, allowing a technician to see what might be consuming CPU resources."
-},
-{
-    tags: ["CORE1", "Troubleshooting"],
-    type: "terminal",
-    question: "You have just installed a new Power Supply Unit. You want to verify the system uptime to ensure it has not rebooted unexpectedly. Enter the command to display system configuration and uptime.",
-    validCommands: ["systeminfo", "systeminfo | more"],
-    hint: "This command displays system information.",
-    explanation: "The 'systeminfo' command displays detailed configuration information about a computer and its operating system, including the system boot time/uptime."
-},
-{
-    tags: ["CORE1", "Troubleshooting"],
-    type: "terminal",
-    question: "A technician fears that extreme overheating has put the CPU at risk of permanent damage. Enter the command to immediately shut down the computer.",
-    validCommands: ["shutdown /s", "shutdown -s", "shutdown /p"],
-    hint: "Use the shutdown command with the switch for a full shutdown.",
-    explanation: "The 'shutdown /s' command initiates a system shutdown, which is necessary to prevent permanent physical damage from thermal overload."
-},
-{
-    tags: ["CORE1", "Troubleshooting"],
-    type: "terminal",
-    question: "You are troubleshooting a power issue and need to see the available options for the shutdown command. Enter the command to view the help documentation for shutdown.",
-    validCommands: ["shutdown /?", "shutdown -?", "help shutdown"],
-    hint: "Use the standard help switch /?.",
-    explanation: "Typing 'shutdown /?' displays the syntax and available switches for the shutdown command."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    type: "match",
-    question: "Match the Voltage Standard to its Region.",
-    pairs: [
-        { left: "115V - 120V AC", right: "North America (Low Line)" },
-        { left: "230V - 240V AC", right: "Europe/Asia (High Line)" }
-    ],
-    explanation: "North America uses the Low Line standard (~115V), while Europe and Asia use the High Line standard (~230V)."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    type: "match",
-    question: "Match the Connector Pin Count to its Component.",
-    pairs: [
-        { left: "24-pin", right: "Main Motherboard Power" },
-        { left: "15-pin", right: "SATA Power" },
-        { left: "8-pin (EPS)", right: "CPU Power" },
-        { left: "6+2 pin", right: "PCIe (GPU) Power" }
-    ],
-    explanation: "Motherboards use 24-pin, SATA uses 15-pin, Modern CPUs use 8-pin (EPS), and GPUs use 6+2 pin PCIe connectors."
-},
-{
-    tags: ["CORE1", "Hardware"],
-    type: "match",
-    question: "Match the Liquid Cooling Component to its Function.",
-    pairs: [
-        { left: "Water Block", right: "Transfers heat from chip to liquid" },
-        { left: "Radiator", right: "Exchanges heat from liquid to air" },
-        { left: "Reservoir", right: "Holds extra liquid for expansion" },
-        { left: "Pump", right: "Pushes coolant through the loop" }
-    ],
-    explanation: "The Water Block sits on the chip, the Radiator cools the liquid, the Reservoir holds fluid, and the Pump moves the fluid."
-},
-
-
+        { tags: ["CORE1", "Hardware"], type: "match", question: "Match the cable standard to its maximum transfer speed.", pairs: [ { left: "Cat 5e", right: "1 Gbps" }, { left: "Cat 6a", right: "10 Gbps" }, { left: "USB 2.0", right: "480 Mbps" }, { left: "Thunderbolt 3", right: "40 Gbps" } ], explanation: "Cat5e is limited to 1Gbps. Cat6a supports 10Gbps up to 100m. USB 2.0 is 480Mbps." },
+        { tags: ["CORE1", "Troubleshooting"], type: "terminal", question: "A user suspects a specific application is causing the CPU to overheat. Enter the command to view running processes.", validCommands: ["tasklist", "tasklist | more"], hint: "Lists all tasks.", explanation: "The 'tasklist' command displays currently running processes." }
     ];
 
-    function fetchQuestions(tags) {
-        return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t)));
-    }
+    function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
 
-    // --- SYSTEM LOGIC ---
-    function bootSystem() {
-        document.getElementById('start-overlay').style.display = 'none';
-        document.getElementById('term-win').style.display = 'flex';
-        document.getElementById('term-win').classList.add('power-on');
-        AudioEngine.init();
-        
-        // Button entrance animation
-        const btns = document.querySelectorAll('.btn');
-        btns.forEach((b, i) => { 
-            setTimeout(() => b.classList.add('visible'), 100 + (i * 50)); 
-        });
-        
-        drawRain();
-        spawnScanline();
+    /* ========================================================================= */
+    /* SECTION: FLUFF & EFFECTS (RESTORED)                                       */
+    /* ========================================================================= */
+    function spawnScanline() {
+        if(isDead) return;
+        const line = document.createElement('div'); line.className = 'scan-line';
+        line.style.height = (Math.random() * 3 + 1) + 'px';
+        line.style.animation = `scan-drop ${Math.random() * 5 + 4}s linear forwards`;
+        document.getElementById('scan-container').appendChild(line);
+        setTimeout(() => line.remove(), 10000);
+        setTimeout(spawnScanline, Math.random() * 8000 + 6000); 
     }
+    spawnScanline();
 
-    function goToSubMenu(id) {
-        document.getElementById('root-menu').classList.add('hidden');
-        const m = document.getElementById(id + '-menu');
-        m.classList.remove('hidden');
-        // Animate buttons
-        const btns = m.querySelectorAll('.btn');
-        btns.forEach(b => { b.classList.remove('visible'); });
-        btns.forEach((b, i) => { setTimeout(() => b.classList.add('visible'), 50 + (i * 50)); });
-    }
-
-    function goToRoot() {
-        document.querySelectorAll('[id$="-menu"]').forEach(el => el.classList.add('hidden'));
-        document.getElementById('root-menu').classList.remove('hidden');
-        document.getElementById('root-menu').querySelectorAll('.btn').forEach((b,i) => {
-             b.classList.remove('visible'); setTimeout(() => b.classList.add('visible'), 50 + (i*50));
-        });
-    }
-
-    function transitionToQuiz(tag1, tag2) {
-        setupQuiz(fetchQuestions([tag1, tag2]));
+    function triggerRandomGlitch() {
+        if(isDead) return;
+        const chaos = 1 - (integrity / 100);
+        if(Math.random() < 0.05 + (chaos * 0.5)) {
+            const targets = document.querySelectorAll('.btn, .question-box, h1');
+            if(targets.length > 0) {
+                const target = targets[Math.floor(Math.random()*targets.length)];
+                target.classList.add('random-glitch-active');
+                setTimeout(() => target.classList.remove('random-glitch-active'), 200);
+            }
+        }
+        setTimeout(triggerRandomGlitch, 200 + (integrity * 5));
     }
     
-    function startExam(tag) {
-        let q = fetchQuestions([tag]);
-        // Shuffle and slice
-        for (let i = q.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [q[i], q[j]] = [q[j], q[i]]; }
-        setupQuiz(q.slice(0, 90));
+    function spawnHexDump() {
+        if(isDead) return;
+        const chars = "0123456789ABCDEF"; let str = "";
+        for(let r=0; r<6; r++) { str += "0x"; for(let i=0; i<4; i++) str += chars[Math.floor(Math.random()*16)]; str += "\n"; }
+        const el = document.createElement('div'); el.className = "hex-dump";
+        el.style[Math.random() > 0.5 ? 'left' : 'right'] = Math.random() * 15 + "%"; el.style.top = Math.random() * 90 + "%";
+        document.body.appendChild(el);
+        setTimeout(()=>el.remove(), 8000);
+        setTimeout(spawnHexDump, Math.random() * 3000 + 2000);
+    }
+    
+    // MATRIX RAIN (RESTORED ORIGINAL)
+    const canvas = document.getElementById('matrix-canvas'); const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const fontSize = 14; const columns = Math.floor(canvas.width / fontSize); const drops = Array(columns).fill(1); 
+    const baseChars = "01010x<>!@#{}[]ZEUS"; 
+    function drawRain() {
+        if(Math.random() > 0.5) { requestAnimationFrame(drawRain); return; } 
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--term-color'); 
+        ctx.font = fontSize + 'px monospace';
+        for(let i=0; i<drops.length; i++) {
+            const char = baseChars[Math.floor(Math.random()*baseChars.length)];
+            ctx.fillText(char, i*fontSize, drops[i]*fontSize);
+            if(drops[i]*fontSize > canvas.height && Math.random() > 0.99) drops[i] = 0; drops[i]++;
+        }
+        requestAnimationFrame(drawRain);
+    }
+    drawRain();
+
+    function scrambleText(element, finalString, duration=500) {
+        const alphabet = "0101010101XYZ<>";
+        let start = Date.now();
+        function update() {
+            let prog = (Date.now() - start) / duration;
+            if(prog >= 1) { element.innerText = finalString; return; }
+            let txt = "";
+            for(let i=0; i<finalString.length; i++) {
+                if(i < finalString.length * prog) txt += finalString[i];
+                else txt += alphabet[Math.floor(Math.random()*alphabet.length)];
+            }
+            element.innerText = txt;
+            requestAnimationFrame(update);
+        }
+        update();
     }
 
-    function setupQuiz(questions) {
-        if(questions.length === 0) { alert("NO DATA"); return; }
-        qQueue = questions;
-        
-        // Hide Menus
-        document.querySelectorAll('[id$="-menu"], #root-menu').forEach(el => el.classList.add('hidden'));
-        document.getElementById('quiz-ui').classList.remove('hidden');
-        
-        resetGame();
-        startHUD();
-        loadSeq();
+    function typeExplain(element, text) {
+        if (explainTimer) { clearTimeout(explainTimer); explainTimer = null; }
+        element.style.display = 'block'; element.innerHTML = ""; let i = 0;
+        function type() {
+            if (i < text.length) { element.innerHTML += text.charAt(i); i++; explainTimer = setTimeout(type, 20); }
+        }
+        type();
     }
 
-    function resetGame() {
-        integrity = 100; currentScore = 0; tempLevel = 0;
-        updateStatus();
-    }
-
+    /* === HUD LOGIC === */
     function startHUD() {
-        if(hudInterval) clearInterval(hudInterval);
+        if (hudInterval) clearInterval(hudInterval);
         hudInterval = setInterval(() => {
             if(isDead) return;
-            // Temp Logic
-            if(document.getElementById('next-btn').classList.contains('hidden')) {
-                if(tempLevel < TEMP_MAX) tempLevel++;
-            } else {
-                 if(tempLevel > 0) tempLevel-=2;
+            if (sessionTime > 0) sessionTime--;
+            let mins = Math.floor(sessionTime / 60); let secs = sessionTime % 60;
+            document.getElementById('session-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+            // Temp Logic: Climbs if question active, drops if waiting for next
+            if (document.getElementById('next-btn').classList.contains('hidden')) {
+                if (tempLevel < TEMP_MAX) tempLevel++;
+                updateTempVisuals();
             }
-            updateTemp();
         }, 1000);
     }
 
-    function updateTemp() {
-        const pct = Math.max(0, Math.min(100, (tempLevel / TEMP_MAX) * 100));
+    function updateTempVisuals() {
         const bar = document.getElementById('temp-bar');
-        bar.style.width = pct + '%';
         const label = document.getElementById('temp-label');
-        
-        if(pct > 80) { 
-            bar.style.background = 'red'; label.style.color='red'; label.innerText = "!! CRIT !!"; 
-        } else if (pct > 50) {
-            bar.style.background = 'orange'; label.style.color='orange'; label.innerText = "> HEAT <";
+        const pct = tempLevel / TEMP_MAX;
+        bar.style.width = `${pct * 100}%`;
+
+        // Restored Text Effects on Temp
+        if (tempLevel >= 50) {
+            label.innerText = "!! OVERHEAT !!"; label.style.color = "#ff0000"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "red";
+        } else if (tempLevel >= 40) {
+            label.innerText = ">> DANGER <<"; label.style.color = "#ff4400"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "orange";
+        } else if (tempLevel >= 30) {
+            label.innerText = ">> WARM <<"; label.style.color = "#ffaa00"; bar.classList.remove('temp-pulse-active'); bar.style.background = "yellow";
         } else {
-            bar.style.background = '#0affba'; label.style.color='#0affba'; label.innerText = "TEMP";
+            label.innerText = "TEMP"; label.style.color = "#ffffff"; label.classList.remove('label-crit'); bar.classList.remove('temp-pulse-active'); bar.style.background = "#0affba";
         }
     }
 
-    function updateStatus() {
-        if(integrity <= 0 && !isDead) { triggerFail(); return; }
-        if(integrity > 100) integrity = 100;
+    /* ========================================================================= */
+    /* SECTION: SYSTEM LOGIC                                                     */
+    /* ========================================================================= */
+    function bootSystem() {
+        document.getElementById('start-overlay').style.display = 'none';
+        AudioEngine.init(); 
+        const term = document.getElementById('term-win');
+        term.style.display = 'flex'; term.classList.add('power-on');
         
-        document.getElementById('integrity-bar').style.width = integrity + '%';
-        document.getElementById('score-ui').innerText = 'PTS:' + currentScore;
+        // Button Animations
+        const btns = document.querySelectorAll('.btn');
+        btns.forEach((b, i) => { setTimeout(() => { b.classList.add('visible'); setTimeout(() => b.classList.add('drift-active'), 500); }, 500 + (i * 150)); });
+        spawnHexDump(); triggerRandomGlitch();
+    }
+
+    function goToSubMenu(type) {
+        document.getElementById('root-menu').classList.add('hidden');
+        document.getElementById(type + '-menu').classList.remove('hidden');
+        const target = document.getElementById(type + '-menu');
+        const btns = target.querySelectorAll('.btn');
+        btns.forEach((b, i) => { b.classList.remove('visible'); setTimeout(() => { b.classList.add('visible'); }, 100 + (i * 100)); });
+    }
+
+    function goToRoot() {
+        document.querySelectorAll('[id$="-menu"]').forEach(m => m.classList.add('hidden'));
+        document.getElementById('root-menu').classList.remove('hidden');
+    }
+    
+    function transitionToQuiz(certTag, moduleTag) {
+        qQueue = fetchQuestions([certTag, moduleTag]);
+        if(qQueue.length === 0) { alert("NO DATA"); return; }
+        // Shuffle
+        for (let i = qQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; }
+        startQuiz();
+    }
+    
+    function startExam(certTag) {
+        qQueue = fetchQuestions([certTag]).slice(0, 90);
+        startQuiz();
+    }
+
+    function startQuiz() {
+        document.querySelectorAll('[id$="-menu"], #root-menu').forEach(m => m.classList.add('hidden'));
+        document.getElementById('quiz-ui').classList.remove('hidden');
+        resetGame(); startHUD(); loadSeq();
+    }
+    
+    function resetGame() {
+        currentScore = 0; integrity = 100; tempLevel = 0; isDead = false;
+        document.getElementById('fail-ui').classList.remove('fail-visible'); 
+        updateSystemState();
+    }
+
+    // --- DYNAMIC INTEGRITY (RESTORED) ---
+    function updateSystemState() {
+        if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
+        document.getElementById('integrity-bar').style.width = `${integrity}%`;
+        document.getElementById('score-ui').innerText = `PTS: ${currentScore}`;
+
+        // Dynamic CSS Variables based on health (The "Effects" user asked for)
+        const root = document.documentElement; 
+        let hue = integrity > 50 ? 140 + ((integrity - 50) * 0.4) : integrity * 1.2; 
+        const newColor = `hsl(${hue}, 100%, 50%)`;
+        root.style.setProperty('--term-color', newColor);
         
-        // Color shifts based on health
-        const root = document.documentElement;
-        if(integrity < 40) {
-            root.style.setProperty('--term-color', '#ff4444');
-            document.getElementById('integrity-bar').classList.add('integrity-critical');
-        } else {
-            root.style.setProperty('--term-color', '#0affba');
-            document.getElementById('integrity-bar').classList.remove('integrity-critical');
-        }
+        const panicLevel = (100 - integrity) / 100;
+        root.style.setProperty('--edge-opacity', panicLevel * 0.6);
+        root.style.setProperty('--shake-amp', (panicLevel * 1) + 'px'); 
+
+        const termWindow = document.getElementById('term-win');
+        if(integrity < 30) termWindow.classList.add('stress-active'); else termWindow.classList.remove('stress-active');
+        if(integrity <= 0 && !isDead) triggerFailure();
+    }
+
+    function triggerFailure() { 
+        isDead = true;
+        document.getElementById('fail-ui').classList.add('fail-visible'); 
+        AudioEngine.playSFX('error'); 
     }
 
     function loadSeq() {
-        if(qQueue.length === 0) { finishQuiz(); return; }
-        const q = qQueue.pop();
-        window.currentQ = q;
+        if (integrity <= 0 || qQueue.length === 0) { if(qQueue.length === 0) finish(); return; }
         
+        // --- TEMP RESET FIX ---
+        tempLevel = 0; updateTempVisuals();
+        // ---------------------
+
+        const q = qQueue.pop(); window.currentQ = q;
         document.getElementById('packet-counter').innerText = qQueue.length;
-        document.getElementById('q-text').innerText = q.question;
+        scrambleText(document.getElementById('q-text'), q.question, 400);
+        
         document.getElementById('explanation-box').style.display = 'none';
         document.getElementById('next-btn').classList.add('hidden');
         document.getElementById('opts-list').innerHTML = '';
-        document.getElementById('pbq-area').innerHTML = '';
         document.getElementById('pbq-area').style.display = 'none';
         document.getElementById('pbq-submit-btn').style.display = 'none';
 
-        if(q.type === 'terminal' || q.type === 'match') renderPBQ(q);
-        else renderMCQ(q);
-        
-        // Reset temp slightly on new question
-        tempLevel = Math.max(0, tempLevel - 5);
-        updateTemp();
+        if (q.type === 'terminal' || q.type === 'match') renderPBQ(q); else renderMCQ(q);
     }
 
     function renderMCQ(q) {
-        const list = document.getElementById('opts-list');
-        q.options.forEach((opt, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = "> " + opt;
-            btn.onclick = () => checkMCQ(i, btn);
-            list.appendChild(btn);
+        const optsList = document.getElementById('opts-list');
+        q.options.forEach((o, i) => {
+            const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o}`;
+            b.onclick = () => processResult(i === q.answer, b);
+            optsList.appendChild(b);
         });
     }
 
-    function checkMCQ(idx, btn) {
-        const isCorrect = (idx === window.currentQ.answer);
-        handleResult(isCorrect, btn);
-        // Highlight correct if wrong
-        if(!isCorrect) {
-            const list = document.getElementById('opts-list').children;
-            list[window.currentQ.answer].classList.add('correct');
-        }
-    }
-
     function renderPBQ(q) {
-        const area = document.getElementById('pbq-area');
-        area.style.display = 'flex';
+        const area = document.getElementById('pbq-area'); area.innerHTML = ''; area.style.display = 'flex';
         document.getElementById('pbq-submit-btn').style.display = 'block';
 
-        if(q.type === 'terminal') {
-            area.innerHTML = `<div class="cmd-input-line"><span style="color:var(--term-color)">>_</span><input id="cmd-input" type="text"></div>`;
+        if (q.type === 'terminal') {
+            area.innerHTML = `<div class="cmd-input-line"><span>C:\\></span><input type="text" id="cmd-input"></div>`;
         } else if (q.type === 'match') {
             matchState = { selected: null, pairsFound: 0 };
-            let html = `<div class="match-container"><div class="match-col" id="col-left"></div><div class="match-col" id="col-right"></div></div>`;
-            area.innerHTML = html;
-            
+            area.innerHTML = `<div class="match-container"><div class="match-col" id="col-left"></div><div class="match-col" id="col-right"></div></div>`;
             q.pairs.forEach((p, i) => {
-                const l = document.createElement('div'); l.className='match-item'; l.innerText=p.left; l.dataset.id=i; l.dataset.side='L';
-                l.onclick = (e) => handleMatch(e.target);
+                const l = document.createElement('div'); l.className='match-item'; l.innerText=p.left; l.dataset.id=i; l.dataset.side='l'; l.onclick=e=>handleMatch(e.target);
                 document.getElementById('col-left').appendChild(l);
-                
-                const r = document.createElement('div'); r.className='match-item'; r.innerText=p.right; r.dataset.id=i; r.dataset.side='R';
-                r.onclick = (e) => handleMatch(e.target);
+                const r = document.createElement('div'); r.className='match-item'; r.innerText=p.right; r.dataset.id=i; r.dataset.side='r'; r.onclick=e=>handleMatch(e.target);
                 document.getElementById('col-right').appendChild(r);
             });
             // Shuffle right
             const rCol = document.getElementById('col-right');
-            for (let i = rCol.children.length; i >= 0; i--) { rCol.appendChild(rCol.children[Math.random() * i | 0]); }
+            for (let i = rCol.children.length; i >= 0; i--) rCol.appendChild(rCol.children[Math.random() * i | 0]);
         }
     }
 
     function handleMatch(el) {
         if(el.classList.contains('matched')) return;
-        if(matchState.selected === el) { el.classList.remove('selected'); matchState.selected = null; return; }
-        
-        if(!matchState.selected) {
-            matchState.selected = el; el.classList.add('selected');
-        } else {
+        if(matchState.selected === el) { el.classList.remove('selected'); matchState.selected=null; return; }
+        if(!matchState.selected) { matchState.selected = el; el.classList.add('selected'); }
+        else {
             const prev = matchState.selected;
-            if(prev.dataset.side === el.dataset.side) {
-                prev.classList.remove('selected'); el.classList.add('selected'); matchState.selected = el; return;
-            }
+            if(prev.dataset.side === el.dataset.side) { prev.classList.remove('selected'); el.classList.add('selected'); matchState.selected = el; return; }
             if(prev.dataset.id === el.dataset.id) {
                 prev.classList.remove('selected'); el.classList.remove('selected');
                 prev.classList.add('matched'); el.classList.add('matched');
-                matchState.pairsFound++; matchState.selected = null;
-                AudioEngine.playSFX('click');
+                AudioEngine.playSFX('click'); matchState.pairsFound++; matchState.selected = null;
             } else {
-                prev.classList.remove('selected'); el.classList.add('wrong');
-                setTimeout(()=>el.classList.remove('wrong'), 300);
-                matchState.selected = null;
-                integrity -= 5; updateStatus(); showFloatText("-5", el, 'red');
-                AudioEngine.playSFX('error');
+                prev.classList.remove('selected'); el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'), 400);
+                AudioEngine.playSFX('error'); matchState.selected = null; integrity-=5; updateSystemState(); showFloatText("-5", el, 'red');
             }
         }
     }
 
     function submitPBQ() {
-        const q = window.currentQ;
-        let correct = false;
-        if(q.type === 'terminal') {
-            const val = document.getElementById('cmd-input').value.trim().toLowerCase();
-            if(q.validCommands.includes(val)) correct = true;
-        } else if (q.type === 'match') {
-            if(matchState.pairsFound === q.pairs.length) correct = true;
-        }
-        handleResult(correct, document.getElementById('pbq-submit-btn'));
+        const q = window.currentQ; let correct = false;
+        if(q.type === 'terminal') { if(q.validCommands.includes(document.getElementById('cmd-input').value.trim().toLowerCase())) correct = true; }
+        else if (q.type === 'match') { if(matchState.pairsFound === q.pairs.length) correct = true; }
+        processResult(correct, document.getElementById('pbq-submit-btn'));
     }
 
-    function handleResult(isCorrect, btn) {
-        questionsAttempted++;
-        // Disable inputs
-        document.querySelectorAll('.option-btn, .match-item').forEach(b => b.style.pointerEvents = 'none');
+    function processResult(isCorrect, btn) {
+        document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
         document.getElementById('pbq-submit-btn').style.display = 'none';
-
-        if(isCorrect) {
-            questionsCorrect++; currentScore += 10; integrity += 5;
-            btn.classList.add('correct');
-            AudioEngine.playSFX('success');
-            showFloatText("SUCCESS", btn, '#0affba');
+        
+        if (isCorrect) {
+            btn.classList.add('correct'); currentScore++; integrity += 5;
+            AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, '#0f0');
         } else {
-            integrity -= 15;
-            btn.classList.add('wrong');
-            AudioEngine.playSFX('error');
-            showFloatText("ERROR", btn, 'red');
+            btn.classList.add('wrong'); integrity -= 15;
+            AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
         }
-        updateStatus();
         
-        // Show explanation
-        const exp = document.getElementById('explanation-box');
-        exp.style.display = 'block';
-        exp.innerText = "> " + (window.currentQ.explanation || "No data.");
-        
-        if(integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
+        typeExplain(document.getElementById('explanation-box'), ">> " + window.currentQ.explanation);
+        updateSystemState();
+        if (integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
     }
 
-    function nextSeq() {
-        AudioEngine.playSFX('click');
-        loadSeq();
+    function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
+    
+    function showFloatText(text, element, color) {
+        const floatEl = document.createElement('div'); floatEl.className = 'float-text'; floatEl.innerText = text;
+        floatEl.style.color = color; floatEl.style.textShadow = `0 0 10px ${color}`;
+        document.body.appendChild(floatEl); 
+        const rect = element.getBoundingClientRect();
+        floatEl.style.left = (rect.left + rect.width/2 - 20) + 'px'; floatEl.style.top = rect.top + 'px';
+        setTimeout(() => floatEl.remove(), 2000);
+    }
+    
+    function showCrypto() {
+        navigator.clipboard.writeText("kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq").then(() => alert("KASPA ADDRESS COPIED!"));
     }
 
-    function triggerFail() {
-        isDead = true;
-        document.getElementById('fail-ui').classList.add('fail-visible');
-    }
-
-    function finishQuiz() {
+    function finish() {
         document.getElementById('quiz-ui').classList.add('hidden');
         document.getElementById('results-ui').classList.remove('hidden');
-        const pct = Math.floor((questionsCorrect / questionsAttempted) * 100) || 0;
-        document.getElementById('final-percent').innerText = pct + "%";
+        document.getElementById('final-percent').innerText = "DONE";
     }
-
-    function showFloatText(txt, el, color) {
-        const d = document.createElement('div'); d.className='float-text'; d.innerText=txt; d.style.color=color;
-        const rect = el.getBoundingClientRect();
-        d.style.left = (rect.left + rect.width/2 - 20) + 'px'; d.style.top = rect.top + 'px';
-        document.body.appendChild(d);
-        setTimeout(()=>d.remove(), 1500);
-    }
-
+    
     function shutdownSystem() { location.reload(); }
 
-    function showCrypto() {
-        const w = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq";
-        navigator.clipboard.writeText(w).then(() => { alert("KASPA ADDRESS COPIED TO CLIPBOARD:\n" + w); });
-    }
-
-    // --- VISUAL FX ---
-    function spawnScanline() {
-        if(isDead) return;
-        const l = document.createElement('div'); l.className='scan-line'; 
-        l.style.height = (Math.random()*5+2)+'px'; 
-        l.style.animation = `scan-drop ${Math.random()*3+2}s linear`;
-        document.getElementById('scan-container').appendChild(l);
-        setTimeout(()=>l.remove(), 5000);
-        setTimeout(spawnScanline, Math.random()*4000+2000);
-    }
-
-    // Canvas Rain (Simplified)
-    const cvs = document.getElementById('matrix-canvas'); const ctx = cvs.getContext('2d');
-    cvs.width = window.innerWidth; cvs.height = window.innerHeight;
-    const cols = Math.floor(cvs.width / 20); const drops = Array(cols).fill(1);
-    function drawRain() {
-        ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(0,0,cvs.width,cvs.height);
-        ctx.fillStyle = '#0affba'; ctx.font = '14px monospace';
-        drops.forEach((y, i) => {
-            if(Math.random() > 0.97) ctx.fillText(String.fromCharCode(0x30A0+Math.random()*96), i*20, y*20);
-            if(y*20 > cvs.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-        });
-        requestAnimationFrame(drawRain);
-    }
 </script>
 </body>
 </html>
