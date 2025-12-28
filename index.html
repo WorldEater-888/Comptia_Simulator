@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_MOBILE_FINAL</title>
+    <title>SYSTEM_ROOT_MOBILE_MAX</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
@@ -12,7 +12,8 @@
             --term-color: #0affba; /* Neon Mint Default */
             --split-1: #ff0000; 
             --split-2: #00ffff; 
-            --glow-color: rgba(10, 255, 186, 0.5);
+            /* INCREASED GLOW OPACITY */
+            --glow-color: rgba(10, 255, 186, 0.75); 
             --hint-color: #ffd700; 
             
             --edge-opacity: 0; 
@@ -22,50 +23,41 @@
             --sway-speed: 5s; 
         }
 
-        /* --- GLOBAL RESETS & MOBILE FIXES --- */
+        /* --- GLOBAL RESETS --- */
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
             user-select: none; 
-            cursor: auto !important; /* Cursor removed for mobile */
+            cursor: auto !important; /* Mobile Touch */
         }
         
-        /* SCROLLBAR STYLING */
-        ::-webkit-scrollbar { width: 4px; background: #000; }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--term-color); 
-            border: none;
-            box-shadow: 0 0 5px var(--term-color);
-        }
-
         body {
             background-color: #000000;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'VT323', monospace;
             color: var(--term-color);
             overflow: hidden;
-            height: 100dvh; /* Dynamic viewport height */
+            height: 100dvh; /* Mobile Dynamic Height */
             display: flex;
             flex-direction: column;
-            text-shadow: 0 0 5px var(--glow-color); 
+            /* Heavy Glow */
+            text-shadow: 0 0 8px var(--glow-color); 
             box-shadow: inset 0 0 80px var(--glow-color);
-            /* Restored Sway Animation */
             animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
             transition: color 0.4s ease, text-shadow 0.4s ease; 
         }
 
-        /* --- ORIGINAL BACKGROUND LAYERS (Restored) --- */
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 4px; background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--term-color); border: none; box-shadow: 0 0 5px var(--term-color); }
+
+        /* --- BACKGROUND LAYERS --- */
         .scan-line {
             position: fixed; left: 0; width: 100%;
             background: var(--term-color); opacity: 0.25; z-index: 600;
             pointer-events: none; box-shadow: 0 0 11px var(--term-color);
         }
-        @keyframes scan-drop {
-            0% { top: -10%; opacity: 0; }
-            10% { opacity: 0.35; }
-            100% { top: 110%; opacity: 0; }
-        }
+        @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
 
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
         #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.25; }
@@ -86,73 +78,61 @@
             animation: pulse-breath-erratic 4s infinite; 
         }
 
-        /* --- MOBILE OPTIMIZED UI CONTAINER --- */
+        /* --- MAIN TERMINAL WINDOW --- */
         .terminal-window {
             width: 100%; height: 100%;
-            border: none; /* Removed heavy border for mobile */
-            /* Restored Transparency and Blur */
-            background: rgba(0, 5, 5, 0.70); 
-            backdrop-filter: blur(8px); 
-            -webkit-backdrop-filter: blur(10px);
+            border: none;
+            background: rgba(0, 5, 5, 0.75); 
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             padding: 10px;
             display: none; flex-direction: column; position: relative;
-            /* Restored Dynamic Shake Logic via JS */
-            transition: border-color 0.2s ease, filter 0.2s ease, transform 0.1s; 
             z-index: 100; overflow: hidden;
+            /* Dynamic shake applied here via JS */
+            transition: border-color 0.2s ease, filter 0.2s ease; 
         }
         .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 
-        /* --- REORGANIZED HEADER (Mobile Friendly) --- */
+        /* --- HEADER --- */
         .header { 
             border-bottom: 2px solid var(--term-color); 
             padding-bottom: 5px; margin-bottom: 10px; 
             display: flex; flex-direction: column; gap: 5px;
             flex-shrink: 0; position: relative;
-            transition: border-color 0.2s ease;
         }
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         
-        .header-top {
-            display: flex; justify-content: space-between; align-items: center; width: 100%;
-        }
-
         .h-left h1 { 
             margin: 0; font-size: 2.5rem; letter-spacing: 2px; line-height: 1;
             text-shadow: 2px 0 var(--split-1), -2px 0 var(--split-2);
             font-weight: normal;
         }
 
-        /* Donation Buttons - Moved Top Right & Slimmed */
+        /* Donation Buttons */
         .donate-group { display: flex; gap: 8px; }
         .sys-btn {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             font-family: 'VT323', monospace;
             font-size: 1rem; font-weight: bold;
-            cursor: pointer; padding: 2px 8px;
+            cursor: pointer; padding: 4px 10px;
             border: 1px solid;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
             transition: all 0.2s ease;
             text-transform: uppercase;
         }
-        .sys-btn:active { transform: translate(1px, 1px); box-shadow: none; }
+        .sys-btn:active { transform: translate(1px, 1px); box-shadow: none; background: #fff; color: #000; }
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
 
-        /* Status Row - Left Aligned Integrity/Temp */
-        .header-stats-row {
-            display: flex; align-items: flex-end; justify-content: space-between;
-            width: 100%;
-        }
-        
-        .bars-group { display: flex; flex-direction: column; gap: 4px; width: 60%; }
-        
+        /* Integrity & Temp Bars */
+        .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
+        .bars-group { display: flex; flex-direction: column; gap: 4px; width: 65%; }
         .integrity-wrapper { width: 100%; display: flex; align-items: center; gap: 5px; }
-        .integrity-label { font-size: 0.8rem; letter-spacing: 1px; font-weight:bold; min-width: 70px; }
+        .integrity-label { font-size: 0.8rem; letter-spacing: 1px; font-weight:bold; min-width: 65px; }
         
         .integrity-container { 
             flex-grow: 1; height: 10px; border: 1px solid var(--term-color); 
             background: rgba(0,0,0,0.8); 
         }
-        
         .integrity-fill { 
             height: 100%; width: 100%; 
             box-shadow: 0 0 10px var(--term-color); 
@@ -161,12 +141,112 @@
             animation: health-pulse 1s infinite alternate;
         }
 
-        .audio-btn {
-            font-size: 0.9rem; background: transparent; border: 1px solid var(--term-color);
-            color: inherit; padding: 2px 6px;
+        .audio-btn { font-size: 0.9rem; background: transparent; border: 1px solid var(--term-color); color: inherit; padding: 2px 6px; }
+
+        /* --- BUTTONS & MENUS --- */
+        .menu-grid { 
+            display: grid; grid-template-columns: 1fr; 
+            gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px;
         }
 
-        /* --- RESTORED GLITCH CLASSES --- */
+        .btn { 
+            background: rgba(0,0,0,0.6); 
+            border: 1px solid var(--term-color); 
+            color: var(--term-color); 
+            font-family: 'VT323', monospace; 
+            font-size: 1.4rem; padding: 12px 15px;
+            cursor: pointer; text-align: left; 
+            transition: 0.1s; position: relative; overflow: hidden; 
+            opacity: 0; transform: translateY(10px);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5); 
+        }
+        .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .btn:active { background: #fff; color: #000; transform: translate(-1px, -1px); box-shadow: 0 0 15px #fff; }
+        
+        /* EXAM RED RESTORED */
+        .btn.exam-mode { border-color: #ff4444; color: #ff4444; }
+        .btn.exam-mode:active { background: #ff4444; color: #fff; box-shadow: 0 0 30px #ff4444; }
+
+        /* FIXED NAV BUTTON (THEMED) */
+        .nav-btn { 
+            position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px);
+            font-weight: bold; text-align: center; 
+            /* Theme restoration */
+            background: #000; 
+            color: var(--term-color); 
+            border: 2px solid var(--term-color); 
+            font-family: 'VT323', monospace;
+            font-size: 1.8rem; padding: 15px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500;
+            text-transform: uppercase;
+        }
+        .nav-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 30px var(--term-color); }
+
+        /* --- QUIZ AREA --- */
+        .quiz-container { 
+            display: flex; flex-direction: column; flex-grow: 1; 
+            overflow-y: auto; overflow-x: hidden; padding-bottom: 90px;
+        }
+        .quiz-header-bar {
+            display:flex; justify-content:space-between; align-items:center; 
+            border-bottom: 1px solid var(--term-color); 
+            padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem;
+        }
+        .question-box { 
+            font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; 
+            background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+            border-left: 6px solid var(--term-color); padding: 10px; 
+            color: #ffffff !important;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3), 1px 0 var(--split-1);
+            animation: random-drift 7s ease-in-out infinite alternate;
+        }
+        #explanation-box {
+            margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color);
+            background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none;
+        }
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { 
+            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); 
+            color: #ffffff !important; padding: 12px; 
+            font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
+            cursor: pointer; position: relative; 
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+        }
+        .option-btn:active { background: #fff !important; color: #000 !important; }
+        .option-btn.correct { background: var(--term-color) !important; color: black !important; }
+        .option-btn.wrong { background: #a00 !important; color: white !important; }
+
+        /* --- PBQ --- */
+        .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
+        .cmd-input-line { display: flex; align-items: center; background: rgba(0,0,0,0.8); border: 1px solid var(--term-color); padding: 10px; font-size: 1.3rem; }
+        #cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
+        .match-container { display: flex; justify-content: space-between; gap: 10px; }
+        .match-col { display: flex; flex-direction: column; gap: 10px; width: 48%; }
+        .match-item { border: 1px solid var(--term-color); background: rgba(0, 20, 20, 0.6); padding: 10px; text-align: center; font-size: 1.1rem; color: #fff; }
+        .match-item.selected { background: var(--term-color); color: #000; }
+        .match-item.matched { opacity: 0.5; text-decoration: line-through; }
+
+        /* --- ANIMATIONS (RESTORED) --- */
+        @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
+        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
+        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 100% { transform: translate(0, 0); } }
+        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
+        @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
+        /* RGB SPLIT GLITCH */
+        @keyframes rgb-split-hover { 
+            0% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 
+            25% { text-shadow: 2px 0 red, -2px 0 blue; transform: translate(-2px, 1px); } 
+            100% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 
+        }
+        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
+        @keyframes intense-pulse { 0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); } 100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); } }
+        @keyframes label-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #fff; text-shadow: 0 0 2px #fff; } }
+        @keyframes fail-entry { 0% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes vertical-rgb-split { 0% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } 100% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Helpers */
         .logo-glitch { animation: slice-glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite !important; color: #fff !important; }
         .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important; color: #fff !important; }
         .stress-active { animation: stress-shake 0.4s infinite !important; }
@@ -174,114 +254,6 @@
         .temp-pulse-active { animation: intense-pulse 0.5s infinite alternate !important; }
         .label-crit { animation: label-flash 0.3s infinite; }
 
-        /* --- MOBILE OPTIMIZED MENU & BUTTONS --- */
-        .menu-grid { 
-            display: grid; grid-template-columns: 1fr; 
-            gap: 8px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px;
-        }
-
-        .btn { 
-            background: rgba(0,0,0,0.5); 
-            border: 2px solid var(--term-color); 
-            color: var(--term-color); 
-            font-family: 'VT323', monospace; 
-            /* Slimmer for Mobile */
-            font-size: 1.35rem; padding: 10px 12px;
-            cursor: pointer; text-align: left; 
-            transition: 0.1s; position: relative; overflow: hidden; 
-            opacity: 0; transform: translateY(10px);
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5); 
-        }
-        .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.5s ease, transform 0.5s ease; }
-        /* Active state for mobile touch feedback */
-        .btn:active { background: #fff; color: #000; transform: translate(-1px, -1px); box-shadow: 0 0 20px #fff; }
-        .btn.drift-active { animation: random-drift 6s ease-in-out infinite alternate; }
-
-        /* --- QUIZ UI --- */
-        .quiz-container { 
-            display: flex; flex-direction: column; flex-grow: 1; 
-            overflow-y: auto; overflow-x: hidden; padding-bottom: 70px; /* Space for footer button */
-        }
-        
-        .quiz-header-bar {
-            display:flex; justify-content:space-between; align-items:center; 
-            border-bottom: 1px solid var(--term-color); 
-            padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem;
-        }
-
-        .question-box { 
-            font-size: 1.5rem; line-height: 1.2; margin-bottom: 15px; 
-            background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
-            border-left: 6px solid var(--term-color); padding: 10px; 
-            color: #ffffff !important;
-            text-shadow: 0 0 5px rgba(255,255,255,0.3), 1px 0 var(--split-1);
-            animation: random-drift 7s ease-in-out infinite alternate;
-        }
-        
-        #explanation-box {
-            margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color);
-            background: rgba(0,10,0,0.6); font-size: 1.3rem; color: #ffffff; 
-            display: none;
-        }
-        
-        .options-list { display: flex; flex-direction: column; gap: 10px; }
-        
-        .option-btn { 
-            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); 
-            color: #ffffff !important; padding: 12px; 
-            font-family: 'VT323', monospace; font-size: 1.3rem; text-align: left; 
-            cursor: pointer; position: relative; 
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-            animation: random-drift 5s ease-in-out infinite alternate-reverse;
-        }
-        .option-btn:active { background: #fff !important; color: #000 !important; }
-        .option-btn.correct { background: var(--term-color) !important; color: black !important; animation: answer-thump 0.3s ease-out forwards !important; }
-        .option-btn.wrong { background: #a00 !important; color: white !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
-
-        /* FIXED NAV BUTTON FOR MOBILE THUMB REACH */
-        .nav-btn { 
-            position: fixed; bottom: 10px; left: 10px; width: calc(100% - 20px);
-            font-weight: bold; text-align: center; 
-            background: rgba(0, 0, 0, 0.9); color: #ffffff; 
-            border: 2px solid #ffffff; font-size: 1.6rem; padding: 12px; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500;
-        }
-
-        /* --- PBQ STYLES --- */
-        .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
-        .cmd-input-line { 
-            display: flex; align-items: center; background: rgba(0,0,0,0.8); 
-            border: 1px solid var(--term-color); padding: 8px; font-size: 1.3rem;
-        }
-        #cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
-        
-        .match-container { display: flex; justify-content: space-between; gap: 10px; }
-        .match-col { display: flex; flex-direction: column; gap: 10px; width: 48%; }
-        .match-item {
-            border: 1px solid var(--term-color); background: rgba(0, 20, 20, 0.6);
-            padding: 8px; text-align: center; font-size: 1.1rem; color: #fff;
-        }
-        .match-item.selected { background: var(--term-color); color: #000; }
-        .match-item.matched { opacity: 0.5; text-decoration: line-through; }
-
-        /* --- ANIMATIONS (All Restored) --- */
-        @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
-        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
-        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 100% { transform: translate(0, 0); } }
-        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
-        @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
-        @keyframes rgb-split-hover { 0% { text-shadow: -2px 0 red, 2px 0 blue; } 50% { text-shadow: 2px 0 red, -2px 0 blue; } 100% { text-shadow: -2px 0 red, 2px 0 blue; } }
-        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
-        @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
-        @keyframes intense-pulse { 0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); } 100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); } }
-        @keyframes label-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #fff; text-shadow: 0 0 2px #fff; } }
-        @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        @keyframes answer-shake { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } 100% { transform: translateX(0); } }
-        @keyframes fail-entry { 0% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes vertical-rgb-split { 0% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } 100% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        /* --- DECORATION --- */
         .hex-dump { position: absolute; font-family: monospace; font-size: 10px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; }
         .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
@@ -310,7 +282,7 @@
         >> TAP_TO_INITIALIZE <<
     </div>
     <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V1.5 // RESTORED_EFFECTS
+        MOBILE_CORE_V1.7 // THEME_RESTORED
     </div>
 </div>
 
@@ -342,7 +314,6 @@
                     </div>
                 </div>
             </div>
-            
             <div style="text-align: right;">
                  <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">PTS: 0</div>
                  <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO:ON]</button>
@@ -371,7 +342,7 @@
             <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()"> < BACK TO ROOT </button>
         </div>
     </div>
-
+    
     <div id="core2-menu" class="hidden">
         <div class="menu-grid">
             <button class="btn" onclick="transitionToQuiz('CORE2', 'OS')">[A] OS_CONCEPTS</button>
@@ -382,7 +353,6 @@
             <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()"> < BACK </button>
         </div>
     </div>
-    
     <div id="net-menu" class="hidden">
         <div class="menu-grid">
             <button class="btn" onclick="transitionToQuiz('NET', 'Fundamentals')">[A] FUNDAMENTALS</button>
@@ -393,7 +363,6 @@
             <button class="btn" style="border-color: #666; color: #888;" onclick="goToRoot()"> < BACK </button>
         </div>
     </div>
-    
     <div id="sec-menu" class="hidden">
         <div class="menu-grid">
             <button class="btn" onclick="transitionToQuiz('SEC', 'Attacks')">[A] THREATS_ATTACKS</button>
@@ -423,9 +392,6 @@
         <button class="nav-btn hidden" id="next-btn" onclick="nextSeq()">>> NEXT_PACKET >></button>
     </div>
 
-    <div id="secondary-status" style="position: absolute; bottom: 5px; left: 5px; font-size: 0.8rem; opacity: 0.5;"></div>
-    <div id="warning-area" style="text-align: center; margin-top: auto;"><div id="crit-warn" class="system-msg" style="display:none; color:red; font-size:1.5rem; font-weight:bold;"></div></div>
-
     <div id="results-ui" class="hidden" style="text-align: center; padding-top: 10px; overflow-y: auto; height: 100%;">
         <h1 style="font-size: 5rem; margin-bottom: 0px;" id="final-percent">0%</h1>
         <p style="font-size: 2rem; margin-bottom: 10px;">> DIAGNOSTIC COMPLETE</p>
@@ -442,7 +408,7 @@
 
 <script>
     /* ========================================================================= */
-    /* SECTION: AUDIO ENGINE (RESTORED ORIGINAL)                                 */
+    /* SECTION: AUDIO ENGINE                                                     */
     /* ========================================================================= */
     const AudioEngine = {
         ctx: null, masterGain: null, delayNode: null, isPlaying: false, isMuted: false, 
@@ -468,7 +434,6 @@
             drone.type = 'sine'; drone.frequency.value = 55; 
             droneGain.gain.setValueAtTime(0.05, now); droneGain.gain.linearRampToValueAtTime(0, now + 6);
             drone.connect(droneGain); droneGain.connect(this.masterGain); drone.start(now); drone.stop(now + 6);
-            
             const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
             osc.type = 'triangle'; osc.frequency.value = [43.65, 55, 65.41][Math.floor(Math.random()*3)];
             g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.1, now + 2); g.gain.linearRampToValueAtTime(0, now + 7); 
@@ -483,7 +448,6 @@
             if (type === 'click') { osc.type = 'square'; osc.frequency.setValueAtTime(800, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05); osc.start(t); osc.stop(t+0.05); } 
             else if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.1); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.2); } 
             else if (type === 'error') { osc.type = 'triangle'; osc.frequency.setValueAtTime(150+Math.random()*50, t); osc.frequency.linearRampToValueAtTime(50, t+0.4); g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4); osc.start(t); osc.stop(t+0.4); } 
-            else if (type === 'healthup') { osc.type = 'triangle'; osc.frequency.setValueAtTime(400, t); osc.frequency.linearRampToValueAtTime(800, t+0.2); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.3); osc.start(t); osc.stop(t+0.3); }
         },
         toggleMute: function() {
             this.isMuted = !this.isMuted;
@@ -493,19 +457,14 @@
     };
 
     /* ========================================================================= */
-    /* SECTION: VARIABLES & HELPERS                                              */
+    /* SECTION: VARS & HELPERS                                                   */
     /* ========================================================================= */
     let matchState = { selected: null, pairsFound: 0 };
     let qQueue = []; let currentScore = 0; window.integrity = 100;
-    let explainTimer = null;
-    let currentStreak = 0; let isExam = false; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
-    let quizHistory = []; 
-    let hudInterval = null;
-    let sessionTime = 5400; 
-    let tempLevel = 0; 
-    const TEMP_MAX = 60;
-
-    // --- DATA (Same as before) ---
+    let explainTimer = null; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
+    let hudInterval = null; let sessionTime = 5400; let tempLevel = 0; const TEMP_MAX = 60;
+    
+    // --- DATA ---
     const MASTER_DATABASE = [
         { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
         { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity." },
@@ -513,11 +472,10 @@
         { tags: ["CORE1", "Hardware"], type: "match", question: "Match the cable standard to its maximum transfer speed.", pairs: [ { left: "Cat 5e", right: "1 Gbps" }, { left: "Cat 6a", right: "10 Gbps" }, { left: "USB 2.0", right: "480 Mbps" }, { left: "Thunderbolt 3", right: "40 Gbps" } ], explanation: "Cat5e is limited to 1Gbps. Cat6a supports 10Gbps up to 100m. USB 2.0 is 480Mbps." },
         { tags: ["CORE1", "Troubleshooting"], type: "terminal", question: "A user suspects a specific application is causing the CPU to overheat. Enter the command to view running processes.", validCommands: ["tasklist", "tasklist | more"], hint: "Lists all tasks.", explanation: "The 'tasklist' command displays currently running processes." }
     ];
-
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
 
     /* ========================================================================= */
-    /* SECTION: FLUFF & EFFECTS (RESTORED)                                       */
+    /* SECTION: VISUAL EFFECTS                                                   */
     /* ========================================================================= */
     function spawnScanline() {
         if(isDead) return;
@@ -530,6 +488,7 @@
     }
     spawnScanline();
 
+    // RESTORED: Glitch text based on integrity
     function triggerRandomGlitch() {
         if(isDead) return;
         const chaos = 1 - (integrity / 100);
@@ -555,7 +514,7 @@
         setTimeout(spawnHexDump, Math.random() * 3000 + 2000);
     }
     
-    // MATRIX RAIN (RESTORED ORIGINAL)
+    // RESTORED: Matrix Rain
     const canvas = document.getElementById('matrix-canvas'); const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     const fontSize = 14; const columns = Math.floor(canvas.width / fontSize); const drops = Array(columns).fill(1); 
@@ -609,7 +568,6 @@
             let mins = Math.floor(sessionTime / 60); let secs = sessionTime % 60;
             document.getElementById('session-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
 
-            // Temp Logic: Climbs if question active, drops if waiting for next
             if (document.getElementById('next-btn').classList.contains('hidden')) {
                 if (tempLevel < TEMP_MAX) tempLevel++;
                 updateTempVisuals();
@@ -623,7 +581,6 @@
         const pct = tempLevel / TEMP_MAX;
         bar.style.width = `${pct * 100}%`;
 
-        // Restored Text Effects on Temp
         if (tempLevel >= 50) {
             label.innerText = "!! OVERHEAT !!"; label.style.color = "#ff0000"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "red";
         } else if (tempLevel >= 40) {
@@ -643,10 +600,8 @@
         AudioEngine.init(); 
         const term = document.getElementById('term-win');
         term.style.display = 'flex'; term.classList.add('power-on');
-        
-        // Button Animations
         const btns = document.querySelectorAll('.btn');
-        btns.forEach((b, i) => { setTimeout(() => { b.classList.add('visible'); setTimeout(() => b.classList.add('drift-active'), 500); }, 500 + (i * 150)); });
+        btns.forEach((b, i) => { setTimeout(() => { b.classList.add('visible'); }, 500 + (i * 150)); });
         spawnHexDump(); triggerRandomGlitch();
     }
 
@@ -666,7 +621,6 @@
     function transitionToQuiz(certTag, moduleTag) {
         qQueue = fetchQuestions([certTag, moduleTag]);
         if(qQueue.length === 0) { alert("NO DATA"); return; }
-        // Shuffle
         for (let i = qQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; }
         startQuiz();
     }
@@ -683,26 +637,26 @@
     }
     
     function resetGame() {
-        currentScore = 0; integrity = 100; tempLevel = 0; isDead = false;
+        currentScore = 0; integrity = 100; tempLevel = 0; isDead = false; questionsCorrect = 0; questionsAttempted = 0;
         document.getElementById('fail-ui').classList.remove('fail-visible'); 
         updateSystemState();
     }
 
-    // --- DYNAMIC INTEGRITY (RESTORED) ---
+    // --- RESTORED: INTEGRITY EFFECTS ---
     function updateSystemState() {
         if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
         document.getElementById('integrity-bar').style.width = `${integrity}%`;
         document.getElementById('score-ui').innerText = `PTS: ${currentScore}`;
 
-        // Dynamic CSS Variables based on health (The "Effects" user asked for)
         const root = document.documentElement; 
         let hue = integrity > 50 ? 140 + ((integrity - 50) * 0.4) : integrity * 1.2; 
         const newColor = `hsl(${hue}, 100%, 50%)`;
         root.style.setProperty('--term-color', newColor);
         
+        // RESTORED: Shake Calculation (Reduced by 50% as requested)
         const panicLevel = (100 - integrity) / 100;
         root.style.setProperty('--edge-opacity', panicLevel * 0.6);
-        root.style.setProperty('--shake-amp', (panicLevel * 1) + 'px'); 
+        root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px'); 
 
         const termWindow = document.getElementById('term-win');
         if(integrity < 30) termWindow.classList.add('stress-active'); else termWindow.classList.remove('stress-active');
@@ -718,10 +672,7 @@
     function loadSeq() {
         if (integrity <= 0 || qQueue.length === 0) { if(qQueue.length === 0) finish(); return; }
         
-        // --- TEMP RESET FIX ---
         tempLevel = 0; updateTempVisuals();
-        // ---------------------
-
         const q = qQueue.pop(); window.currentQ = q;
         document.getElementById('packet-counter').innerText = qQueue.length;
         scrambleText(document.getElementById('q-text'), q.question, 400);
@@ -759,7 +710,6 @@
                 const r = document.createElement('div'); r.className='match-item'; r.innerText=p.right; r.dataset.id=i; r.dataset.side='r'; r.onclick=e=>handleMatch(e.target);
                 document.getElementById('col-right').appendChild(r);
             });
-            // Shuffle right
             const rCol = document.getElementById('col-right');
             for (let i = rCol.children.length; i >= 0; i--) rCol.appendChild(rCol.children[Math.random() * i | 0]);
         }
@@ -791,10 +741,12 @@
     }
 
     function processResult(isCorrect, btn) {
+        questionsAttempted++;
         document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
         document.getElementById('pbq-submit-btn').style.display = 'none';
         
         if (isCorrect) {
+            questionsCorrect++;
             btn.classList.add('correct'); currentScore++; integrity += 5;
             AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, '#0f0');
         } else {
@@ -818,14 +770,43 @@
         setTimeout(() => floatEl.remove(), 2000);
     }
     
+    // RESTORED: Secure Channel Modal
     function showCrypto() {
-        navigator.clipboard.writeText("kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq").then(() => alert("KASPA ADDRESS COPIED!"));
+        AudioEngine.playSFX('success');
+        const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq"; 
+        
+        const popup = document.createElement('div');
+        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px);";
+        
+        popup.innerHTML = `
+            <h2 style="color:#70c7ba; margin:0 0 10px 0; font-size:1.8rem;">>> SECURE CHANNEL <<</h2>
+            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-size:0.9rem;">${walletAddress}</div>
+            <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
+            <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
+        `;
+        document.body.appendChild(popup);
+
+        document.getElementById('copy-btn').onclick = () => {
+            navigator.clipboard.writeText(walletAddress);
+            AudioEngine.playSFX('success');
+            document.getElementById('copy-btn').innerText = "[ COPIED ]";
+        };
+        document.getElementById('close-crypto').onclick = () => popup.remove();
     }
 
+    // RESTORED: Percentage Calculation
     function finish() {
         document.getElementById('quiz-ui').classList.add('hidden');
         document.getElementById('results-ui').classList.remove('hidden');
-        document.getElementById('final-percent').innerText = "DONE";
+        
+        let pct = 0;
+        if(questionsAttempted > 0) pct = Math.floor((questionsCorrect/questionsAttempted)*100);
+        
+        let i = 0;
+        const interval = setInterval(() => {
+            document.getElementById('final-percent').innerText = `${i}%`;
+            if (i >= pct) clearInterval(interval); i++;
+        }, 20);
     }
     
     function shutdownSystem() { location.reload(); }
