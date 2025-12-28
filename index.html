@@ -148,6 +148,12 @@
             animation: health-pulse 1s infinite alternate;
         }
         
+        /* FIX: Smooth Temp Gauge Transition */
+        #temp-bar {
+            /* Matches the 1000ms update interval for continuous gliding */
+            transition: width 1s linear !important; 
+        }
+        
         /* Phosphorus Flash Damage Effect */
         .dmg-shock { 
             animation: phosphorus-flash 0.5s ease-out; 
@@ -269,16 +275,9 @@
         .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
         
-        /* EXECUTE BUTTON - MICRO SHAKE */
+        /* EXECUTE BUTTON - now inherits .btn style & active effects */
         #pbq-submit-btn {
-            animation: micro-shake 0.2s infinite;
-        }
-        @keyframes micro-shake {
-            0% { transform: translate(0, 0); }
-            25% { transform: translate(1px, 1px); }
-            50% { transform: translate(-1px, 0); }
-            75% { transform: translate(0, -1px); }
-            100% { transform: translate(0, 0); }
+            /* Inherits .btn transparency */
         }
 
         /* --- ANIMATIONS (RESTORED ALL) --- */
@@ -485,7 +484,8 @@
         <div class="options-list" id="opts-list"></div>
 
         <div id="pbq-area" class="pbq-wrapper"></div>
-        <button id="pbq-submit-btn" class="btn" onclick="submitPBQ()" style="display:none; background: var(--term-color); color:#000; font-weight:bold; margin-top:10px;">[ EXECUTE_COMMAND ]</button>
+        
+        <button id="pbq-submit-btn" class="btn" onclick="submitPBQ()" style="display:none; margin-top:10px;">[ EXECUTE_COMMAND ]</button>
         
         <button class="nav-btn hidden" id="next-btn" onclick="nextSeq()">>> NEXT_PACKET >></button>
     </div>
@@ -838,6 +838,7 @@
 
     function renderPBQ(q) {
         const area = document.getElementById('pbq-area'); area.innerHTML = ''; area.style.display = 'flex';
+        // Make visible (class .btn handles style)
         document.getElementById('pbq-submit-btn').style.display = 'block';
 
         if (q.type === 'terminal') {
