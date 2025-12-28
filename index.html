@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_V3</title>
+    <title>SYSTEM_ROOT_V4</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
         :root {
             /* Dynamic Variables */
             --term-color: #0affba; 
-            --split-1: #ff0000; 
-            --split-2: #00ffff; 
-            --glow-color: rgba(10, 255, 186, 0.85);
+            --term-hue: 140; /* Used for smoother transitions */
             --edge-opacity: 0; 
-            --shake-amp: 0px; 
-            
-            --sway-speed: 5s; 
+            --pulse-speed: 2s;
         }
 
         /* --- GLOBAL RESETS --- */
@@ -31,10 +27,8 @@
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            text-shadow: 0 0 4px var(--glow-color), 0 0 8px var(--glow-color); 
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
-            animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
-            transition: color 0.2s ease, text-shadow 0.2s ease; 
+            text-shadow: 0 0 4px rgba(var(--term-hue), 100%, 50%, 0.5); 
+            transition: color 0.5s ease;
         }
 
         /* --- BACKGROUND LAYERS --- */
@@ -44,8 +38,11 @@
             pointer-events: none; box-shadow: 0 0 11px var(--term-color);
         }
         @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
+        
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
+        
         #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.3; }
+        
         .retro-grid {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3;
             background: linear-gradient(transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%), linear-gradient(90deg, transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%);
@@ -54,11 +51,22 @@
             opacity: 0.5;
             animation: grid-move 10s linear infinite;
         }
-        #panic-pulse {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 850;
-            box-shadow: inset 0 0 150px #ff0000; 
-            opacity: var(--edge-opacity); mix-blend-mode: overlay;
-            animation: pulse-breath-erratic 2s infinite; 
+
+        /* --- NEW VIGNETTE GLOW (TIED TO INTEGRITY) --- */
+        #vignette-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 800;
+            /* Inset red shadow that grows based on JS opacity */
+            box-shadow: inset 0 0 150px 20px #ff0000;
+            opacity: var(--edge-opacity); 
+            mix-blend-mode: hard-light;
+            animation: panic-breath var(--pulse-speed) ease-in-out infinite;
+        }
+        
+        @keyframes panic-breath {
+            0% { transform: scale(1); opacity: var(--edge-opacity); }
+            50% { transform: scale(1.02); opacity: calc(var(--edge-opacity) * 0.7); }
+            100% { transform: scale(1); opacity: var(--edge-opacity); }
         }
 
         /* --- TERMINAL WINDOW --- */
@@ -69,7 +77,6 @@
             padding: 10px;
             display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
-            transition: border-color 0.2s ease, filter 0.2s ease; 
         }
         .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 
@@ -79,20 +86,13 @@
             padding-bottom: 5px; margin-bottom: 10px; 
             display: flex; flex-direction: column; gap: 8px;
             flex-shrink: 0; position: relative;
+            transition: border-color 0.5s ease;
         }
-        
-        /* Updated Top Row layout */
-        .header-top { 
-            display: flex; justify-content: space-between; align-items: center; width: 100%; 
-        }
-        .h-left h1 { 
-            margin: 0; font-size: 2.2rem; letter-spacing: 2px; line-height: 1;
-            text-shadow: 2px 0 var(--split-1), -2px 0 var(--split-2); font-weight: normal;
-        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .h-left h1 { margin: 0; font-size: 2.2rem; letter-spacing: 2px; line-height: 1; font-weight: normal; }
 
         .header-controls { display: flex; align-items: center; gap: 8px; }
 
-        /* Updated Buttons */
         .sys-btn {
             background: rgba(0, 0, 0, 0.8);
             font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
@@ -104,65 +104,63 @@
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
 
-        /* New Smaller Audio Button */
         .audio-btn-small {
             background: transparent; border: 1px solid var(--term-color); 
             color: var(--term-color); font-family: 'VT323', monospace;
-            font-size: 0.8rem; padding: 2px 6px; cursor: pointer;
-            opacity: 0.8;
+            font-size: 0.8rem; padding: 2px 6px; cursor: pointer; opacity: 0.8;
+            transition: border-color 0.5s ease, color 0.5s ease;
         }
-        .audio-btn-small:active { background: var(--term-color); color: #000; }
 
-        /* --- BARS LAYOUT (FULL WIDTH) --- */
-        .bars-container {
-            display: flex; flex-direction: column; width: 100%; gap: 6px;
-        }
-        
-        .bar-row {
-            display: flex; align-items: center; width: 100%; gap: 10px;
-        }
-        
-        .bar-label {
-            width: 40px; font-size: 0.9rem; font-weight: bold; text-align: right;
-        }
+        /* --- BARS LAYOUT --- */
+        .bars-container { display: flex; flex-direction: column; width: 100%; gap: 6px; }
+        .bar-row { display: flex; align-items: center; width: 100%; gap: 10px; }
+        .bar-label { width: 40px; font-size: 0.9rem; font-weight: bold; text-align: right; }
         
         .bar-track {
             flex-grow: 1; height: 12px; background: rgba(0,0,0,0.6);
             border: 1px solid var(--term-color); position: relative;
+            transition: border-color 0.5s ease;
         }
         
         .integrity-fill { 
             height: 100%; width: 100%; 
-            background: repeating-linear-gradient(90deg, var(--term-color), var(--term-color) 4px, transparent 4px, transparent 6px);
+            background: var(--term-color);
             box-shadow: 0 0 10px var(--term-color);
-            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.5s linear, box-shadow 0.5s linear;
         }
         
         .temp-fill {
             height: 100%; width: 0%; background: #0affba; opacity: 0.8;
             transition: width 1s linear;
         }
+        .temp-flash { animation: white-flash 0.15s infinite; }
+        @keyframes white-flash { 0% { background: #fff; box-shadow: 0 0 20px #fff; } 50% { background: #ff0000; box-shadow: 0 0 5px red; } 100% { background: #fff; box-shadow: 0 0 20px #fff; } }
 
-        /* STREAK COUNTER */
-        .streak-display {
-            position: absolute; top: 5px; right: 5px; /* Overlaid on top right of header, or below bars? */
-        }
-
-        /* --- RGB SPLIT DAMAGE EFFECT --- */
+        /* RGB SPLIT DAMAGE EFFECT */
         @keyframes rgb-bar-split {
-            0% { transform: translate(0); filter: drop-shadow(0 0 0 transparent); background-color: var(--term-color); }
-            10% { transform: translate(-2px, 1px); filter: drop-shadow(-4px 0 0 #ff0000) drop-shadow(4px 0 0 #00ffff); background-color: #fff; }
-            30% { transform: translate(2px, -1px); filter: drop-shadow(4px 0 0 #ff0000) drop-shadow(-4px 0 0 #00ffff); background-color: #fff; }
-            50% { transform: translate(-1px, 2px); filter: drop-shadow(-2px 0 0 #ff0000) drop-shadow(2px 0 0 #00ffff); background-color: #ff0000; }
+            0% { transform: translate(0); filter: drop-shadow(0 0 0 transparent); }
+            20% { transform: translate(-2px, 1px); filter: drop-shadow(-3px 0 0 #ff0000) drop-shadow(3px 0 0 #00ffff); }
+            40% { transform: translate(2px, -1px); filter: drop-shadow(3px 0 0 #ff0000) drop-shadow(-3px 0 0 #00ffff); }
             100% { transform: translate(0); filter: drop-shadow(0 0 0 transparent); }
         }
         .bar-damaged { animation: rgb-bar-split 0.4s ease-out !important; }
 
-        /* --- MENUS & BUTTONS --- */
-        .menu-grid { 
-            display: grid; grid-template-columns: 1fr; 
-            gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px;
+        /* --- TEXT GLITCH EFFECT (TIED TO INTEGRITY) --- */
+        .text-glitch-active {
+            animation: text-skew 0.3s infinite linear;
+            color: #fff !important;
+            text-shadow: 2px 0 #ff0000, -2px 0 #00ffff !important;
         }
+        @keyframes text-skew {
+            0% { transform: skew(0deg); }
+            20% { transform: skew(-10deg) translateX(-2px); }
+            40% { transform: skew(10deg) translateX(2px); }
+            60% { transform: skew(-5deg); }
+            100% { transform: skew(0deg); }
+        }
+
+        /* --- MENUS --- */
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
         .btn { 
             background: rgba(0,0,0,0.6); border: 1px solid var(--term-color); 
             color: var(--term-color); font-family: 'VT323', monospace; 
@@ -172,11 +170,7 @@
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5); 
         }
         .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.4s ease, transform 0.4s ease; }
-        .btn:active { 
-            background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; 
-            animation: rgb-split-hover 0.1s infinite !important; transform: translate(-1px, -1px) !important; 
-        }
-        .btn.exam-mode { border-color: #ff4444; color: #ff4444; }
+        .btn:active { background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; }
         .nav-btn { 
             position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px);
             font-weight: bold; text-align: center; 
@@ -186,43 +180,25 @@
         }
         .nav-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 40px var(--term-color); }
 
-        /* --- QUIZ AREA --- */
-        .quiz-container { 
-            display: flex; flex-direction: column; flex-grow: 1; 
-            overflow-y: auto; overflow-x: hidden; padding-bottom: 90px;
-        }
-        .quiz-header-bar {
-            display:flex; justify-content:space-between; align-items:center; 
-            border-bottom: 1px solid var(--term-color); 
-            padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem;
-        }
+        /* --- QUIZ --- */
+        .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; }
+        .quiz-header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem; }
         .question-box { 
             font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; 
             background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
             border-left: 6px solid var(--term-color); padding: 10px; color: #ffffff !important;
-            text-shadow: 0 0 5px rgba(255,255,255,0.3), 1px 0 var(--split-1);
-            animation: random-drift 7s ease-in-out infinite alternate;
         }
-        #explanation-box {
-            margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color);
-            background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none;
-            text-shadow: 0 0 5px var(--glow-color);
-        }
+        #explanation-box { margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color); background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none; }
         .options-list { display: flex; flex-direction: column; gap: 10px; }
         .option-btn { 
             background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); 
             color: #ffffff !important; padding: 12px; 
             font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
-            cursor: pointer; position: relative; 
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            cursor: pointer; position: relative; box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
         }
-        .option-btn:active { 
-            background: #fff !important; padding-left: 15px; 
-            color: #000 !important; border-color: #fff; box-shadow: 0 0 40px #fff;
-            animation: rgb-split-hover 0.1s infinite !important;
-        }
-        .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; box-shadow: 0 0 50px var(--term-color) !important; animation: answer-thump 0.3s ease-out forwards !important; }
-        .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 50px red !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
+        .option-btn:active { background: #fff !important; color: #000 !important; }
+        .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; }
+        .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; }
 
         /* --- PBQ --- */
         .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
@@ -238,33 +214,19 @@
         /* --- ANIMATIONS --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 20% { clip-path: inset(85% 0 5% 0); transform: translate(5px, -2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
-        @keyframes stress-shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } }
-        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
-        @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
-        @keyframes rgb-split-hover { 0% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 25% { text-shadow: 2px 0 red, -2px 0 blue; transform: translate(-2px, 1px); } 50% { text-shadow: 0 -2px red, 0 2px blue; transform: translate(2px, -1px); } 100% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } }
-        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
-        @keyframes intense-pulse { 0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); } 100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); } }
-        @keyframes label-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #fff; text-shadow: 0 0 2px #fff; } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        @keyframes pulse-breath-erratic { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.4); } 100% { opacity: var(--edge-opacity); } }
-        @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 100px #fff; } 100% { transform: scale(1); } }
-        @keyframes answer-shake { 0% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } 100% { transform: translateX(0); } }
+        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 100% { transform: translate(0, 0); } }
 
         /* Helpers */
         .logo-glitch { animation: slice-glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite !important; color: #fff !important; }
-        .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important; color: #fff !important; }
-        .stress-active { animation: stress-shake 0.4s infinite !important; }
-        .integrity-critical { animation: intense-pulse 0.2s infinite !important; background: repeating-linear-gradient(90deg, #ff0000, #ff0000 8px, transparent 8px, transparent 10px) !important; box-shadow: 0 0 25px #ff0000 !important; }
-        .temp-pulse-active { animation: intense-pulse 0.5s infinite alternate !important; }
-        .label-crit { animation: label-flash 0.3s infinite; }
-        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--glow-color); }
+        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--term-color); }
         .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
         /* --- SCREENS --- */
         #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         
-        /* NEW FAIL SCREEN */
         #fail-ui { 
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; 
             z-index: 2000; background: #000; 
@@ -285,18 +247,18 @@
 <div class="pixel-overlay"></div>
 <canvas id="matrix-canvas"></canvas>
 <div class="retro-grid"></div>
-<div id="panic-pulse"></div> 
+<div id="vignette-overlay"></div> 
 <div id="scan-container"></div> 
 
 <div id="start-overlay" onclick="bootSystem()">
-    <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);" class="logo-glitch">
+    <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 #ff0000, -4px 0 #00ffff;" class="logo-glitch">
         [ SYSTEM_ROOT ]
     </div>
     <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
         >> TAP_TO_INITIALIZE <<
     </div>
     <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V3.0 // STREAK_UPDATE
+        MOBILE_CORE_V4.0 // GLOW_FIXED
     </div>
 </div>
 
@@ -409,7 +371,6 @@
     <div id="results-ui" class="hidden" style="text-align: center; padding-top: 10px; overflow-y: auto; height: 100%;">
         <h1 style="font-size: 5rem; margin-bottom: 0px;" id="final-percent">0%</h1>
         <p style="font-size: 2rem; margin-bottom: 10px;">> DIAGNOSTIC COMPLETE</p>
-        <div id="breakdown-container" style="text-align:left; margin:20px;"></div>
         <button class="nav-btn" style="position:relative; margin-top:30px;" onclick="AudioEngine.playMenuHover(); location.reload()">>> REBOOT_SYSTEM</button>
     </div>
 
@@ -465,9 +426,7 @@
             else if (type === 'click') { osc.type = 'square'; osc.frequency.setValueAtTime(800, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05); osc.start(t); osc.stop(t+0.05); } 
             else if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.1); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.2); } 
             else if (type === 'streak') { 
-                // SPECIAL STREAK SOUND
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, t); osc.frequency.linearRampToValueAtTime(800, t+0.1); 
-                osc.frequency.linearRampToValueAtTime(1600, t+0.2); 
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, t); osc.frequency.linearRampToValueAtTime(800, t+0.1); osc.frequency.linearRampToValueAtTime(1600, t+0.2); 
                 g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.5); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.5); 
             }
             else if (type === 'error') { osc.type = 'triangle'; osc.frequency.setValueAtTime(150+Math.random()*50, t); osc.frequency.linearRampToValueAtTime(50, t+0.4); g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4); osc.start(t); osc.stop(t+0.4); } 
@@ -519,18 +478,22 @@
     }
     spawnScanline();
 
+    // UPDATED: RGB Shift on random text based on damage
     function triggerRandomGlitch() {
         if(isDead) return;
-        const chaos = 1 - (integrity / 100);
-        if(Math.random() < 0.05 + (chaos * 0.5)) {
-            const targets = document.querySelectorAll('.btn, .question-box, h1');
+        const damage = 100 - integrity;
+        const chance = damage / 100; // 0 to 1
+        
+        if(Math.random() < chance * 0.4) {
+            // Select random text elements
+            const targets = document.querySelectorAll('.btn, h1, .question-box, .bar-label');
             if(targets.length > 0) {
-                const target = targets[Math.floor(Math.random()*targets.length)];
-                target.classList.add('random-glitch-active');
-                setTimeout(() => target.classList.remove('random-glitch-active'), 200);
+                const target = targets[Math.floor(Math.random() * targets.length)];
+                target.classList.add('text-glitch-active');
+                setTimeout(() => target.classList.remove('text-glitch-active'), 300);
             }
         }
-        setTimeout(triggerRandomGlitch, 200 + (integrity * 5));
+        setTimeout(triggerRandomGlitch, 300);
     }
     
     function spawnHexDump() {
@@ -611,6 +574,7 @@
         }, 1000);
     }
 
+    // UPDATED: Temp Text Logic & Flash
     function updateTempVisuals() {
         const bar = document.getElementById('temp-bar');
         const label = document.getElementById('temp-label');
@@ -618,13 +582,17 @@
         bar.style.width = `${pct * 100}%`;
 
         if (tempLevel >= 50) {
-            label.innerText = "!!"; label.style.color = "#ff0000"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "red";
+            label.innerText = "OVERHEAT"; label.style.color = "#ff0000"; 
+            bar.classList.add('temp-flash'); bar.style.background = "#fff";
         } else if (tempLevel >= 40) {
-            label.innerText = "!!"; label.style.color = "#ff4400"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "orange";
+            label.innerText = "DANGER"; label.style.color = "#ff4400"; 
+            bar.classList.remove('temp-flash'); bar.style.background = "orange";
         } else if (tempLevel >= 30) {
-            label.innerText = "TMP"; label.style.color = "#ffaa00"; bar.classList.remove('temp-pulse-active'); bar.style.background = "yellow";
+            label.innerText = "WARM"; label.style.color = "#ffaa00"; 
+            bar.classList.remove('temp-flash'); bar.style.background = "yellow";
         } else {
-            label.innerText = "TMP"; label.style.color = "#ffffff"; label.classList.remove('label-crit'); bar.classList.remove('temp-pulse-active'); bar.style.background = "#0affba";
+            label.innerText = "TEMP"; label.style.color = "#ffffff"; 
+            bar.classList.remove('temp-flash'); bar.style.background = "#0affba";
         }
     }
 
@@ -683,37 +651,28 @@
         updateSystemState();
     }
 
+    // UPDATED: Logic for smooth color transition and glow
     function updateSystemState() {
         if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
         
         const bar = document.getElementById('integrity-bar');
         bar.style.width = `${integrity}%`;
-        document.getElementById('streak-ui').innerText = `CONN: ${currentStreak}`; // UPDATED: STREAK DISPLAY
+        document.getElementById('streak-ui').innerText = `CONN: ${currentStreak}`;
 
+        // Smoother Hue Logic (0 to 120)
+        const hue = Math.floor(integrity * 1.2); 
+        
         const root = document.documentElement; 
+        root.style.setProperty('--term-hue', hue);
+        root.style.setProperty('--term-color', `hsl(${hue}, 100%, 50%)`);
         
-        let hue;
-        if(integrity > 50) hue = 140 + ((integrity - 50) * 0.4); 
-        else hue = integrity * 1.2; 
-        
-        const newColor = `hsl(${hue}, 100%, 50%)`;
-        const glowColor = `hsla(${hue}, 100%, 50%, 0.85)`;
-        
-        root.style.setProperty('--term-color', newColor);
-        root.style.setProperty('--glow-color', glowColor);
-        
+        // Edge Glow Opacity (0.0 at 100 integrity, 1.0 at 0 integrity)
         const panicLevel = (100 - integrity) / 100;
-        root.style.setProperty('--edge-opacity', panicLevel * 0.8);
-        root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px');
-
-        const termWindow = document.getElementById('term-win');
-        if(integrity < 30) {
-            termWindow.classList.add('stress-active'); 
-            bar.classList.add('integrity-critical');
-        } else {
-            termWindow.classList.remove('stress-active');
-            bar.classList.remove('integrity-critical');
-        }
+        root.style.setProperty('--edge-opacity', panicLevel);
+        
+        // Pulse speed increases as integrity drops
+        const pulseSpeed = Math.max(0.5, 2 - (panicLevel * 1.5)) + 's';
+        root.style.setProperty('--pulse-speed', pulseSpeed);
 
         if(integrity <= 0 && !isDead) triggerFailure();
     }
@@ -721,14 +680,11 @@
     function triggerFailure() { 
         isDead = true;
         document.getElementById('fail-ui').classList.add('fail-visible');
-        
-        // FILL DUMP TEXT
         let dump = "";
         for(let i=0; i<100; i++) {
             dump += `0x${Math.floor(Math.random()*99999).toString(16).toUpperCase().padStart(8,'0')} MEM_ERR\n`;
         }
         document.getElementById('fail-dump-text').innerText = dump;
-
         AudioEngine.playSFX('error'); 
     }
 
@@ -813,10 +769,9 @@
         
         if (isCorrect) {
             questionsCorrect++;
-            currentStreak++; // INCREMENT STREAK
+            currentStreak++; 
             btn.classList.add('correct'); integrity += 5;
             
-            // CHECK STREAK BONUS
             if(currentStreak > 0 && currentStreak % 3 === 0) {
                 integrity += 10; 
                 AudioEngine.playSFX('streak');
@@ -826,7 +781,7 @@
             }
             
         } else {
-            currentStreak = 0; // RESET STREAK
+            currentStreak = 0; 
             btn.classList.add('wrong'); integrity -= 15;
             AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
             triggerDamageEffect();
@@ -837,11 +792,10 @@
         if (integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
     }
 
-    // NEW FUNCTION: RGB Split visual on damage
     function triggerDamageEffect() {
         const bar = document.getElementById('integrity-bar');
         bar.classList.remove('bar-damaged');
-        void bar.offsetWidth; // Force Reflow
+        void bar.offsetWidth; 
         bar.classList.add('bar-damaged');
     }
 
@@ -856,14 +810,13 @@
         setTimeout(() => floatEl.remove(), 2000);
     }
     
-    // UPDATED: Fixed Centering logic
+    // UPDATED: Fixed Centering logic using margin:auto and left/right 0
     function showCrypto() {
         AudioEngine.playSFX('success');
         const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq"; 
         
         const popup = document.createElement('div');
-        // UPDATED: Fixed alignment for mobile, appended to body
-        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:85vw; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px); animation: turnOn 0.3s forwards; box-sizing:border-box;";
+        popup.style.cssText = "position:fixed; top:50%; left:0; right:0; margin: auto; transform:translateY(-50%); width:90%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px); animation: turnOn 0.3s forwards; box-sizing:border-box;";
         
         popup.innerHTML = `
             <h2 style="color:#70c7ba; margin:0 0 10px 0; font-size:1.8rem; font-family:'VT323'; text-shadow:0 0 5px #70c7ba;">>> SECURE CHANNEL <<</h2>
