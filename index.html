@@ -9,11 +9,11 @@
     <style>
         :root {
             /* Dynamic Variables */
-            --term-color: #0affba; /* Neon Mint Default */
+            --term-color: #0affba; 
             --split-1: #ff0000; 
             --split-2: #00ffff; 
             --glow-color: rgba(10, 255, 186, 0.5);
-            --hint-color: #ffd700; /* Gold for hints */
+            --hint-color: #ffd700; 
             
             --edge-opacity: 0; 
             --shake-amp: 0px; 
@@ -21,63 +21,9 @@
             
             --sway-speed: 5s; 
         }
-/* --- DONATION WIDGET STYLES --- */
-#donate-widget {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    gap: 10px;
-    z-index: 1000;
-    pointer-events: auto; /* Ensures clickable even if other layers overlap */
-}
-
-.sys-btn {
-    background: rgba(0, 0, 0, 0.8);
-    font-family: 'VT323', monospace;
-    font-size: 1.2rem; /* Smaller text */
-    font-weight: bold;
-    cursor: pointer;
-    padding: 5px 12px;
-    border: 1px solid;
-    transition: all 0.2s ease;
-    text-shadow: 0 0 2px currentColor;
-    box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
-    opacity: 0.7; /* Slightly faded until hovered */
-}
-
-.sys-btn:hover {
-    opacity: 1;
-    transform: translate(-2px, -2px);
-    box-shadow: 5px 5px 0px rgba(0,0,0,0.8);
-    z-index: 1001;
-}
-
-/* Specific Colors */
-.kofi-btn {
-    color: #ffd700;
-    border-color: #ffd700;
-}
-.kofi-btn:hover {
-    background: #ffd700;
-    color: #000;
-    box-shadow: 0 0 15px #ffd700;
-}
-
-.kas-btn {
-    color: #70c7ba;
-    border-color: #70c7ba;
-}
-.kas-btn:hover {
-    background: #70c7ba;
-    color: #000;
-    box-shadow: 0 0 15px #70c7ba;
-}
 
         /* --- 1. MOUSE CURSOR FIXES --- */
-        html, body, * { 
-            cursor: none !important; 
-        }
+        html, body, * { cursor: none !important; }
 
         #custom-cursor {
             position: fixed;
@@ -100,30 +46,15 @@
             100% { opacity: 1; transform: translate(-50%, -50%) skewX(0deg); }
         }
 
-        /* --- END MOUSE FIXES --- */
-
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            user-select: none; 
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* SCROLLBAR STYLING */
         ::-webkit-scrollbar { width: 8px; background: #000; }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--term-color); 
-            border: 1px solid #000;
-            box-shadow: 0 0 5px var(--term-color);
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 20, 20, 0.5);
-            border-left: 1px solid var(--term-color);
-        }
+        ::-webkit-scrollbar-thumb { background: var(--term-color); border: 1px solid #000; box-shadow: 0 0 5px var(--term-color); }
 
         body {
             background-color: #000000;
             margin: 0;
-            padding: 60px 20px 20px 20px; 
+            padding: 10px; 
             font-family: 'VT323', monospace;
             color: var(--term-color);
             overflow: hidden;
@@ -134,26 +65,126 @@
             text-shadow: 0 0 5px var(--glow-color); 
             box-shadow: inset 0 0 80px var(--glow-color);
             animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
-            transition: color 0.4s ease, text-shadow 0.4s ease; 
         }
 
-        /* --- SCANLINE ANIMATION --- */
-        .scan-line {
-            position: fixed;
-            left: 0;
-            width: 100%;
-            background: var(--term-color);
-            opacity: 0.25;
-            z-index: 600;
-            pointer-events: none;
-            box-shadow: 0 0 11px var(--term-color);
+        /* --- SCANLINE & BACKGROUNDS --- */
+        .scan-line { position: fixed; left: 0; width: 100%; background: var(--term-color); opacity: 0.25; z-index: 600; pointer-events: none; box-shadow: 0 0 11px var(--term-color); }
+        @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
+        .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.25; }
+        .retro-grid { position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3; background: linear-gradient(transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%), linear-gradient(90deg, transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%); background-size: 50px 50px; transform: perspective(600px) rotateX(70deg) scale(2); opacity: 0.5; animation: grid-move 10s linear infinite; }
+
+        #panic-pulse { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 850; box-shadow: inset 0 0 150px #ff0000; opacity: var(--edge-opacity); mix-blend-mode: overlay; animation: pulse-breath-erratic 4s infinite; }
+
+        /* --- TERMINAL WINDOW: THE MOBILE FIX --- */
+        .terminal-window {
+            width: 95%; 
+            max-width: 900px; 
+            height: 90vh; 
+            max-height: 92vh;
+            border: 2px solid var(--term-color); 
+            background: rgba(0, 5, 5, 0.80); 
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px;
+            display: none; 
+            flex-direction: column; 
+            position: relative;
+            box-shadow: 5px 5px 0px rgba(0, 20, 20, 0.5);
+            z-index: 100;
+            overflow: hidden;
+        }
+        .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+
+        .header { 
+            border-bottom: 4px solid var(--term-color); 
+            padding-bottom: 10px; margin-bottom: 15px; 
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-shrink: 0;
+        }
+        .h-left h1 { 
+            margin: 0; font-size: 3rem; letter-spacing: 4px; line-height: 1;
+            text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);
         }
 
-        @keyframes scan-drop {
-            0% { top: -10%; opacity: 0; }
-            10% { opacity: 0.35; }
-            100% { top: 110%; opacity: 0; }
+        /* --- ALL YOUR ORIGINAL ANIMATIONS RE-INCLUDED --- */
+        .logo-glitch { animation: slice-glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite !important; color: #fff !important; }
+        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 20% { clip-path: inset(85% 0 5% 0); transform: translate(5px, -2px); } 30% { clip-path: inset(50% 0 30% 0); transform: translate(-3px, 0); } 40% { clip-path: inset(10% 0 40% 0); transform: translate(3px, 0); } 50% { clip-path: inset(0 0 0 0); transform: translate(0); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
+        .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important; color: #fff !important; }
+        .stress-active { animation: stress-shake 0.1s infinite !important; }
+        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 75% { transform: translate(-2px, -2px); } 100% { transform: translate(0, 0); } }
+        @keyframes ghost-sway { 0% { transform: translate(0, 0); } 50% { transform: translate(-0.4px, 0.8px); } 100% { transform: translate(-0.8px, 0); } }
+        @keyframes random-drift { 0% { transform: translate(0, 0); } 40% { transform: translate(-1px, 2px); } 80% { transform: translate(1.5px, 1px); } 100% { transform: translate(0, 0); } }
+
+        /* --- STATUS & HEALTH --- */
+        .status-container { display: flex; flex-direction: column; gap: 5px; margin-top: 5px; }
+        .status-line { font-size: 1.1rem; color: var(--term-color); letter-spacing: 2px; }
+        .stats-area { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+        .score-box { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; }
+        .integrity-wrapper { width: 250px; text-align: right; }
+        .integrity-container { width: 100%; height: 25px; border: 2px solid var(--term-color); padding: 2px; background: rgba(0,0,0,0.8); }
+        .integrity-fill { height: 100%; width: 100%; background: repeating-linear-gradient(90deg, var(--term-color), var(--term-color) 8px, transparent 8px, transparent 10px); animation: health-pulse 1s infinite alternate; }
+        
+        /* --- DONATION WIDGET --- */
+        #donate-widget { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
+        .sys-btn { background: rgba(0, 0, 0, 0.8); font-family: 'VT323', monospace; font-size: 1.2rem; cursor: pointer; padding: 5px 12px; border: 1px solid; transition: 0.2s; box-shadow: 3px 3px 0px rgba(0,0,0,0.5); }
+        .kofi-btn { color: #ffd700; border-color: #ffd700; }
+        .kas-btn { color: #70c7ba; border-color: #70c7ba; }
+
+        /* --- MENUS --- */
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
+        .btn { background: rgba(0,0,0,0.5); border: 2px solid var(--term-color); color: var(--term-color); font-family: 'VT323', monospace; font-size: 1.35rem; padding: 10px 15px; cursor: pointer; transition: 0.1s; opacity: 0; transform: translateY(10px); }
+        .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: 0.5s ease; }
+        .btn:hover { background: #fff; color: #000; border-color: #fff; animation: rgb-split-hover 0.1s infinite !important; }
+        .nav-btn { margin-top: 20px; width: 100%; font-weight: bold; text-align: center; background: rgba(0, 0, 0, 0.8); color: #fff; border: 1px solid #fff; font-size: 1.8rem; padding: 15px; }
+
+        /* --- QUIZ UI --- */
+        .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 10px; }
+        .question-box { font-size: 1.6rem; border-left: 8px solid var(--term-color); padding-left: 20px; margin-bottom: 20px; animation: q-pulse 5s ease-in-out infinite; }
+        .option-btn { background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); color: #fff; padding: 15px; font-size: 1.5rem; margin-bottom: 10px; text-align: left; }
+
+        /* --- MOBILE OVERRIDES (THE CRITICAL PART) --- */
+        @media screen and (max-width: 600px) {
+            .terminal-window { width: 98%; padding: 10px; }
+            .h-left h1 { font-size: 2rem; }
+            .integrity-wrapper { width: 150px; }
+            .stats-area { scale: 0.85; transform-origin: top right; }
+            .btn { font-size: 1.1rem; padding: 8px; }
+            .option-btn { font-size: 1.2rem; padding: 10px; }
+            .question-box { font-size: 1.3rem; }
+            #donate-widget { bottom: 10px; right: 10px; scale: 0.9; }
+            
         }
+        @media screen and (max-width: 600px) {
+    /* ... existing mobile overrides ... */
+
+    #start-overlay {
+        padding: 20px;
+        text-align: center;
+    }
+
+    #start-overlay .logo-glitch {
+        font-size: 2.2rem !important; /* Smaller logo for mobile */
+        margin-bottom: 40px !important;
+        letter-spacing: 3px !important;
+    }
+
+    #start-overlay div:nth-child(2) {
+        font-size: 1.1rem !important; /* Resized "Initialize" text */
+        letter-spacing: 1.5px !important;
+    }
+
+    #start-overlay div:last-child {
+        margin-top: 50px !important; /* Pull up the BIOS info */
+        font-size: 0.6rem !important;
+    }
+}
+
+        /* Animation Keyframes */
+        @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; } 100% { transform: scaleY(1) scaleX(1); opacity: 1; } }
+        @keyframes rgb-split-hover { 0% { text-shadow: -1px 0 var(--split-1), 1px 0 var(--split-2); } 100% { text-shadow: 1px 0 var(--split-1), -1px 0 var(--split-2); } }
+        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        .hidden { display: none !important; }
 
         /* --- BACKGROUND LAYERS --- */
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
@@ -630,7 +661,7 @@
 <div id="bottom-hacker"></div> 
 
 <div id="start-overlay" onclick="bootSystem()">
-    <div style="margin-bottom: 60px; font-size: 3.5rem; color: #fff; letter-spacing: 6px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);" class="logo-glitch">
+    <div class="logo-glitch" style="margin-bottom: 60px; font-size: 3.5rem; color: #fff; letter-spacing: 6px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);">
         [ SYSTEM_ROOT ]
     </div>
     
@@ -1349,11 +1380,11 @@
         popup.style.top = "50%";
         popup.style.left = "50%";
         popup.style.transform = "translate(-50%, -50%)";
-        popup.style.width = "90%";
+        popup.style.width = "95%"; // Changed from 90% for better mobile fit
         popup.style.maxWidth = "600px";
         popup.style.background = "rgba(0, 10, 10, 0.95)";
         popup.style.border = "2px solid #70c7ba"; 
-        popup.style.padding = "30px";
+        popup.style.padding = "20px"; // Reduced padding for small screens
         popup.style.zIndex = "9000"; 
         popup.style.textAlign = "center";
         popup.style.boxShadow = "0 0 50px rgba(112, 199, 186, 0.3)";
@@ -1999,3 +2030,4 @@
 </script>
 </body>
 </html>
+
