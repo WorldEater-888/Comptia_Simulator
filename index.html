@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_MOBILE_V2</title>
+    <title>SYSTEM_ROOT_MOBILE_V3</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
@@ -30,7 +30,7 @@
         }
         
         body {
-            background-color: #000000;
+            background-color: #050505; /* Slightly lighter black for retro feel */
             margin: 0; padding: 0;
             font-family: 'VT323', monospace;
             color: var(--term-color);
@@ -41,7 +41,6 @@
             
             /* Thematic Text Effects */
             text-shadow: 0 0 4px var(--glow-color), 0 0 8px var(--glow-color); 
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
             
             animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
             transition: color 0.2s ease, text-shadow 0.2s ease; 
@@ -50,14 +49,23 @@
         /* --- BACKGROUND LAYERS --- */
         .scan-line {
             position: fixed; left: 0; width: 100%;
-            background: var(--term-color); opacity: 0.25; z-index: 600;
+            background: var(--term-color); opacity: 0.15; z-index: 600;
             pointer-events: none; box-shadow: 0 0 11px var(--term-color);
+            animation: scan-drop 4s linear infinite;
         }
         @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
 
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
         
-        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.3; }
+        /* NEW: Gritty Haze Layer */
+        .crt-haze {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 800;
+            background: radial-gradient(circle, rgba(10, 20, 20, 0.1) 0%, rgba(0, 0, 0, 0.6) 90%);
+            backdrop-filter: blur(1px) contrast(1.1) brightness(1.2);
+            mix-blend-mode: hard-light;
+        }
+
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.4; }
         
         .retro-grid {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3;
@@ -68,22 +76,23 @@
             animation: grid-move 10s linear infinite;
         }
 
-        /* Panic Pulse */
+        /* RESTORED: Panic Pulse (Red Vignette) */
         #panic-pulse {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 850;
-            box-shadow: inset 0 0 150px #ff0000; 
+            box-shadow: inset 0 0 100px #ff0000, inset 0 0 200px #ff0000; /* Stronger inner glow */
             opacity: var(--edge-opacity); 
-            mix-blend-mode: overlay;
-            animation: pulse-breath-erratic 2s infinite; 
+            mix-blend-mode: screen; /* Changed to screen for better visibility on dark bg */
+            animation: pulse-breath-erratic 0.2s infinite; 
+            transition: opacity 0.5s ease;
         }
 
-        /* --- TERMINAL WINDOW (UPDATED TRANSPARENCY) --- */
+        /* --- TERMINAL WINDOW (MORE TRANSPARENT) --- */
         .terminal-window {
             width: 100%; height: 100%;
             border: none;
-            /* Updated: More transparent and blurrier */
-            background: rgba(0, 5, 5, 0.45); 
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            /* Updated: Significantly more transparent */
+            background: rgba(0, 5, 5, 0.25); 
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
             padding: 10px;
             display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
@@ -121,21 +130,22 @@
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
 
-        /* --- CRYPTO POPUP (UPDATED CENTER) --- */
+        /* --- CRYPTO POPUP (FIXED CENTER) --- */
         #crypto-popup {
             position: fixed; 
             top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
+            margin: 0; /* Reset margins to prevent offset */
             width: 90%; max-width: 400px;
             background: rgba(0, 10, 10, 0.95);
             border: 2px solid #70c7ba; 
             padding: 20px;
-            z-index: 10000; /* Super high Z-index */
+            z-index: 10000; 
             text-align: center;
             box-shadow: 0 0 50px rgba(112, 199, 186, 0.5);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             animation: turnOn 0.3s ease-out forwards;
-            display: none; /* Hidden by default */
+            display: none; 
         }
 
         /* --- STATS & BARS --- */
@@ -158,28 +168,20 @@
             animation: health-pulse 1s infinite alternate;
         }
 
-        /* UPDATED TEMP BAR TRANSITION */
         #temp-bar {
             width: 0%; 
             background: #0affba;
-            /* Smoother color transition */
             transition: width 0.5s ease-out, background-color 0.5s linear, box-shadow 0.5s linear;
         }
 
-        /* WHITE HOT PULSE ANIMATION */
+        /* FIXED: White Hot Pulse with !important to override inline styles */
         @keyframes white-hot-pulse {
-            0% { background-color: #ff0000; box-shadow: 0 0 15px #ff0000; filter: brightness(1); }
-            50% { background-color: #ffffff; box-shadow: 0 0 30px #ffffff; filter: brightness(2); }
-            100% { background-color: #ff0000; box-shadow: 0 0 15px #ff0000; filter: brightness(1); }
+            0% { background-color: #ff0000 !important; box-shadow: 0 0 20px #ff0000; filter: brightness(1); }
+            50% { background-color: #ffffff !important; box-shadow: 0 0 40px #ffffff; filter: brightness(3); }
+            100% { background-color: #ff0000 !important; box-shadow: 0 0 20px #ff0000; filter: brightness(1); }
         }
         .white-hot {
             animation: white-hot-pulse 0.4s infinite !important;
-        }
-
-        .audio-btn { 
-            font-size: 0.8rem; background: transparent; 
-            border: 1px solid var(--term-color); color: inherit; padding: 2px 5px;
-            cursor: pointer; transition: 0.2s;
         }
 
         /* --- MENUS & BUTTONS --- */
@@ -255,10 +257,36 @@
         .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; box-shadow: 0 0 50px var(--term-color) !important; animation: answer-thump 0.3s ease-out forwards !important; }
         .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 50px red !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
 
-        /* --- ANIMATIONS (ORIGINAL EFFECTS) --- */
+        /* --- DEATH SCREEN --- */
+        #death-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 5000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+        }
+        /* Adjusted Glitch Text for Death Screen */
+        .death-text {
+            font-size: 1.5rem; /* Smaller font */
+            color: red;
+            letter-spacing: 5px;
+            text-shadow: 2px 0 blue, -2px 0 yellow;
+            animation: slice-glitch 0.2s infinite linear alternate-reverse; /* Heavy glitch */
+            margin-bottom: 30px;
+        }
+        /* Float & Glow Reboot Button */
+        #reboot-btn {
+            padding: 15px 30px;
+            font-family: 'VT323', monospace; font-size: 1.5rem;
+            background: transparent; border: 2px solid red; color: red;
+            cursor: pointer; 
+            box-shadow: 0 0 20px red, inset 0 0 10px red;
+            animation: random-drift 3s ease-in-out infinite, pulse-breath 2s infinite;
+        }
+        #reboot-btn:active { background: red; color: black; box-shadow: 0 0 50px red; }
+
+        /* --- ANIMATIONS --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         
-        /* RESTORED: Aggressive Slice Glitch */
         @keyframes slice-glitch { 
             0% { clip-path: inset(0 0 0 0); transform: translate(0); } 
             10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 
@@ -269,7 +297,6 @@
             100% { clip-path: inset(0 0 0 0); transform: translate(0); } 
         }
         
-        /* RESTORED: Dynamic RGB Split */
         @keyframes rgb-split-hover { 
             0% { text-shadow: calc(var(--glitch-amp)*-1) 0 var(--split-1), var(--glitch-amp) 0 var(--split-2); transform: translate(0,0); } 
             25% { text-shadow: var(--glitch-amp) 0 var(--split-1), calc(var(--glitch-amp)*-1) 0 var(--split-2); transform: translate(-2px, 1px); } 
@@ -278,10 +305,11 @@
             100% { text-shadow: calc(var(--glitch-amp)*-1) 0 var(--split-1), var(--glitch-amp) 0 var(--split-2); transform: translate(0,0); } 
         }
 
-        @keyframes random-drift { 0% { transform: translate(0, 0); } 40% { transform: translate(-1px, 2px); } 80% { transform: translate(1.5px, 1px); } 100% { transform: translate(0, 0); } }
+        @keyframes random-drift { 0% { transform: translate(0, 0); } 40% { transform: translate(-2px, 3px); } 80% { transform: translate(3px, 1px); } 100% { transform: translate(0, 0); } }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes pulse-breath { 0% { opacity: 0.8; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1.02); } }
 
         /* Classes for JS toggling */
         .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important; color: #fff !important; }
@@ -302,10 +330,10 @@
 <body class="glitch-active">
 
 <div class="pixel-overlay"></div>
+<div class="crt-haze"></div> <div class="scan-line"></div>
 <canvas id="matrix-canvas"></canvas>
 <div class="retro-grid"></div>
 <div id="panic-pulse"></div> 
-<div id="scan-container"></div> 
 
 <div id="crypto-popup">
     <h2 style="color: #70c7ba; margin: 0 0 10px 0;">>> DONATE KASPA <<</h2>
@@ -314,6 +342,12 @@
     </div>
     <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
     <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
+</div>
+
+<div id="death-screen">
+    <div class="death-text">SYSTEM FAILURE</div>
+    <div class="death-text" style="font-size: 1rem; color: white; animation-delay: 0.1s;">INTEGRITY COMPROMISED</div>
+    <button id="reboot-btn" onclick="location.reload()">[ EMERGENCY REBOOT ]</button>
 </div>
 
 <div id="start-overlay" onclick="bootSystem()">
@@ -333,7 +367,8 @@
                 <h1 id="main-header">SYSTEM <span style="font-size: 0.6em; color:#fff;">ROOT</span></h1>
             </div>
             <div class="stats-area">
-                <div id="score-ui">PTS: 0</div>
+                <div id="score-ui" style="color: yellow; text-shadow: 0 0 5px yellow;">STREAK: 0</div>
+                
                 <div class="integrity-wrapper">
                     <div class="integrity-label">INTEGRITY</div>
                     <div class="integrity-container">
@@ -360,16 +395,6 @@
         </div>
     </div>
 
-    <div id="core1-menu" class="hidden">
-        <p>> CORE_1 // MODULES:</p>
-        <div class="menu-grid">
-            <button class="btn" onclick="transitionToQuiz('CORE1', 'Hardware')">[A] HARDWARE_CORE</button>
-            <button class="btn" onclick="transitionToQuiz('CORE1', 'Networking')">[B] NETWORKING</button>
-            <button class="btn" onclick="transitionToQuiz('CORE1', 'Mobile')">[C] MOBILE</button>
-            <button class="btn" onclick="transitionToQuiz('CORE1', 'Cloud')">[D] CLOUD_OPS</button>
-            <button class="btn" style="border-color:#666; color:#888;" onclick="goToRoot()">< BACK</button>
-        </div>
-    </div>
     <div id="quiz-ui" class="hidden quiz-container">
         <div class="quiz-header-bar">
             <span onclick="shutdownSystem()" style="color:red; font-weight:bold;">[ ABORT ]</span>
@@ -393,11 +418,11 @@
     /* ========================================================================= */
     let integrity = 100;
     let tempLevel = 0;
-    const TEMP_MAX = 60; // 60 seconds to overheat
-    let hudInterval = null;
+    let streak = 0; // NEW: Streak Counter
+    const TEMP_MAX = 60; 
     let isDead = false;
 
-    // --- ZALGO MATRIX RAIN (Ported from Original) ---
+    // --- ZALGO MATRIX RAIN ---
     const canvas = document.getElementById('matrix-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -459,7 +484,11 @@
     // --- SYSTEM STATE MANAGER ---
     function updateSystemState() {
         if (integrity > 100) integrity = 100;
-        if (integrity < 0) integrity = 0;
+        if (integrity <= 0) {
+            integrity = 0;
+            triggerDeath();
+            return;
+        }
         
         document.getElementById('integrity-bar').style.width = `${integrity}%`;
 
@@ -475,7 +504,10 @@
         
         // Intensity Variables
         const panicLevel = (100 - integrity) / 100;
-        root.style.setProperty('--edge-opacity', panicLevel * 0.6);
+        
+        // RESTORED EDGE GLOW LOGIC
+        root.style.setProperty('--edge-opacity', panicLevel * 0.8); // Higher multiplier for visibility
+        
         root.style.setProperty('--shake-amp', (panicLevel * 2) + 'px');
         const glitchSize = Math.max(1, (100 - integrity) / 6);
         root.style.setProperty('--glitch-amp', glitchSize + 'px');
@@ -484,6 +516,13 @@
         const termWindow = document.getElementById('term-win');
         if(integrity < 30) termWindow.classList.add('stress-active');
         else termWindow.classList.remove('stress-active');
+    }
+
+    function triggerDeath() {
+        if(isDead) return;
+        isDead = true;
+        document.getElementById('term-win').style.display = 'none';
+        document.getElementById('death-screen').style.display = 'flex';
     }
 
     // --- TEMP GAUGE LOGIC ---
@@ -506,6 +545,9 @@
             bar.classList.add('white-hot');
             document.getElementById('temp-label').style.color = '#ff0000';
             document.getElementById('temp-label').innerText = "!! OVERHEAT !!";
+            // Reduce integrity if overheated
+            integrity -= 0.1;
+            updateSystemState();
         } else {
             bar.classList.remove('white-hot');
             document.getElementById('temp-label').style.color = 'inherit';
@@ -522,12 +564,9 @@
         
         triggerRandomGlitch();
         
-        // Start HUD Timer for Temp
         setInterval(() => {
-            if(!isDead && !document.getElementById('next-btn').classList.contains('hidden')) return; // Don't heat up if waiting on user? Or do? Logic depends on gameplay. Assuming always heating:
-            // Actually, usually heat up during questions
-            if(document.getElementById('root-menu').classList.contains('hidden')) {
-                tempLevel++;
+            if(!isDead && document.getElementById('quiz-ui').classList.contains('hidden') === false) {
+                tempLevel += 0.5; // Slow heat up
                 updateTempVisuals();
             }
         }, 1000);
@@ -535,10 +574,42 @@
 
     function goToSubMenu(id) {
         document.getElementById('root-menu').classList.add('hidden');
-        // Simple logic for demo:
-        alert("This demo links mostly to the UI effects requested. Implement routing logic here.");
-        // Normally you'd unhide specific ID like 'core1-menu'
         document.getElementById('quiz-ui').classList.remove('hidden');
+        
+        // Simulate question load (would come from DB)
+        document.getElementById('q-text').innerText = "Which of the following ports is used for HTTPS traffic by default?";
+        const opts = document.getElementById('opts-list');
+        opts.innerHTML = `
+            <button class="option-btn" onclick="handleAnswer(this, false)">A. Port 80</button>
+            <button class="option-btn" onclick="handleAnswer(this, true)">B. Port 443</button>
+            <button class="option-btn" onclick="handleAnswer(this, false)">C. Port 21</button>
+            <button class="option-btn" onclick="handleAnswer(this, false)">D. Port 25</button>
+        `;
+    }
+
+    function handleAnswer(btn, isCorrect) {
+        if(isCorrect) {
+            btn.classList.add('correct');
+            streak++;
+            // Cooling effect on correct answer
+            tempLevel = Math.max(0, tempLevel - 10);
+            updateTempVisuals();
+        } else {
+            btn.classList.add('wrong');
+            streak = 0; // Reset streak
+            integrity -= 15;
+            updateSystemState();
+        }
+        document.getElementById('score-ui').innerText = `STREAK: ${streak}`;
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function nextSeq() {
+        document.getElementById('next-btn').classList.add('hidden');
+        // Reset buttons (visual only for this demo)
+        document.querySelectorAll('.option-btn').forEach(b => {
+            b.classList.remove('correct', 'wrong');
+        });
     }
 
     function goToRoot() {
