@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_V7_FINAL</title>
+    <title>SYSTEM_ROOT_V8_INTEGRATED</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
@@ -12,13 +12,17 @@
             --term-color: #0affba; 
             --term-hue: 150; 
             
-            /* Dynamic Physics (Controlled by JS) */
+            /* --- INTEGRATED RGB VARIABLES --- */
+            --split-1: #ff0000; /* Red channel */
+            --split-2: #00ffff; /* Cyan channel */
+            --glitch-amp: 2px;  /* Distance of the shift */
+
+            /* Dynamic Physics */
             --edge-opacity: 0; 
-            --drift-amp: 2px;       /* Amplitude of float */
-            --drift-speed: 5s;      /* Speed of float */
-            --rgb-offset: 1px;      /* RGB split distance */
-            --shake-intensity: 0px; /* Screen shake */
-            --glow-str: 5px;        /* Text shadow bloom */
+            --drift-amp: 2px;       
+            --drift-speed: 5s;      
+            --shake-intensity: 0px; 
+            --glow-str: 5px;        
         }
 
         /* --- GLOBAL RESETS --- */
@@ -33,8 +37,6 @@
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            
-            /* Dynamic Text Glow/Shadow */
             text-shadow: 0 0 var(--glow-str) var(--term-color); 
             transition: color 0.4s ease, text-shadow 0.2s ease;
         }
@@ -46,77 +48,53 @@
             pointer-events: none; box-shadow: 0 0 11px var(--term-color);
         }
         @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
-        
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
-        
         #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.6; }
-        
         .retro-grid {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3;
             background: linear-gradient(transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%), linear-gradient(90deg, transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%);
-            background-size: 50px 50px;
-            transform: perspective(600px) rotateX(70deg) scale(2);
-            opacity: 0.4;
-            animation: grid-move 10s linear infinite;
+            background-size: 50px 50px; transform: perspective(600px) rotateX(70deg) scale(2); opacity: 0.4; animation: grid-move 10s linear infinite;
         }
 
-        /* --- VIGNETTE GLOW (Matches Integrity) --- */
+        /* --- VIGNETTE --- */
         #vignette-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 800;
-            /* Matches system color, opacity controlled by damage */
             box-shadow: inset 0 0 80px 20px var(--term-color);
-            opacity: var(--edge-opacity); 
-            mix-blend-mode: hard-light;
-            animation: panic-breath 2s ease-in-out infinite;
-            transition: box-shadow 0.5s ease;
+            opacity: var(--edge-opacity); mix-blend-mode: hard-light;
+            animation: panic-breath 2s ease-in-out infinite; transition: box-shadow 0.5s ease;
         }
         @keyframes panic-breath { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.7); } 100% { opacity: var(--edge-opacity); } }
 
-        /* --- TERMINAL WINDOW (High Transparency) --- */
+        /* --- TERMINAL WINDOW --- */
         .terminal-window {
             width: 100%; height: 100%; border: none;
-            /* VERY TRANSPARENT per request */
             background: rgba(0, 5, 5, 0.15); 
             backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
-            padding: 10px;
-            display: none; flex-direction: column; position: relative;
+            padding: 10px; display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
-            /* Container Shake on damage */
             transform: translate(var(--shake-intensity), var(--shake-intensity));
         }
         .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 
         /* --- HEADER --- */
         .header { 
-            border-bottom: 2px solid var(--term-color); 
-            padding-bottom: 5px; margin-bottom: 10px; 
-            display: flex; flex-direction: column; gap: 8px;
-            flex-shrink: 0; position: relative;
-            transition: border-color 0.5s ease;
+            border-bottom: 2px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; 
+            display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; position: relative; transition: border-color 0.5s ease;
         }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .h-left h1 { margin: 0; font-size: 2.2rem; letter-spacing: 2px; line-height: 1; font-weight: normal; }
-
         .header-controls { display: flex; align-items: center; gap: 8px; }
 
         .sys-btn {
-            background: rgba(0, 0, 0, 0.4); /* More transp */
-            font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
-            cursor: pointer; padding: 4px 8px;
-            border: 1px solid; box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.4); font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; padding: 4px 8px; border: 1px solid; box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
             transition: all 0.2s ease; text-transform: uppercase;
         }
         .sys-btn:active { transform: translate(1px, 1px); background: var(--term-color); color: #000; }
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
-
-        .audio-btn-small {
-            background: transparent; border: 1px solid var(--term-color); 
-            color: var(--term-color); font-family: 'VT323', monospace;
-            font-size: 0.8rem; padding: 2px 6px; cursor: pointer; opacity: 0.8;
-            transition: border-color 0.5s ease, color 0.5s ease;
-        }
+        .audio-btn-small { background: transparent; border: 1px solid var(--term-color); color: var(--term-color); font-family: 'VT323', monospace; font-size: 0.8rem; padding: 2px 6px; cursor: pointer; opacity: 0.8; transition: border-color 0.5s ease, color 0.5s ease; }
 
         /* --- BARS LAYOUT --- */
         .bars-container { display: flex; flex-direction: column; width: 100%; gap: 6px; }
@@ -129,6 +107,30 @@
             transition: border-color 0.5s ease;
         }
         
+        /* INTEGRATED DAMAGE SHOCK CLASS (Triggered by JS) */
+        .dmg-shock { 
+            animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); 
+        }
+
+        @keyframes damage-flash { 
+            0% { transform: scale(1); filter: brightness(1); } 
+            50% { transform: scale(1.15); filter: brightness(5) hue-rotate(180deg); } 
+            100% { transform: scale(1); filter: brightness(1); } 
+        }
+        
+        /* The Red Critical State (Pulsing Red) */
+        .integrity-critical {
+            animation: crit-pulse 0.2s infinite !important;
+            background: repeating-linear-gradient(90deg, #ff0000, #ff0000 8px, transparent 8px, transparent 10px) !important;
+            box-shadow: 0 0 25px #ff0000 !important;
+        }
+
+        @keyframes crit-pulse { 
+            0% { filter: brightness(1); opacity: 1; box-shadow: 0 0 25px #ff0000; } 
+            50% { filter: brightness(5); opacity: 0.8; box-shadow: 0 0 50px #ff0000; } 
+            100% { filter: brightness(1); opacity: 1; box-shadow: 0 0 25px #ff0000; } 
+        }
+
         .integrity-fill { 
             height: 100%; width: 100%; 
             background: var(--term-color);
@@ -137,19 +139,44 @@
             transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.5s linear, box-shadow 0.5s linear;
         }
         
-        .temp-fill {
-            height: 100%; width: 0%; background: #0affba; opacity: 0.85; 
-            transition: width 1s linear;
-        }
-        
+        .temp-fill { height: 100%; width: 0%; background: #0affba; opacity: 0.85; transition: width 1s linear; }
         .temp-flash-bar { animation: white-flash 0.15s infinite; }
         .label-crit { animation: text-flash 0.2s infinite; }
-        
         @keyframes white-flash { 0% { background: #fff; box-shadow: 0 0 20px #fff; } 50% { background: #ff0000; box-shadow: 0 0 5px red; } 100% { background: #fff; box-shadow: 0 0 20px #fff; } }
         @keyframes text-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px red; } 50% { color: #fff; text-shadow: 0 0 10px #fff; } }
 
-        /* --- COMPLEX FLOAT ANIMATION (No Left Skew) --- */
-        /* Moves in a figure-8 / circular pattern centered on 0,0 */
+        /* --- INTEGRATED RGB TEXT GLITCH --- */
+        /* The class added by JS */
+        .random-glitch-active { 
+            animation: rgb-split-hover 0.2s infinite !important; 
+            color: #fff !important; 
+        }
+        
+        /* RGB Shift Keyframes */
+        @keyframes rgb-split-hover { 
+            0% { 
+                text-shadow: calc(var(--glitch-amp)*-1) 0 var(--split-1), var(--glitch-amp) 0 var(--split-2); 
+                transform: translate(0,0); 
+            } 
+            25% { 
+                text-shadow: var(--glitch-amp) 0 var(--split-1), calc(var(--glitch-amp)*-1) 0 var(--split-2); 
+                transform: translate(-2px, 1px); 
+            } 
+            50% { 
+                text-shadow: 0 calc(var(--glitch-amp)*-1) var(--split-1), 0 var(--glitch-amp) var(--split-2); 
+                transform: translate(2px, -1px); 
+            } 
+            75% { 
+                text-shadow: 0 var(--glitch-amp) var(--split-1), 0 calc(var(--glitch-amp)*-1) var(--split-2); 
+                transform: translate(-1px, 2px); 
+            } 
+            100% { 
+                text-shadow: calc(var(--glitch-amp)*-1) 0 var(--split-1), var(--glitch-amp) 0 var(--split-2); 
+                transform: translate(0,0); 
+            } 
+        }
+
+        /* --- BUTTONS & ANIMATIONS --- */
         @keyframes float-complex {
             0% { transform: translate(0, 0); }
             25% { transform: translate(var(--drift-amp), calc(var(--drift-amp) * 0.5)); }
@@ -157,55 +184,24 @@
             75% { transform: translate(calc(var(--drift-amp) * -1), calc(var(--drift-amp) * 0.5)); }
             100% { transform: translate(0, 0); }
         }
-
-        /* --- BUTTONS --- */
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
-        
         .btn { 
-            background: rgba(0,0,0,0.25); /* More transparent */
-            border: 1px solid var(--term-color); 
-            color: var(--term-color); font-family: 'VT323', monospace; 
-            font-size: 1.4rem; padding: 12px 15px; cursor: pointer; text-align: left; 
-            transition: opacity 0.4s ease; position: relative; overflow: hidden; 
-            opacity: 0; 
-            /* Main chaotic movement */
+            background: rgba(0,0,0,0.25); border: 1px solid var(--term-color); 
+            color: var(--term-color); font-family: 'VT323', monospace; font-size: 1.4rem; padding: 12px 15px; cursor: pointer; text-align: left; 
+            transition: opacity 0.4s ease; position: relative; overflow: hidden; opacity: 0; 
             animation: float-complex var(--drift-speed) ease-in-out infinite;
         }
         .btn.visible { opacity: 1 !important; }
-
-        /* Erratic Active State */
-        @keyframes glitch-shake {
-            0% { transform: translate(0); }
-            25% { transform: translate(-3px, 3px); }
-            50% { transform: translate(3px, -3px); filter: brightness(2); }
-            75% { transform: translate(-1px, 1px); }
-            100% { transform: translate(0); }
-        }
-        .btn:active { 
-            animation: glitch-shake 0.2s infinite linear !important; 
-            background: #fff !important; color: #000 !important; 
-            box-shadow: 0 0 30px var(--term-color), 0 0 50px #fff !important; 
-        }
-
-        .btn.exam-mode {
-            border-color: #ff0000 !important; color: #ffffff !important;
-            background: rgba(200, 0, 0, 0.25) !important; text-shadow: 0 0 5px #ff0000;
-        }
+        @keyframes glitch-shake { 0% { transform: translate(0); } 25% { transform: translate(-3px, 3px); } 50% { transform: translate(3px, -3px); filter: brightness(2); } 75% { transform: translate(-1px, 1px); } 100% { transform: translate(0); } }
+        .btn:active { animation: glitch-shake 0.2s infinite linear !important; background: #fff !important; color: #000 !important; box-shadow: 0 0 30px var(--term-color), 0 0 50px #fff !important; }
+        .btn.exam-mode { border-color: #ff0000 !important; color: #ffffff !important; background: rgba(200, 0, 0, 0.25) !important; text-shadow: 0 0 5px #ff0000; }
         .btn.exam-mode:active { background: #ff0000 !important; box-shadow: 0 0 50px #ff0000 !important; }
-
-        .nav-btn { 
-            position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px);
-            font-weight: bold; text-align: center; 
-            background: #000; color: var(--term-color); border: 2px solid var(--term-color); 
-            font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500; text-transform: uppercase;
-        }
+        .nav-btn { position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px); font-weight: bold; text-align: center; background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500; text-transform: uppercase; }
         .nav-btn:active { animation: glitch-shake 0.2s infinite; background: var(--term-color); color: #000; }
 
         /* --- QUIZ UI --- */
         .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; }
         .quiz-header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem; }
-        
         .question-box { 
             font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; 
             background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
@@ -214,23 +210,11 @@
         }
         #explanation-box { margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color); background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none; }
         .options-list { display: flex; flex-direction: column; gap: 10px; }
-        
-        /* ANSWER SELECTION: 50% movement, Haze feel */
         .option-btn { 
-            background: rgba(0, 0, 0, 0.4); border: 2px solid var(--term-color); 
-            color: #ffffff !important; padding: 12px; 
-            font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
-            cursor: pointer; position: relative; 
-            /* Slower, smaller movement + Haze Pulse */
-            animation: float-complex 7s ease-in-out infinite, haze-pulse 3s ease-in-out infinite; 
-            transform-origin: center;
+            background: rgba(0, 0, 0, 0.4); border: 2px solid var(--term-color); color: #ffffff !important; padding: 12px; font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; cursor: pointer; position: relative; 
+            animation: float-complex 7s ease-in-out infinite, haze-pulse 3s ease-in-out infinite; transform-origin: center;
         }
-        
-        @keyframes haze-pulse {
-            0%, 100% { box-shadow: 0 0 2px rgba(255,255,255,0.1); }
-            50% { box-shadow: 0 0 15px rgba(var(--term-hue), 100%, 50%, 0.4); }
-        }
-
+        @keyframes haze-pulse { 0%, 100% { box-shadow: 0 0 2px rgba(255,255,255,0.1); } 50% { box-shadow: 0 0 15px rgba(var(--term-hue), 100%, 50%, 0.4); } }
         .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; }
         .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; }
 
@@ -245,69 +229,25 @@
         .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
 
-        /* --- ANIMATIONS --- */
+        /* --- SCREENS --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         @keyframes blink-slow { 0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--term-color); } 50% { opacity: 0.6; text-shadow: 0 0 2px var(--term-color); } }
-
-        /* Text RGB Glitch Effect */
-        .text-glitch-active {
-            animation: text-skew 0.3s infinite linear;
-            color: #fff !important;
-            text-shadow: var(--rgb-offset) 0 #ff0000, calc(var(--rgb-offset) * -1) 0 #00ffff !important;
-        }
-        @keyframes text-skew {
-            0% { transform: skew(0deg); } 20% { transform: skew(-10deg) translateX(-2px); } 40% { transform: skew(10deg) translateX(2px); } 60% { transform: skew(-5deg); } 100% { transform: skew(0deg); }
-        }
-
-        /* --- SCREENS --- */
-        #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
         
-        /* Opening Screen Enhancements */
-        .title-glow {
-            font-size: 3rem; color: #fff; letter-spacing: 5px; margin-bottom: 50px;
-            /* Less flash, more glow/drift */
-            text-shadow: 0 0 10px var(--term-color), 0 0 20px var(--term-color);
-            animation: float-complex 6s ease-in-out infinite; 
-        }
+        #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .title-glow { font-size: 3rem; color: #fff; letter-spacing: 5px; margin-bottom: 50px; text-shadow: 0 0 10px var(--term-color), 0 0 20px var(--term-color); animation: float-complex 6s ease-in-out infinite; }
 
-        /* FAIL SCREEN (RESTORED & ENHANCED) */
         #fail-ui { 
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; 
-            z-index: 2000; background: #000; 
-            flex-direction: column; justify-content: center; align-items: center; 
-            opacity: 0; pointer-events: none; padding: 20px; overflow: hidden;
-            border: 5px solid red; box-shadow: inset 0 0 50px red;
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 2000; background: #000; 
+            flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; padding: 20px; overflow: hidden; border: 5px solid red; box-shadow: inset 0 0 50px red;
         }
         .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: turnOn 0.3s ease-out forwards; }
-        
-        /* Phosphorus/Ghostly Text */
-        .fail-text { 
-            font-size: 4rem; word-break: break-word; color:red; 
-            /* Phosphorus Burn Effect */
-            text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000;
-            animation: ghost-sway 4s ease-in-out infinite; 
-            margin-bottom: 10px;
-        }
-        
-        .fail-sub {
-            font-size: 2rem; color: #fff; text-transform: uppercase; letter-spacing: 3px;
-            text-shadow: 0 0 10px #fff;
-            animation: ghost-sway 5s ease-in-out infinite reverse;
-            margin-bottom: 30px;
-        }
-
-        @keyframes ghost-sway {
-            0% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; }
-            50% { transform: translate(-5px, 2px) rotate(-1deg); opacity: 1; filter: blur(1px); }
-            100% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; }
-        }
-
+        .fail-text { font-size: 4rem; word-break: break-word; color:red; text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000; animation: ghost-sway 4s ease-in-out infinite; margin-bottom: 10px; }
+        .fail-sub { font-size: 2rem; color: #fff; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px #fff; animation: ghost-sway 5s ease-in-out infinite reverse; margin-bottom: 30px; }
+        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; } 50% { transform: translate(-5px, 2px) rotate(-1deg); opacity: 1; filter: blur(1px); } 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; } }
         .fail-dump { font-family: monospace; color: #ff5555; font-size: 0.8rem; text-align: left; width: 90%; height: 30%; overflow: hidden; opacity: 0.7; margin-bottom: 20px; border-top: 1px solid red; border-bottom: 1px solid red; padding: 10px; }
         
         .hidden { display: none !important; }
-
-        /* Hex Dump Helper */
         .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--term-color); }
         .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
@@ -330,7 +270,7 @@
         >> TAP_TO_INITIALIZE <<
     </div>
     <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V7.0 // FINAL_RELEASE
+        MOBILE_CORE_V8.0 // INTEGRATED_EDITION
     </div>
 </div>
 
@@ -351,7 +291,7 @@
         <div class="bars-container">
             <div class="bar-row">
                 <div class="bar-label">CORE INTEGRITY</div>
-                <div class="bar-track">
+                <div class="bar-track" id="integrity-wrap">
                      <div class="integrity-fill" id="integrity-bar"></div>
                 </div>
             </div>
@@ -526,7 +466,6 @@
     let explainTimer = null; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
     let hudInterval = null; let sessionTime = 5400; let tempLevel = 0; const TEMP_MAX = 60;
     
-    // --- DATA ---
     const MASTER_DATABASE = [
         { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
         { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity." },
@@ -550,22 +489,29 @@
     }
     spawnScanline();
 
-    // Random Text Glitch (RGB Shifts increase with damage)
+    // --- INTEGRATED RANDOM TEXT GLITCH LOOP ---
     function triggerRandomGlitch() {
         if(isDead) return;
-        const damage = 100 - integrity;
-        const chance = damage / 100; // 0 to 1
         
-        if(Math.random() < chance * 0.4) {
-            // Select random text elements
-            const targets = document.querySelectorAll('.btn, h1, .question-box, .bar-label');
+        // Chaos increases as integrity drops
+        const chaos = 1 - (integrity / 100);
+        const chance = 0.05 + (chaos * 0.5); 
+        
+        if(Math.random() < chance) {
+            // Select random targets to glitch
+            const targets = document.querySelectorAll('.btn, .question-box, h1, .bar-label');
             if(targets.length > 0) {
-                const target = targets[Math.floor(Math.random() * targets.length)];
-                target.classList.add('text-glitch-active');
-                setTimeout(() => target.classList.remove('text-glitch-active'), 300);
+                const target = targets[Math.floor(Math.random()*targets.length)];
+                
+                // Add the CSS class that contains the RGB animation
+                target.classList.add('random-glitch-active');
+                
+                // Remove it quickly (200ms)
+                setTimeout(() => target.classList.remove('random-glitch-active'), 200);
             }
         }
-        setTimeout(triggerRandomGlitch, 300);
+        // Loop based on integrity (faster loop = lower integrity)
+        setTimeout(triggerRandomGlitch, 200 + (integrity * 5));
     }
     
     function spawnHexDump() {
@@ -731,7 +677,6 @@
         updateSystemState();
     }
 
-    // UPDATED INTEGRITY PHYSICS (Erratic Behavior)
     function updateSystemState() {
         if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
         
@@ -750,30 +695,23 @@
         
         // Physics Calculation
         const damage = 100 - integrity;
-        const panicLevel = damage / 100; // 0.0 to 1.0
+        const panicLevel = damage / 100; 
         
-        // 1. Edge Glow
         root.style.setProperty('--edge-opacity', panicLevel * 0.7); 
-        
-        // 2. Drift (Gets wider and faster)
-        const newSpeed = Math.max(0.2, 5 - (panicLevel * 4)) + 's'; // 5s -> 1s
-        const newAmp = (2 + (panicLevel * 8)) + 'px'; // 2px -> 10px
-        root.style.setProperty('--drift-speed', newSpeed);
-        root.style.setProperty('--drift-amp', newAmp);
-
-        // 3. RGB Shift (Wider split)
-        const rgbOffset = (1 + (panicLevel * 4)) + 'px';
-        root.style.setProperty('--rgb-offset', rgbOffset);
-        
-        // 4. Screen Shake (Only at low health)
-        if(integrity < 50) {
-            root.style.setProperty('--shake-intensity', (panicLevel * 2) + 'px');
-        } else {
-            root.style.setProperty('--shake-intensity', '0px');
-        }
-        
-        // 5. Glow Strength
+        root.style.setProperty('--drift-speed', Math.max(0.2, 5 - (panicLevel * 4)) + 's');
+        root.style.setProperty('--drift-amp', (2 + (panicLevel * 8)) + 'px');
+        root.style.setProperty('--rgb-offset', (1 + (panicLevel * 4)) + 'px');
         root.style.setProperty('--glow-str', (5 + (panicLevel * 10)) + 'px');
+
+        // Shake if low health
+        root.style.setProperty('--shake-intensity', (integrity < 50) ? (panicLevel * 2) + 'px' : '0px');
+
+        // CRITICAL STATE PULSE
+        if (integrity < 30) {
+            bar.classList.add('integrity-critical');
+        } else {
+            bar.classList.remove('integrity-critical');
+        }
 
         if(integrity <= 0 && !isDead) triggerFailure();
     }
@@ -810,7 +748,7 @@
         const optsList = document.getElementById('opts-list');
         q.options.forEach((o, i) => {
             const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o}`;
-            b.style.animationDelay = (Math.random() * -5) + 's'; // Randomize
+            b.style.animationDelay = (Math.random() * -5) + 's'; 
             b.onclick = () => processResult(i === q.answer, b);
             optsList.appendChild(b);
         });
@@ -849,10 +787,15 @@
                 AudioEngine.playSFX('click'); matchState.pairsFound++; matchState.selected = null;
             } else {
                 prev.classList.remove('selected'); el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'), 400);
-                AudioEngine.playSFX('error'); matchState.selected = null; integrity-=1; updateSystemState(); 
+                AudioEngine.playSFX('error'); matchState.selected = null; 
+                // Manual damage logic for match game
+                integrity -= 19; 
+                const wrap = document.getElementById('integrity-wrap');
+                wrap.classList.remove('dmg-shock'); void wrap.offsetWidth; wrap.classList.add('dmg-shock');
+                
+                updateSystemState(); 
                 const errs = ["SEG_FAULT", "NaN", "0x00DEAD", "NULL_REF", "BIT_FLIP"];
                 showFloatText(errs[Math.floor(Math.random()*errs.length)], el, 'red');
-                triggerDamageEffect();
             }
         }
     }
@@ -864,6 +807,7 @@
         processResult(correct, document.getElementById('pbq-submit-btn'));
     }
 
+    // --- UPDATED PROCESS RESULT (INTEGRATED SHOCK LOGIC) ---
     function processResult(isCorrect, btn) {
         questionsAttempted++;
         document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
@@ -884,21 +828,25 @@
             
         } else {
             currentStreak = 0; 
-            btn.classList.add('wrong'); integrity -= 15;
+            btn.classList.add('wrong'); 
+            
+            // 1. Calculate Damage (Standard 19, Exam 6 logic placeholder)
+            const damage = 19; 
+            integrity -= damage;
             AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
-            triggerDamageEffect();
+
+            // 2. Trigger the "Shock" animation class on wrapper
+            const wrap = document.getElementById('integrity-wrap');
+            if(wrap) {
+                wrap.classList.remove('dmg-shock'); 
+                void wrap.offsetWidth;              
+                wrap.classList.add('dmg-shock');    
+            }
         }
         
         typeExplain(document.getElementById('explanation-box'), ">> " + window.currentQ.explanation);
         updateSystemState();
         if (integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
-    }
-
-    function triggerDamageEffect() {
-        const bar = document.getElementById('integrity-bar');
-        bar.classList.remove('bar-damaged');
-        void bar.offsetWidth; 
-        bar.classList.add('bar-damaged');
     }
 
     function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
