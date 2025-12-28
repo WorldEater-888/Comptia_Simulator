@@ -3,42 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_V8_INTEGRATED</title>
+    <title>SYSTEM_ROOT_FINAL_RESTORED</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Core Colors */
+            /* Dynamic Variables - Controlled by JS */
             --term-color: #0affba; 
-            --term-hue: 150; 
+            --split-1: #ff0000; 
+            --split-2: #00ffff; 
+            --glow-color: rgba(10, 255, 186, 0.85);
             
-            /* --- INTEGRATED RGB VARIABLES --- */
-            --split-1: #ff0000; /* Red channel */
-            --split-2: #00ffff; /* Cyan channel */
-            --glitch-amp: 2px;  /* Distance of the shift */
-
-            /* Dynamic Physics */
             --edge-opacity: 0; 
-            --drift-amp: 2px;       
-            --drift-speed: 5s;      
-            --shake-intensity: 0px; 
-            --glow-str: 5px;        
+            --shake-amp: 0px; 
+            --glitch-amp: 1px;
+            
+            --sway-speed: 5s; 
         }
 
         /* --- GLOBAL RESETS --- */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; cursor: auto !important; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; 
+            cursor: auto !important; 
+        }
+        
+        html, body {
+            width: 100%;
+            overflow-x: hidden; /* Fix horizontal scrollbar */
+        }
         
         body {
             background-color: #000000;
             margin: 0; padding: 0;
             font-family: 'VT323', monospace;
             color: var(--term-color);
-            overflow: hidden;
             height: 100dvh;
             display: flex;
             flex-direction: column;
-            text-shadow: 0 0 var(--glow-str) var(--term-color); 
-            transition: color 0.4s ease, text-shadow 0.2s ease;
+            
+            /* HIGH PHOSPHORUS EFFECT */
+            text-shadow: 0 0 4px var(--glow-color), 0 0 8px var(--glow-color); 
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            
+            animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
+            transition: color 0.2s ease, text-shadow 0.2s ease; 
         }
 
         /* --- BACKGROUND LAYERS --- */
@@ -48,175 +58,226 @@
             pointer-events: none; box-shadow: 0 0 11px var(--term-color);
         }
         @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
+
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
-        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.6; }
+        
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.3; }
+        
         .retro-grid {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3;
             background: linear-gradient(transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%), linear-gradient(90deg, transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%);
-            background-size: 50px 50px; transform: perspective(600px) rotateX(70deg) scale(2); opacity: 0.4; animation: grid-move 10s linear infinite;
+            background-size: 50px 50px;
+            transform: perspective(600px) rotateX(70deg) scale(2);
+            opacity: 0.5;
+            animation: grid-move 10s linear infinite;
         }
 
-        /* --- VIGNETTE --- */
-        #vignette-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 800;
-            box-shadow: inset 0 0 80px 20px var(--term-color);
-            opacity: var(--edge-opacity); mix-blend-mode: hard-light;
-            animation: panic-breath 2s ease-in-out infinite; transition: box-shadow 0.5s ease;
+        /* Panic Pulse - Opacity controlled by JS Integrity */
+        #panic-pulse {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 850;
+            box-shadow: inset 0 0 150px #ff0000; 
+            opacity: var(--edge-opacity); 
+            mix-blend-mode: overlay;
+            animation: pulse-breath-erratic 2s infinite; 
         }
-        @keyframes panic-breath { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.7); } 100% { opacity: var(--edge-opacity); } }
 
         /* --- TERMINAL WINDOW --- */
         .terminal-window {
-            width: 100%; height: 100%; border: none;
-            background: rgba(0, 5, 5, 0.15); 
+            width: 100%; height: 100%;
+            border: none;
+            /* High transparency to see Matrix rain */
+            background: rgba(0, 5, 5, 0.65); 
+            /* REDUCED BLUR BY 50% */
             backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
-            padding: 10px; display: none; flex-direction: column; position: relative;
+            padding: 10px;
+            display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
-            transform: translate(var(--shake-intensity), var(--shake-intensity));
+            transition: border-color 0.2s ease, filter 0.2s ease; 
         }
         .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
 
         /* --- HEADER --- */
         .header { 
-            border-bottom: 2px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; 
-            display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; position: relative; transition: border-color 0.5s ease;
+            border-bottom: 2px solid var(--term-color); 
+            padding-bottom: 5px; margin-bottom: 10px; 
+            display: flex; flex-direction: column; gap: 5px;
+            flex-shrink: 0; position: relative;
+            transition: border-color 0.2s ease;
         }
-        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .h-left h1 { margin: 0; font-size: 2.2rem; letter-spacing: 2px; line-height: 1; font-weight: normal; }
-        .header-controls { display: flex; align-items: center; gap: 8px; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
+        
+        /* RETRO CYBERPUNK LOGO STYLE */
+        .h-left h1 { 
+            margin: 0; font-size: 2.2rem; letter-spacing: 2px; line-height: 1;
+            font-weight: normal;
+            position: relative;
+            color: #fff;
+            text-shadow: 
+                2px 0 var(--term-color), 
+                -2px 0 var(--split-1),
+                0 0 10px var(--term-color);
+            animation: cyber-glitch-anim 3s infinite alternate-reverse;
+        }
 
-        .sys-btn {
-            background: rgba(0, 0, 0, 0.4); font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
-            cursor: pointer; padding: 4px 8px; border: 1px solid; box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
-            transition: all 0.2s ease; text-transform: uppercase;
+        @keyframes cyber-glitch-anim {
+            0% { text-shadow: 2px 0 var(--term-color), -2px 0 var(--split-1); transform: skew(0deg); }
+            20% { text-shadow: 2px 0 var(--term-color), -2px 0 var(--split-1); transform: skew(0deg); }
+            21% { text-shadow: -2px 0 #ff00de, 2px 0 #00ffff; transform: skew(-10deg); }
+            22% { text-shadow: 2px 0 var(--term-color), -2px 0 var(--split-1); transform: skew(0deg); }
+            50% { opacity: 1; }
+            51% { opacity: 0.8; }
+            52% { opacity: 1; }
+            80% { text-shadow: 0px 2px #ff0000, 0px -2px #0000ff; }
+            100% { text-shadow: 2px 0 var(--term-color), -2px 0 var(--split-1); }
         }
-        .sys-btn:active { transform: translate(1px, 1px); background: var(--term-color); color: #000; }
+
+        /* Donation Buttons */
+        .donate-group { display: flex; gap: 6px; }
+        .sys-btn {
+            background: rgba(0, 0, 0, 0.8);
+            font-family: 'VT323', monospace;
+            font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; padding: 4px 8px;
+            border: 1px solid;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+        .sys-btn:active { transform: translate(1px, 1px); box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
-        .audio-btn-small { background: transparent; border: 1px solid var(--term-color); color: var(--term-color); font-family: 'VT323', monospace; font-size: 0.8rem; padding: 2px 6px; cursor: pointer; opacity: 0.8; transition: border-color 0.5s ease, color 0.5s ease; }
 
-        /* --- BARS LAYOUT --- */
-        .bars-container { display: flex; flex-direction: column; width: 100%; gap: 6px; }
-        .bar-row { display: flex; align-items: center; width: 100%; gap: 10px; }
-        .bar-label { min-width: 110px; font-size: 0.9rem; font-weight: bold; text-align: right; letter-spacing: 1px; }
+        /* Integrity & Temp Bars */
+        .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
+        .bars-group { display: flex; flex-direction: column; gap: 4px; width: 65%; }
+        .integrity-wrapper { width: 100%; display: flex; align-items: center; gap: 5px; }
+        .integrity-label { font-size: 0.8rem; letter-spacing: 1px; font-weight:bold; min-width: 65px; }
         
-        .bar-track {
-            flex-grow: 1; height: 12px; background: rgba(0,0,0,0.3);
-            border: 1px solid var(--term-color); position: relative;
-            transition: border-color 0.5s ease;
+        .integrity-container { 
+            flex-grow: 1; height: 10px; border: 1px solid var(--term-color); 
+            background: rgba(0,0,0,0.8); 
+            transition: border-color 0.2s ease;
         }
-        
-        /* INTEGRATED DAMAGE SHOCK CLASS (Triggered by JS) */
-        .dmg-shock { 
-            animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); 
-        }
-
-        @keyframes damage-flash { 
-            0% { transform: scale(1); filter: brightness(1); } 
-            50% { transform: scale(1.15); filter: brightness(5) hue-rotate(180deg); } 
-            100% { transform: scale(1); filter: brightness(1); } 
-        }
-        
-        /* The Red Critical State (Pulsing Red) */
-        .integrity-critical {
-            animation: crit-pulse 0.2s infinite !important;
-            background: repeating-linear-gradient(90deg, #ff0000, #ff0000 8px, transparent 8px, transparent 10px) !important;
-            box-shadow: 0 0 25px #ff0000 !important;
-        }
-
-        @keyframes crit-pulse { 
-            0% { filter: brightness(1); opacity: 1; box-shadow: 0 0 25px #ff0000; } 
-            50% { filter: brightness(5); opacity: 0.8; box-shadow: 0 0 50px #ff0000; } 
-            100% { filter: brightness(1); opacity: 1; box-shadow: 0 0 25px #ff0000; } 
-        }
-
         .integrity-fill { 
             height: 100%; width: 100%; 
-            background: var(--term-color);
+            box-shadow: 0 0 15px var(--term-color); 
+            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.2s ease;
+            background: repeating-linear-gradient(90deg, var(--term-color), var(--term-color) 4px, transparent 4px, transparent 6px);
+            animation: health-pulse 1s infinite alternate;
+        }
+        
+        /* UPDATED: Phosphorus Flash Damage Effect */
+        .dmg-shock { 
+            animation: phosphorus-flash 0.5s ease-out; 
+        }
+        @keyframes phosphorus-flash {
+            0% { filter: brightness(4) contrast(2); box-shadow: 0 0 50px #fff; }
+            10% { filter: brightness(3) contrast(1.5) hue-rotate(90deg); border-color: #fff; }
+            30% { filter: brightness(2); box-shadow: 0 0 20px var(--term-color); }
+            50% { filter: brightness(1.5); opacity: 0.5; }
+            70% { filter: brightness(1.2); opacity: 1; }
+            100% { filter: brightness(1); }
+        }
+
+        /* Audio Toggle */
+        .audio-btn { 
+            font-size: 0.8rem; background: transparent; 
+            border: 1px solid var(--term-color); color: inherit; padding: 2px 5px;
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: 0.2s;
+        }
+        .audio-btn:hover {
+            background: rgba(255,255,255,0.2);
             box-shadow: 0 0 10px var(--term-color);
-            opacity: 0.85; 
-            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.5s linear, box-shadow 0.5s linear;
         }
-        
-        .temp-fill { height: 100%; width: 0%; background: #0affba; opacity: 0.85; transition: width 1s linear; }
-        .temp-flash-bar { animation: white-flash 0.15s infinite; }
-        .label-crit { animation: text-flash 0.2s infinite; }
-        @keyframes white-flash { 0% { background: #fff; box-shadow: 0 0 20px #fff; } 50% { background: #ff0000; box-shadow: 0 0 5px red; } 100% { background: #fff; box-shadow: 0 0 20px #fff; } }
-        @keyframes text-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px red; } 50% { color: #fff; text-shadow: 0 0 10px #fff; } }
+        .audio-btn:active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
 
-        /* --- INTEGRATED RGB TEXT GLITCH --- */
-        /* The class added by JS */
-        .random-glitch-active { 
-            animation: rgb-split-hover 0.2s infinite !important; 
-            color: #fff !important; 
-        }
-        
-        /* RGB Shift Keyframes */
-        @keyframes rgb-split-hover { 
-            0% { 
-                text-shadow: calc(var(--glitch-amp)*-1) 0 var(--split-1), var(--glitch-amp) 0 var(--split-2); 
-                transform: translate(0,0); 
-            } 
-            25% { 
-                text-shadow: var(--glitch-amp) 0 var(--split-1), calc(var(--glitch-amp)*-1) 0 var(--split-2); 
-                transform: translate(-2px, 1px); 
-            } 
-            50% { 
-                text-shadow: 0 calc(var(--glitch-amp)*-1) var(--split-1), 0 var(--glitch-amp) var(--split-2); 
-                transform: translate(2px, -1px); 
-            } 
-            75% { 
-                text-shadow: 0 var(--glitch-amp) var(--split-1), 0 calc(var(--glitch-amp)*-1) var(--split-2); 
-                transform: translate(-1px, 2px); 
-            } 
-            100% { 
-                text-shadow: calc(var(--glitch-amp)*-1) 0 var(--split-1), var(--glitch-amp) 0 var(--split-2); 
-                transform: translate(0,0); 
-            } 
+        /* --- MENUS & BUTTONS --- */
+        .menu-grid { 
+            display: grid; grid-template-columns: 1fr; 
+            gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px;
         }
 
-        /* --- BUTTONS & ANIMATIONS --- */
-        @keyframes float-complex {
-            0% { transform: translate(0, 0); }
-            25% { transform: translate(var(--drift-amp), calc(var(--drift-amp) * 0.5)); }
-            50% { transform: translate(0, var(--drift-amp)); }
-            75% { transform: translate(calc(var(--drift-amp) * -1), calc(var(--drift-amp) * 0.5)); }
-            100% { transform: translate(0, 0); }
-        }
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
         .btn { 
-            background: rgba(0,0,0,0.25); border: 1px solid var(--term-color); 
-            color: var(--term-color); font-family: 'VT323', monospace; font-size: 1.4rem; padding: 12px 15px; cursor: pointer; text-align: left; 
-            transition: opacity 0.4s ease; position: relative; overflow: hidden; opacity: 0; 
-            animation: float-complex var(--drift-speed) ease-in-out infinite;
+            background: rgba(0,0,0,0.6); 
+            border: 1px solid var(--term-color); 
+            color: var(--term-color); 
+            font-family: 'VT323', monospace; 
+            font-size: 1.4rem; padding: 12px 15px;
+            cursor: pointer; text-align: left; 
+            transition: 0.1s; position: relative; overflow: hidden; 
+            opacity: 0; transform: translateY(10px);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5); 
         }
-        .btn.visible { opacity: 1 !important; }
-        @keyframes glitch-shake { 0% { transform: translate(0); } 25% { transform: translate(-3px, 3px); } 50% { transform: translate(3px, -3px); filter: brightness(2); } 75% { transform: translate(-1px, 1px); } 100% { transform: translate(0); } }
-        .btn:active { animation: glitch-shake 0.2s infinite linear !important; background: #fff !important; color: #000 !important; box-shadow: 0 0 30px var(--term-color), 0 0 50px #fff !important; }
-        .btn.exam-mode { border-color: #ff0000 !important; color: #ffffff !important; background: rgba(200, 0, 0, 0.25) !important; text-shadow: 0 0 5px #ff0000; }
-        .btn.exam-mode:active { background: #ff0000 !important; box-shadow: 0 0 50px #ff0000 !important; }
-        .nav-btn { position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px); font-weight: bold; text-align: center; background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500; text-transform: uppercase; }
-        .nav-btn:active { animation: glitch-shake 0.2s infinite; background: var(--term-color); color: #000; }
+        .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.4s ease, transform 0.4s ease; }
+        
+        .btn:active { 
+            background: #fff; color: #000; 
+            box-shadow: 0 0 30px #fff; border-color: #fff; 
+            animation: rgb-split-hover 0.1s infinite !important; 
+            transform: translate(-1px, -1px) !important; 
+        }
+        
+        .btn.exam-mode { border-color: #ff4444; color: #ff4444; }
+        .btn.exam-mode:active { background: #ff4444; color: white; box-shadow: 0 0 60px #ff4444; }
 
-        /* --- QUIZ UI --- */
-        .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; }
-        .quiz-header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem; }
+        .nav-btn { 
+            position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px);
+            font-weight: bold; text-align: center; 
+            background: #000; color: var(--term-color); border: 2px solid var(--term-color); 
+            font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500; text-transform: uppercase;
+        }
+        .nav-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 40px var(--term-color); }
+
+        /* --- QUIZ AREA --- */
+        .quiz-container { 
+            display: flex; flex-direction: column; flex-grow: 1; 
+            overflow-y: auto; overflow-x: hidden; padding-bottom: 90px;
+        }
+        .quiz-header-bar {
+            display:flex; justify-content:space-between; align-items:center; 
+            border-bottom: 1px solid var(--term-color); 
+            padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem;
+        }
         .question-box { 
             font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; 
             background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
-            border-left: 6px solid var(--term-color); padding: 10px; color: #ffffff !important;
-            animation: float-complex 6s ease-in-out infinite reverse; 
+            border-left: 6px solid var(--term-color); padding: 10px; 
+            color: #ffffff !important;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3), 1px 0 var(--split-1);
+            animation: random-drift 7s ease-in-out infinite alternate;
         }
-        #explanation-box { margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color); background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none; }
+        #explanation-box {
+            margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color);
+            background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none;
+            text-shadow: 0 0 5px var(--glow-color);
+        }
         .options-list { display: flex; flex-direction: column; gap: 10px; }
+        
         .option-btn { 
-            background: rgba(0, 0, 0, 0.4); border: 2px solid var(--term-color); color: #ffffff !important; padding: 12px; font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; cursor: pointer; position: relative; 
-            animation: float-complex 7s ease-in-out infinite, haze-pulse 3s ease-in-out infinite; transform-origin: center;
+            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); 
+            color: #ffffff !important; padding: 12px; 
+            font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
+            cursor: pointer; position: relative; 
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            /* NEW: Answer text glow */
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px var(--term-color);
+            animation: text-pulse-glow 3s infinite alternate;
         }
-        @keyframes haze-pulse { 0%, 100% { box-shadow: 0 0 2px rgba(255,255,255,0.1); } 50% { box-shadow: 0 0 15px rgba(var(--term-hue), 100%, 50%, 0.4); } }
-        .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; }
-        .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; }
+        @keyframes text-pulse-glow {
+            0% { text-shadow: 0 0 5px rgba(255,255,255,0.5), 0 0 8px var(--term-color); }
+            100% { text-shadow: 0 0 8px rgba(255,255,255,0.9), 0 0 15px var(--term-color); }
+        }
+
+        .option-btn:active { 
+            background: #fff !important; padding-left: 15px; 
+            color: #000 !important; border-color: #fff; 
+            box-shadow: 0 0 40px #fff;
+            animation: rgb-split-hover 0.1s infinite !important;
+        }
+        .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; box-shadow: 0 0 50px var(--term-color) !important; animation: answer-thump 0.3s ease-out forwards !important; }
+        .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 50px red !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
 
         /* --- PBQ --- */
         .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
@@ -228,29 +289,99 @@
         .match-item.selected { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); }
         .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
-
-        /* --- SCREENS --- */
-        @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
-        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
-        @keyframes blink-slow { 0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--term-color); } 50% { opacity: 0.6; text-shadow: 0 0 2px var(--term-color); } }
         
-        #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-        .title-glow { font-size: 3rem; color: #fff; letter-spacing: 5px; margin-bottom: 50px; text-shadow: 0 0 10px var(--term-color), 0 0 20px var(--term-color); animation: float-complex 6s ease-in-out infinite; }
-
-        #fail-ui { 
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 2000; background: #000; 
-            flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; padding: 20px; overflow: hidden; border: 5px solid red; box-shadow: inset 0 0 50px red;
+        /* EXECUTE BUTTON - MICRO SHAKE */
+        #pbq-submit-btn {
+            animation: micro-shake 0.2s infinite;
         }
-        .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: turnOn 0.3s ease-out forwards; }
-        .fail-text { font-size: 4rem; word-break: break-word; color:red; text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000; animation: ghost-sway 4s ease-in-out infinite; margin-bottom: 10px; }
-        .fail-sub { font-size: 2rem; color: #fff; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px #fff; animation: ghost-sway 5s ease-in-out infinite reverse; margin-bottom: 30px; }
-        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; } 50% { transform: translate(-5px, 2px) rotate(-1deg); opacity: 1; filter: blur(1px); } 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.9; } }
-        .fail-dump { font-family: monospace; color: #ff5555; font-size: 0.8rem; text-align: left; width: 90%; height: 30%; overflow: hidden; opacity: 0.7; margin-bottom: 20px; border-top: 1px solid red; border-bottom: 1px solid red; padding: 10px; }
+        @keyframes micro-shake {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, 0); }
+            75% { transform: translate(0, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* --- ANIMATIONS (RESTORED ALL) --- */
+        @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
+        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 20% { clip-path: inset(85% 0 5% 0); transform: translate(5px, -2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
         
-        .hidden { display: none !important; }
-        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--term-color); }
+        /* SHAKE REDUCED BY 50% & MORE RANDOM */
+        @keyframes stress-shake { 
+            0% { transform: translate(0, 0); } 
+            20% { transform: translate(-1px, 1px); } 
+            40% { transform: translate(1px, -1px); } 
+            60% { transform: translate(-0.5px, 0.5px); } 
+            80% { transform: translate(0.5px, -0.5px); } 
+            100% { transform: translate(0, 0); } 
+        }
+        
+        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
+        @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
+        @keyframes rgb-split-hover { 
+            0% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 
+            25% { text-shadow: 2px 0 red, -2px 0 blue; transform: translate(-2px, 1px); } 
+            50% { text-shadow: 0 -2px red, 0 2px blue; transform: translate(2px, -1px); }
+            100% { text-shadow: -2px 0 red, 2px 0 blue; transform: translate(0,0); } 
+        }
+        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
+        @keyframes damage-flash { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.15); filter: brightness(5) hue-rotate(180deg); } 100% { transform: scale(1); filter: brightness(1); } }
+        @keyframes intense-pulse { 0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); } 100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); } }
+        @keyframes label-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #fff; text-shadow: 0 0 2px #fff; } }
+        @keyframes fail-entry { 0% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes vertical-rgb-split { 
+            0% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } 
+            50% { text-shadow: -2px 0 #ff0000, 2px 0 #00ffff; }
+            100% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } 
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes pulse-breath-erratic { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.4); } 100% { opacity: var(--edge-opacity); } }
+        @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 100px #fff; } 100% { transform: scale(1); } }
+        @keyframes answer-shake { 0% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } 100% { transform: translateX(0); } }
+
+        /* Helpers */
+        .logo-glitch { animation: slice-glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite !important; color: #fff !important; }
+        .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important; color: #fff !important; }
+        .stress-active { animation: stress-shake 0.4s infinite !important; }
+        .integrity-critical { animation: crit-pulse 0.2s infinite !important; background: repeating-linear-gradient(90deg, #ff0000, #ff0000 8px, transparent 8px, transparent 10px) !important; box-shadow: 0 0 25px #ff0000 !important; }
+        .temp-pulse-active { animation: intense-pulse 0.5s infinite alternate !important; }
+        .label-crit { animation: label-flash 0.3s infinite; }
+
+        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--glow-color); }
         .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+
+        /* --- SCREENS --- */
+        #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        
+        /* FIXED: System Corrupt Screen Clipping */
+        #fail-ui { 
+            display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; 
+            z-index: 2000; background: rgba(5, 0, 0, 0.95); 
+            flex-direction: column; justify-content: center; align-items: center; 
+            opacity: 0; pointer-events: none; padding: 20px; overflow: hidden;
+        }
+        .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: fail-entry 0.3s ease-out forwards; color: #ccffff; }
+        
+        /* FAIL TEXT: Smaller, RGB glitch */
+        .fail-text { 
+            font-size: 3rem; /* Dropped size */
+            word-break: break-word; color:#fff; 
+            animation: vertical-rgb-split 0.1s infinite; /* Faster RGB glitch */
+            text-shadow: 3px 0 red, -3px 0 blue;
+        }
+
+        /* RESTART BTN: Transparent + Jitter */
+        .fail-restart-btn {
+            background: rgba(255, 0, 0, 0.3) !important; 
+            border-color: red !important; 
+            color: #fff !important;
+            position: relative; margin-top:20px;
+            animation: stress-shake 0.2s infinite !important;
+        }
+
+        .hidden { display: none !important; }
 
     </style>
 </head>
@@ -259,18 +390,18 @@
 <div class="pixel-overlay"></div>
 <canvas id="matrix-canvas"></canvas>
 <div class="retro-grid"></div>
-<div id="vignette-overlay"></div> 
+<div id="panic-pulse"></div> 
 <div id="scan-container"></div> 
 
 <div id="start-overlay" onclick="bootSystem()">
-    <div class="title-glow">
+    <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);" class="logo-glitch">
         [ SYSTEM_ROOT ]
     </div>
-    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink-slow 3s infinite;">
+    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
         >> TAP_TO_INITIALIZE <<
     </div>
     <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V8.0 // INTEGRATED_EDITION
+        MOBILE_CORE_V2.0 // SOUL_RESTORED
     </div>
 </div>
 
@@ -281,31 +412,31 @@
             <div class="h-left">
                 <h1 id="main-header">SYSTEM <span style="font-size: 0.6em; color:#fff;">ROOT</span></h1>
             </div>
-            <div class="header-controls">
-                <button id="sound-toggle" class="audio-btn-small" onclick="AudioEngine.toggleMute()">[SND:ON]</button>
-                <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[TIP]</button>
+            <div class="donate-group">
+                <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[TIPS]</button>
                 <button class="sys-btn kas-btn" onclick="AudioEngine.playMenuHover(); showCrypto()">[KAS]</button>
             </div>
         </div>
         
-        <div class="bars-container">
-            <div class="bar-row">
-                <div class="bar-label">CORE INTEGRITY</div>
-                <div class="bar-track" id="integrity-wrap">
-                     <div class="integrity-fill" id="integrity-bar"></div>
+        <div class="header-stats-row">
+            <div class="bars-group">
+                <div class="integrity-wrapper" id="integrity-wrap">
+                    <div class="integrity-label">INTEGRITY</div>
+                    <div class="integrity-container">
+                        <div class="integrity-fill" id="integrity-bar"></div>
+                    </div>
+                </div>
+                <div class="integrity-wrapper" id="temp-wrap">
+                    <div class="integrity-label" id="temp-label" style="color: #fff;">TEMP</div>
+                    <div class="integrity-container" style="border: 1px solid #ffffff;">
+                        <div class="integrity-fill" id="temp-bar" style="width: 0%; background: #0affba;"></div>
+                    </div>
                 </div>
             </div>
-            <div class="bar-row">
-                <div class="bar-label" id="temp-label">TEMP</div>
-                <div class="bar-track">
-                     <div class="temp-fill" id="temp-bar"></div>
-                </div>
+            <div style="text-align: right;">
+                 <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">PTS: 0</div>
+                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO:ON]</button>
             </div>
-        </div>
-        
-        <div style="display:flex; justify-content: space-between; width:100%; margin-top: 2px;">
-             <div id="streak-ui" style="font-weight: bold; font-size: 1.1rem; color: #fff;">CONN: 0</div>
-             <div style="font-size: 0.8rem; opacity: 0.7;">[ SYSTEM_ACTIVE ]</div>
         </div>
     </div>
 
@@ -383,20 +514,20 @@
     <div id="results-ui" class="hidden" style="text-align: center; padding-top: 10px; overflow-y: auto; height: 100%;">
         <h1 style="font-size: 5rem; margin-bottom: 0px;" id="final-percent">0%</h1>
         <p style="font-size: 2rem; margin-bottom: 10px;">> DIAGNOSTIC COMPLETE</p>
+        <div id="breakdown-container" style="text-align:left; margin:20px;"></div>
         <button class="nav-btn" style="position:relative; margin-top:30px;" onclick="AudioEngine.playMenuHover(); location.reload()">>> REBOOT_SYSTEM</button>
     </div>
 
     <div id="fail-ui">
         <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
-        <div class="fail-sub">>> ALL_IS_LOST <<</div>
-        <div class="fail-dump" id="fail-dump-text"></div>
-        <button class="nav-btn" style="background: red; border-color: #fff; color: #fff; position: relative; margin-top:20px;" onclick="AudioEngine.playMenuHover(); location.reload()">[ FORCE_RESTART ]</button>
+        <p style="font-size: 1.5rem; color: #ccffff;">> ALL_IS_LOST</p>
+        <button class="nav-btn fail-restart-btn" onclick="AudioEngine.playMenuHover(); location.reload()">>> EMERGENCY RESTART</button>
     </div>
 </div>
 
 <script>
     /* ========================================================================= */
-    /* AUDIO ENGINE                                                              */
+    /* SECTION: AUDIO ENGINE (ORIGINAL RESTORED)                                 */
     /* ========================================================================= */
     const AudioEngine = {
         ctx: null, masterGain: null, delayNode: null, isPlaying: false, isMuted: false, 
@@ -437,10 +568,6 @@
             if (type === 'type') { osc.type = 'square'; osc.frequency.setValueAtTime(2000+Math.random()*1000, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.03); osc.start(t); osc.stop(t+0.03); }
             else if (type === 'click') { osc.type = 'square'; osc.frequency.setValueAtTime(800, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05); osc.start(t); osc.stop(t+0.05); } 
             else if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.1); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.2); } 
-            else if (type === 'streak') { 
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, t); osc.frequency.linearRampToValueAtTime(800, t+0.1); osc.frequency.linearRampToValueAtTime(1600, t+0.2); 
-                g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.5); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.5); 
-            }
             else if (type === 'error') { osc.type = 'triangle'; osc.frequency.setValueAtTime(150+Math.random()*50, t); osc.frequency.linearRampToValueAtTime(50, t+0.4); g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4); osc.start(t); osc.stop(t+0.4); } 
         },
         playMenuHover: function() {
@@ -454,18 +581,19 @@
         toggleMute: function() {
             this.isMuted = !this.isMuted;
             if(this.masterGain) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : 0.3, this.ctx.currentTime, 0.1);
-            document.getElementById('sound-toggle').innerText = this.isMuted ? "[SND:OFF]" : "[SND:ON]";
+            document.getElementById('sound-toggle').innerText = this.isMuted ? "[AUDIO:OFF]" : "[AUDIO:ON]";
         }
     };
 
     /* ========================================================================= */
-    /* GAME LOGIC & STATE                                                        */
+    /* SECTION: VARS & HELPERS                                                   */
     /* ========================================================================= */
     let matchState = { selected: null, pairsFound: 0 };
-    let qQueue = []; let currentStreak = 0; window.integrity = 100;
+    let qQueue = []; let currentScore = 0; window.integrity = 100;
     let explainTimer = null; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
     let hudInterval = null; let sessionTime = 5400; let tempLevel = 0; const TEMP_MAX = 60;
     
+    // --- DATA ---
     const MASTER_DATABASE = [
         { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
         { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity." },
@@ -476,7 +604,7 @@
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
 
     /* ========================================================================= */
-    /* VISUAL EFFECTS                                                            */
+    /* SECTION: VISUAL EFFECTS (RESTORED ALL)                                    */
     /* ========================================================================= */
     function spawnScanline() {
         if(isDead) return;
@@ -489,28 +617,18 @@
     }
     spawnScanline();
 
-    // --- INTEGRATED RANDOM TEXT GLITCH LOOP ---
+    // GLITCH LOOP
     function triggerRandomGlitch() {
         if(isDead) return;
-        
-        // Chaos increases as integrity drops
         const chaos = 1 - (integrity / 100);
-        const chance = 0.05 + (chaos * 0.5); 
-        
-        if(Math.random() < chance) {
-            // Select random targets to glitch
-            const targets = document.querySelectorAll('.btn, .question-box, h1, .bar-label');
+        if(Math.random() < 0.05 + (chaos * 0.5)) {
+            const targets = document.querySelectorAll('.btn, .question-box, h1');
             if(targets.length > 0) {
                 const target = targets[Math.floor(Math.random()*targets.length)];
-                
-                // Add the CSS class that contains the RGB animation
                 target.classList.add('random-glitch-active');
-                
-                // Remove it quickly (200ms)
                 setTimeout(() => target.classList.remove('random-glitch-active'), 200);
             }
         }
-        // Loop based on integrity (faster loop = lower integrity)
         setTimeout(triggerRandomGlitch, 200 + (integrity * 5));
     }
     
@@ -525,11 +643,13 @@
         setTimeout(spawnHexDump, Math.random() * 3000 + 2000);
     }
     
+    // RESTORED: Persistent Matrix Rain
     const canvas = document.getElementById('matrix-canvas'); const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     const fontSize = 14; const columns = Math.floor(canvas.width / fontSize); const drops = Array(columns).fill(1); 
     const baseChars = "01010x<>!@#{}[]ZEUS"; 
     function drawRain() {
+        // Reduced frequency slightly for mobile perf, but preserved look
         if(Math.random() > 0.5) { requestAnimationFrame(drawRain); return; } 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--term-color'); 
@@ -557,7 +677,7 @@
             }
             element.innerText = txt;
             charCount++;
-            if(charCount % 2 === 0) AudioEngine.playSFX('type');
+            if(charCount % 2 === 0) AudioEngine.playSFX('type'); // RESTORED TYPING SOUNDS
             requestAnimationFrame(update);
         }
         update();
@@ -599,22 +719,18 @@
         bar.style.width = `${pct * 100}%`;
 
         if (tempLevel >= 50) {
-            label.innerText = "OVERHEAT"; label.classList.add('label-crit'); label.style.color = "#ff0000"; 
-            bar.classList.add('temp-flash-bar'); bar.style.background = "#fff";
+            label.innerText = "!! OVERHEAT !!"; label.style.color = "#ff0000"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "red";
         } else if (tempLevel >= 40) {
-            label.innerText = "DANGER"; label.classList.remove('label-crit'); label.style.color = "#ff4400"; 
-            bar.classList.remove('temp-flash-bar'); bar.style.background = "orange";
+            label.innerText = ">> DANGER <<"; label.style.color = "#ff4400"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "orange";
         } else if (tempLevel >= 30) {
-            label.innerText = "WARM"; label.classList.remove('label-crit'); label.style.color = "#ffaa00"; 
-            bar.classList.remove('temp-flash-bar'); bar.style.background = "yellow";
+            label.innerText = ">> WARM <<"; label.style.color = "#ffaa00"; bar.classList.remove('temp-pulse-active'); bar.style.background = "yellow";
         } else {
-            label.innerText = "TEMP"; label.classList.remove('label-crit'); label.style.color = "#ffffff"; 
-            bar.classList.remove('temp-flash-bar'); bar.style.background = "#0affba";
+            label.innerText = "TEMP"; label.style.color = "#ffffff"; label.classList.remove('label-crit'); bar.classList.remove('temp-pulse-active'); bar.style.background = "#0affba";
         }
     }
 
     /* ========================================================================= */
-    /* SYSTEM LOGIC                                                              */
+    /* SECTION: SYSTEM LOGIC                                                     */
     /* ========================================================================= */
     function bootSystem() {
         document.getElementById('start-overlay').style.display = 'none';
@@ -622,29 +738,21 @@
         const term = document.getElementById('term-win');
         term.style.display = 'flex'; term.classList.add('power-on');
         const btns = document.querySelectorAll('.btn');
-        // Randomize floating start
-        btns.forEach((b) => { 
-            b.style.animationDelay = (Math.random() * -5) + 's';
-            b.classList.add('visible'); 
-        });
+        btns.forEach((b, i) => { setTimeout(() => { b.classList.add('visible'); }, 500 + (i * 150)); });
         spawnHexDump(); triggerRandomGlitch();
     }
 
     function goToSubMenu(type, titleName) {
+        // Change header name
         const header = document.getElementById('main-header');
         header.innerHTML = `SYSTEM <span style="font-size:0.6em; color:#fff;">${titleName || 'ROOT'}</span>`;
-        header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
+        // header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
 
         document.getElementById('root-menu').classList.add('hidden');
         document.getElementById(type + '-menu').classList.remove('hidden');
-        
         const target = document.getElementById(type + '-menu');
         const btns = target.querySelectorAll('.btn');
-        btns.forEach((b) => { 
-             b.style.animationDelay = (Math.random() * -5) + 's'; // Randomize
-             b.classList.remove('visible'); 
-             setTimeout(() => b.classList.add('visible'), 50); 
-        });
+        btns.forEach((b, i) => { b.classList.remove('visible'); setTimeout(() => { b.classList.add('visible'); }, 100 + (i * 100)); });
     }
 
     function goToRoot() {
@@ -672,44 +780,45 @@
     }
     
     function resetGame() {
-        currentStreak = 0; integrity = 100; tempLevel = 0; isDead = false; questionsCorrect = 0; questionsAttempted = 0;
+        currentScore = 0; integrity = 100; tempLevel = 0; isDead = false; questionsCorrect = 0; questionsAttempted = 0;
         document.getElementById('fail-ui').classList.remove('fail-visible'); 
         updateSystemState();
     }
 
+    // --- RESTORED: INTEGRITY EFFECTS ---
     function updateSystemState() {
         if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
         
         const bar = document.getElementById('integrity-bar');
         bar.style.width = `${integrity}%`;
-        document.getElementById('streak-ui').innerText = `CONN: ${currentStreak}`;
+        document.getElementById('score-ui').innerText = `PTS: ${currentScore}`;
 
-        // Color Logic
-        let hue;
-        if(integrity > 90) hue = 150; // Lock to Neon Mint
-        else hue = Math.floor(integrity * 1.55); 
-        
         const root = document.documentElement; 
-        root.style.setProperty('--term-hue', hue);
-        root.style.setProperty('--term-color', `hsl(${hue}, 100%, 50%)`);
         
-        // Physics Calculation
-        const damage = 100 - integrity;
-        const panicLevel = damage / 100; 
+        // RESTORED HSL COLOR MATH
+        let hue, sat, light;
+        if(integrity > 50) {
+             hue = 140 + ((integrity - 50) * 0.4); 
+        } else {
+             hue = integrity * 1.2; 
+        }
+        const newColor = `hsl(${hue}, 100%, 50%)`;
+        const glowColor = `hsla(${hue}, 100%, 50%, 0.85)`;
         
-        root.style.setProperty('--edge-opacity', panicLevel * 0.7); 
-        root.style.setProperty('--drift-speed', Math.max(0.2, 5 - (panicLevel * 4)) + 's');
-        root.style.setProperty('--drift-amp', (2 + (panicLevel * 8)) + 'px');
-        root.style.setProperty('--rgb-offset', (1 + (panicLevel * 4)) + 'px');
-        root.style.setProperty('--glow-str', (5 + (panicLevel * 10)) + 'px');
+        root.style.setProperty('--term-color', newColor);
+        root.style.setProperty('--glow-color', glowColor);
+        
+        // Edge Pulse & Shake
+        const panicLevel = (100 - integrity) / 100;
+        root.style.setProperty('--edge-opacity', panicLevel * 0.8);
+        root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px'); // Reduced shake by 50%
 
-        // Shake if low health
-        root.style.setProperty('--shake-intensity', (integrity < 50) ? (panicLevel * 2) + 'px' : '0px');
-
-        // CRITICAL STATE PULSE
-        if (integrity < 30) {
+        const termWindow = document.getElementById('term-win');
+        if(integrity < 30) {
+            termWindow.classList.add('stress-active'); 
             bar.classList.add('integrity-critical');
         } else {
+            termWindow.classList.remove('stress-active');
             bar.classList.remove('integrity-critical');
         }
 
@@ -718,12 +827,7 @@
 
     function triggerFailure() { 
         isDead = true;
-        document.getElementById('fail-ui').classList.add('fail-visible');
-        let dump = "";
-        for(let i=0; i<100; i++) {
-            dump += `0x${Math.floor(Math.random()*99999).toString(16).toUpperCase().padStart(8,'0')} MEM_ERR\n`;
-        }
-        document.getElementById('fail-dump-text').innerText = dump;
+        document.getElementById('fail-ui').classList.add('fail-visible'); 
         AudioEngine.playSFX('error'); 
     }
 
@@ -748,7 +852,6 @@
         const optsList = document.getElementById('opts-list');
         q.options.forEach((o, i) => {
             const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o}`;
-            b.style.animationDelay = (Math.random() * -5) + 's'; 
             b.onclick = () => processResult(i === q.answer, b);
             optsList.appendChild(b);
         });
@@ -786,14 +889,11 @@
                 prev.classList.add('matched'); el.classList.add('matched');
                 AudioEngine.playSFX('click'); matchState.pairsFound++; matchState.selected = null;
             } else {
+                // WRONG MATCH LOGIC (-1 penalty)
                 prev.classList.remove('selected'); el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'), 400);
-                AudioEngine.playSFX('error'); matchState.selected = null; 
-                // Manual damage logic for match game
-                integrity -= 19; 
-                const wrap = document.getElementById('integrity-wrap');
-                wrap.classList.remove('dmg-shock'); void wrap.offsetWidth; wrap.classList.add('dmg-shock');
+                AudioEngine.playSFX('error'); matchState.selected = null; integrity-=1; updateSystemState(); 
                 
-                updateSystemState(); 
+                // Random Error Message
                 const errs = ["SEG_FAULT", "NaN", "0x00DEAD", "NULL_REF", "BIT_FLIP"];
                 showFloatText(errs[Math.floor(Math.random()*errs.length)], el, 'red');
             }
@@ -807,7 +907,6 @@
         processResult(correct, document.getElementById('pbq-submit-btn'));
     }
 
-    // --- UPDATED PROCESS RESULT (INTEGRATED SHOCK LOGIC) ---
     function processResult(isCorrect, btn) {
         questionsAttempted++;
         document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
@@ -815,33 +914,17 @@
         
         if (isCorrect) {
             questionsCorrect++;
-            currentStreak++; 
-            btn.classList.add('correct'); integrity += 5;
-            
-            if(currentStreak > 0 && currentStreak % 3 === 0) {
-                integrity += 10; 
-                AudioEngine.playSFX('streak');
-                showFloatText("STREAK BONUS +10", btn, '#0ff');
-            } else {
-                AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, '#0f0');
-            }
-            
+            btn.classList.add('correct'); currentScore++; integrity += 5;
+            AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, '#0f0');
         } else {
-            currentStreak = 0; 
-            btn.classList.add('wrong'); 
-            
-            // 1. Calculate Damage (Standard 19, Exam 6 logic placeholder)
-            const damage = 19; 
-            integrity -= damage;
+            btn.classList.add('wrong'); integrity -= 15;
             AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
-
-            // 2. Trigger the "Shock" animation class on wrapper
+            
+            // DAMAGE SHOCK EFFECT - Reset animation
             const wrap = document.getElementById('integrity-wrap');
-            if(wrap) {
-                wrap.classList.remove('dmg-shock'); 
-                void wrap.offsetWidth;              
-                wrap.classList.add('dmg-shock');    
-            }
+            wrap.classList.remove('dmg-shock'); 
+            void wrap.offsetWidth; // Trigger reflow
+            wrap.classList.add('dmg-shock');
         }
         
         typeExplain(document.getElementById('explanation-box'), ">> " + window.currentQ.explanation);
@@ -860,12 +943,14 @@
         setTimeout(() => floatEl.remove(), 2000);
     }
     
+    // RESTORED: Secure Channel Modal
     function showCrypto() {
         AudioEngine.playSFX('success');
         const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq"; 
         
         const popup = document.createElement('div');
-        popup.style.cssText = "position:fixed; top:50%; left:0; right:0; margin: auto; transform:translateY(-50%); width:90%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px); animation: turnOn 0.3s forwards; box-sizing:border-box;";
+        // Fixed positioning and z-index for mobile
+        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px); animation: turnOn 0.3s forwards;";
         
         popup.innerHTML = `
             <h2 style="color:#70c7ba; margin:0 0 10px 0; font-size:1.8rem; font-family:'VT323'; text-shadow:0 0 5px #70c7ba;">>> SECURE CHANNEL <<</h2>
@@ -886,6 +971,7 @@
         };
     }
 
+    // RESTORED: Percentage Calculation
     function finish() {
         document.getElementById('quiz-ui').classList.add('hidden');
         document.getElementById('results-ui').classList.remove('hidden');
