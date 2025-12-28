@@ -3,30 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SYSTEM_ROOT_MOBILE_FINAL_V3_FIXED</title>
+    <title>SYSTEM_ROOT_RESTORED_FINAL</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
         :root {
             /* Dynamic Variables */
             --term-color: #0affba; 
-            --split-1: #ff0000; 
-            --split-2: #00ffff; 
             --glow-color: rgba(10, 255, 186, 0.85);
-            
             --edge-opacity: 0; 
-            --shake-amp: 0px; 
             --glitch-offset: 2px;
-            
-            --sway-speed: 5s; 
+            --shake-amp: 0px;
         }
 
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            user-select: none; 
-            cursor: auto !important; 
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         body {
             background-color: #000000;
@@ -35,17 +25,26 @@
             color: var(--term-color);
             overflow: hidden;
             height: 100dvh;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             
+            /* High Phosphorus Glow */
             text-shadow: 0 0 4px var(--glow-color), 0 0 8px var(--glow-color); 
             box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
             
-            animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
-            transition: color 0.2s ease, text-shadow 0.2s ease; 
+            /* Sway applied here */
+            animation: ghost-sway 5s ease-in-out infinite alternate;
+            transition: color 0.3s ease, text-shadow 0.3s ease; 
         }
 
-        /* --- BACKGROUND LAYERS --- */
+        /* --- UI LAYER (Buttons & Floating Text) --- */
+        /* Sits above everything to prevent clipping */
+        #ui-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999;
+        }
+        .pointer-enabled { pointer-events: auto !important; }
+
+        /* --- BACKGROUNDS --- */
         .scan-line {
             position: fixed; left: 0; width: 100%;
             background: var(--term-color); opacity: 0.25; z-index: 600;
@@ -54,9 +53,7 @@
         @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
 
         .pixel-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 900; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); }
-        
         #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.6; }
-        
         .retro-grid {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3;
             background: linear-gradient(transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%), linear-gradient(90deg, transparent 0%, rgba(0, 255, 128, 0.1) 2%, transparent 3%);
@@ -66,23 +63,22 @@
             animation: grid-move 10s linear infinite;
         }
 
+        /* EDGE GLOW - Tied to Integrity */
         #panic-pulse {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 850;
-            box-shadow: inset 0 0 150px #ff0000; 
+            box-shadow: inset 0 0 150px var(--term-color); /* Matches system color */
             opacity: var(--edge-opacity); 
-            mix-blend-mode: normal; 
-            transition: opacity 0.5s ease;
+            mix-blend-mode: screen; 
+            transition: box-shadow 0.3s ease, opacity 0.3s ease;
             animation: pulse-breath-erratic 2s infinite; 
         }
 
-        /* --- TERMINAL WINDOW --- */
+        /* --- TERMINAL --- */
         .terminal-window {
-            width: 100%; height: 100%;
-            border: none;
+            width: 100%; height: 100%; border: none;
             background: rgba(0, 5, 5, 0.40); 
             backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-            padding: 10px;
-            display: none; flex-direction: column; position: relative;
+            padding: 10px; display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
             transition: border-color 0.2s ease, filter 0.2s ease; 
         }
@@ -90,129 +86,87 @@
 
         /* --- HEADER --- */
         .header { 
-            border-bottom: 2px solid var(--term-color); 
-            padding-bottom: 5px; margin-bottom: 10px; 
-            display: flex; flex-direction: column; gap: 5px;
-            flex-shrink: 0; position: relative;
-            transition: border-color 0.2s ease;
+            border-bottom: 2px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; 
+            display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; position: relative;
         }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
-        
-        .h-left h1 { 
-            margin: 0; font-size: 2.2rem; letter-spacing: 2px; line-height: 1;
-            text-shadow: 2px 0 var(--split-1), -2px 0 var(--split-2);
-            font-weight: normal;
-        }
+        .h-left h1 { margin: 0; font-size: 2.2rem; line-height: 1; font-weight: normal; }
 
-        .donate-group { display: flex; gap: 6px; }
         .sys-btn {
-            background: rgba(0, 0, 0, 0.8);
-            font-family: 'VT323', monospace;
-            font-size: 0.9rem; font-weight: bold;
-            cursor: pointer; padding: 4px 8px;
-            border: 1px solid;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-            transition: all 0.2s ease;
-            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.8); font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; padding: 4px 8px; border: 1px solid;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.5); text-transform: uppercase;
         }
-        .sys-btn:active { transform: translate(1px, 1px); box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
+        .sys-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); }
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
 
+        /* BARS */
         .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
         .bars-group { display: flex; flex-direction: column; gap: 4px; width: 65%; }
         .integrity-wrapper { width: 100%; display: flex; align-items: center; gap: 5px; }
         .integrity-label { font-size: 0.8rem; letter-spacing: 1px; font-weight:bold; min-width: 65px; }
         
-        .integrity-container { 
-            flex-grow: 1; height: 10px; border: 1px solid var(--term-color); 
-            background: rgba(0,0,0,0.8); 
-            transition: border-color 0.2s ease;
-        }
+        .integrity-container { flex-grow: 1; height: 10px; border: 1px solid var(--term-color); background: rgba(0,0,0,0.8); }
         .integrity-fill { 
             height: 100%; width: 100%; 
             box-shadow: 0 0 15px var(--term-color); 
-            transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.5s ease;
             background: var(--term-color);
-            animation: health-pulse 1s infinite alternate;
+            transition: width 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.2s ease;
         }
-        .dmg-shock { animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
-
-        @keyframes critical-flash {
-            0% { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
-            50% { background: #ffffff; box-shadow: 0 0 30px #ffffff, -2px 0 blue, 2px 0 red; }
-            100% { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
-        }
-        .temp-critical-active { animation: critical-flash 0.15s infinite !important; }
+        .dmg-shock { animation: damage-flash 0.3s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
 
         .audio-btn { 
-            font-size: 0.8rem; background: rgba(0,0,0,0.5); 
-            border: 1px solid var(--term-color); color: inherit; 
-            padding: 4px 8px; font-weight: bold;
-            cursor: pointer; position: relative; overflow: hidden;
-            transition: 0.2s; box-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+            font-size: 0.8rem; background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: inherit; 
+            padding: 4px 8px; font-weight: bold; cursor: pointer; transition: 0.2s; 
         }
         .audio-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); }
 
-        /* --- MENUS & BUTTONS --- */
-        .menu-grid { 
-            display: grid; grid-template-columns: 1fr; 
-            gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px;
-        }
+        /* --- CONTENT --- */
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
 
         .btn { 
-            background: rgba(0,0,0,0.6); 
-            border: 1px solid var(--term-color); 
-            color: var(--term-color); 
-            font-family: 'VT323', monospace; 
-            font-size: 1.4rem; padding: 12px 15px;
-            cursor: pointer; text-align: left; 
-            transition: 0.1s; position: relative; overflow: hidden; 
-            opacity: 0; transform: translateY(10px);
+            background: rgba(0,0,0,0.6); border: 1px solid var(--term-color); color: var(--term-color); 
+            font-family: 'VT323', monospace; font-size: 1.4rem; padding: 12px 15px; cursor: pointer; text-align: left; 
+            position: relative; overflow: hidden; opacity: 0; transform: translateY(10px);
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5); 
         }
         .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.4s ease, transform 0.4s ease; }
-        
-        .btn:active { 
-            background: #fff; color: #000; 
-            box-shadow: 0 0 30px #fff; border-color: #fff; 
-            animation: rgb-split-hover 0.1s infinite !important; 
-            transform: translate(-1px, -1px) !important; 
-        }
-        
+        .btn:active { background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; animation: rgb-split-hover 0.1s infinite !important; }
         .btn.exam-mode { border-color: #ff4444; color: #ff4444; }
         .btn.exam-mode:active { background: #ff4444; color: white; box-shadow: 0 0 60px #ff4444; }
 
-        /* FIXED BUTTON STYLING - MOVED OUT OF QUIZ UI */
-        #next-btn-container {
-            position: absolute; bottom: 15px; left: 10px; width: calc(100% - 20px);
-            z-index: 2000;
+        /* --- FIXED UI BUTTONS (RESTORED VISIBILITY) --- */
+        #ui-buttons-container {
+            position: absolute; bottom: 20px; left: 10px; width: calc(100% - 20px);
+            display: flex; flex-direction: column; gap: 10px;
+            pointer-events: auto;
         }
+
         .nav-btn { 
-            width: 100%;
-            font-weight: bold; text-align: center; 
+            width: 100%; font-weight: bold; text-align: center; 
             background: #000; color: var(--term-color); border: 2px solid var(--term-color); 
             font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; 
             box-shadow: 0 0 20px rgba(0,0,0,0.9); text-transform: uppercase;
         }
         .nav-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 40px var(--term-color); }
+        
+        #pbq-submit-btn {
+            background: var(--term-color); color: #000; font-weight: bold; font-size: 1.4rem; padding: 15px;
+            border: 2px solid #fff; box-shadow: 0 0 15px var(--term-color); width: 100%; text-transform: uppercase;
+        }
+        #pbq-submit-btn:active { background: #fff; box-shadow: 0 0 30px #fff; }
 
-        /* --- QUIZ AREA --- */
-        .quiz-container { 
-            display: flex; flex-direction: column; flex-grow: 1; 
-            overflow-y: auto; overflow-x: hidden; padding-bottom: 90px;
-        }
-        .quiz-header-bar {
-            display:flex; justify-content:space-between; align-items:center; 
-            border-bottom: 1px solid var(--term-color); 
-            padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem;
-        }
+        /* --- QUIZ --- */
+        .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 100px; }
+        .quiz-header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem; }
+        
         .question-box { 
             font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; 
             background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
             border-left: 6px solid var(--term-color); padding: 10px; 
             color: #ffffff !important;
-            text-shadow: 0 0 5px rgba(255,255,255,0.3), 1px 0 var(--split-1);
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
             animation: random-drift 7s ease-in-out infinite alternate;
         }
         #explanation-box {
@@ -220,31 +174,16 @@
             background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none;
             text-shadow: 0 0 5px var(--glow-color);
         }
-        .options-list { display: flex; flex-direction: column; gap: 10px; }
         .option-btn { 
-            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); 
-            color: #ffffff !important; padding: 12px; 
-            font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
-            cursor: pointer; position: relative; 
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); color: #ffffff !important; padding: 12px; margin-bottom: 10px;
+            font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; cursor: pointer; position: relative; 
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5); width: 100%;
         }
-        .option-btn:active { 
-            background: #fff !important; padding-left: 15px; 
-            color: #000 !important; border-color: #fff; 
-            box-shadow: 0 0 40px #fff;
-            animation: rgb-split-hover 0.1s infinite !important;
-        }
+        .option-btn:active { background: #fff !important; color: #000 !important; border-color: #fff; box-shadow: 0 0 40px #fff; animation: rgb-split-hover 0.1s infinite !important; }
         .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; box-shadow: 0 0 50px var(--term-color) !important; animation: answer-thump 0.3s ease-out forwards !important; }
         .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 50px red !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
 
-        /* --- PBQ --- */
-        #pbq-submit-btn {
-            background: var(--term-color); 
-            color: #fff !important; /* TEXT WHITE */
-            text-shadow: 0 0 5px #fff;
-            font-weight: bold; margin-top: 10px;
-        }
-
+        /* PBQ */
         .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
         .cmd-input-line { display: flex; align-items: center; background: rgba(0,0,0,0.8); border: 1px solid var(--term-color); padding: 10px; font-size: 1.3rem; }
         #cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
@@ -255,57 +194,46 @@
         .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
 
-        /* --- ANIMATIONS --- */
+        /* ANIMATIONS */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
-        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 20% { clip-path: inset(85% 0 5% 0); transform: translate(5px, -2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
-        @keyframes stress-shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } }
+        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
+        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 75% { transform: translate(2px, -2px); } 100% { transform: translate(0, 0); } }
         @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
         @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
         @keyframes rgb-split-hover { 
             0% { text-shadow: calc(var(--glitch-offset) * -1) 0 red, var(--glitch-offset) 0 blue; transform: translate(0,0); } 
-            25% { text-shadow: var(--glitch-offset) 0 red, calc(var(--glitch-offset) * -1) 0 blue; transform: translate(-2px, 1px); } 
             50% { text-shadow: 0 calc(var(--glitch-offset) * -1) red, 0 var(--glitch-offset) blue; transform: translate(2px, -1px); } 
             100% { text-shadow: calc(var(--glitch-offset) * -1) 0 red, var(--glitch-offset) 0 blue; transform: translate(0,0); } 
         }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
-        @keyframes damage-flash { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.15); filter: brightness(5) hue-rotate(180deg); } 100% { transform: scale(1); filter: brightness(1); } }
-        @keyframes intense-pulse { 0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); } 100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); } }
-        @keyframes label-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #fff; text-shadow: 0 0 2px #fff; } }
-        @keyframes fail-entry { 0% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes vertical-rgb-split { 
-            0% { text-shadow: 0 -4px #ff0000, 0 4px #00ffff; transform: translate(0,0); } 
-            25% { text-shadow: 4px -2px #ff0000, -4px 2px #00ffff; transform: translate(2px, 0); }
-            50% { text-shadow: -4px 0 #ff0000, 4px 0 #00ffff; transform: translate(-2px, 1px); }
-            100% { text-shadow: 0 -4px #ff0000, 0 4px #00ffff; transform: translate(0,0); } 
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        @keyframes pulse-breath-erratic { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.4); } 100% { opacity: var(--edge-opacity); } }
-        @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 100px #fff; } 100% { transform: scale(1); } }
-        @keyframes answer-shake { 0% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } 100% { transform: translateX(0); } }
+        @keyframes damage-flash { 0% { filter: brightness(1); } 50% { filter: brightness(3) hue-rotate(180deg); } 100% { filter: brightness(1); } }
+        @keyframes intense-pulse { 0% { box-shadow: 0 0 5px currentColor; } 100% { box-shadow: 0 0 25px currentColor; } }
+        @keyframes vertical-rgb-split { 0% { text-shadow: 0 -4px #ff0000, 0 4px #00ffff; } 50% { text-shadow: -4px 0 #ff0000, 4px 0 #00ffff; } 100% { text-shadow: 0 -4px #ff0000, 0 4px #00ffff; } }
+        @keyframes pulse-breath-erratic { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.5); } 100% { opacity: var(--edge-opacity); } }
+        @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes answer-shake { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } 100% { transform: translateX(0); } }
 
-        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--glow-color); }
-        .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
+        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; }
+        .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 1.5s forwards; text-shadow: 0 0 10px currentColor; z-index: 10000; }
         @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
 
-        /* SCREENS */
         #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-        
-        #fail-ui { 
-            display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; 
-            z-index: 2000; background: rgba(5, 0, 0, 0.95); 
-            flex-direction: column; justify-content: center; align-items: center; 
-            opacity: 0; pointer-events: none; padding: 20px; overflow: hidden;
-            animation: intense-pulse 0.1s infinite;
-        }
-        .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: fail-entry 0.3s ease-out forwards; color: #ccffff; }
-        .fail-text { font-size: 2.5rem; word-break: break-word; color:#fff; animation: vertical-rgb-split 0.08s infinite; }
-
+        #fail-ui { display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 2000; background: rgba(5, 0, 0, 0.95); flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; animation: intense-pulse 0.1s infinite; }
+        .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; color: #ccffff; }
+        .fail-text { font-size: 2.5rem; color:#fff; animation: vertical-rgb-split 0.08s infinite; }
         .hidden { display: none !important; }
 
     </style>
 </head>
 <body class="glitch-active">
+
+<div id="ui-layer">
+    <div id="ui-buttons-container" class="hidden">
+        <button id="pbq-submit-btn" class="hidden" onclick="submitPBQ()">[ EXECUTE ]</button>
+        <button class="nav-btn hidden" id="next-btn" onclick="nextSeq()">>> NEXT_PACKET >></button>
+    </div>
+</div>
 
 <div class="pixel-overlay"></div>
 <canvas id="matrix-canvas"></canvas>
@@ -314,44 +242,23 @@
 <div id="scan-container"></div> 
 
 <div id="start-overlay" onclick="bootSystem()">
-    <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);" class="logo-glitch">
-        [ SYSTEM_ROOT ]
-    </div>
-    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
-        >> TAP_TO_INITIALIZE <<
-    </div>
-    <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
-        MOBILE_CORE_V3.0 // SOUL_RESTORED
-    </div>
+    <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);" class="logo-glitch">[ SYSTEM_ROOT ]</div>
+    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase;">>> TAP_TO_INITIALIZE <<</div>
 </div>
 
 <div class="terminal-window" id="term-win">
-    
     <div class="header">
         <div class="header-top">
-            <div class="h-left">
-                <h1 id="main-header">SYSTEM <span style="font-size: 0.6em; color:#fff;">ROOT</span></h1>
-            </div>
+            <div class="h-left"><h1 id="main-header">SYSTEM <span style="font-size: 0.6em; color:#fff;">ROOT</span></h1></div>
             <div class="donate-group">
                 <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[TIPS]</button>
                 <button class="sys-btn kas-btn" onclick="AudioEngine.playMenuHover(); showCrypto()">[KAS]</button>
             </div>
         </div>
-        
         <div class="header-stats-row">
             <div class="bars-group">
-                <div class="integrity-wrapper" id="integrity-wrap">
-                    <div class="integrity-label">INTEGRITY</div>
-                    <div class="integrity-container">
-                        <div class="integrity-fill" id="integrity-bar"></div>
-                    </div>
-                </div>
-                <div class="integrity-wrapper" id="temp-wrap">
-                    <div class="integrity-label" id="temp-label" style="color: #fff;">TEMP</div>
-                    <div class="integrity-container" style="border: 1px solid var(--term-color);">
-                        <div class="integrity-fill" id="temp-bar" style="width: 0%; background: #0affba;"></div>
-                    </div>
-                </div>
+                <div class="integrity-wrapper" id="integrity-wrap"><div class="integrity-label">INTEGRITY</div><div class="integrity-container"><div class="integrity-fill" id="integrity-bar"></div></div></div>
+                <div class="integrity-wrapper" id="temp-wrap"><div class="integrity-label" id="temp-label">TEMP</div><div class="integrity-container"><div class="integrity-fill" id="temp-bar" style="width: 0%;"></div></div></div>
             </div>
             <div style="text-align: right;">
                  <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">STREAK: 0</div>
@@ -361,7 +268,7 @@
     </div>
 
     <div id="root-menu">
-        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color); padding-bottom: 5px;">> SELECT_CERTIFICATION:</p>
+        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color);">> SELECT_CERTIFICATION:</p>
         <div class="menu-grid">
             <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('core1', 'A+ CORE 1')">[1] COMPTIA A+ CORE 1</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('core2', 'A+ CORE 2')">[2] COMPTIA A+ CORE 2</button>
@@ -370,538 +277,275 @@
         </div>
     </div>
 
-    <div id="core1-menu" class="hidden">
-        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color);">> CORE_1 // MODULES:</p>
-        <div class="menu-grid">
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Hardware', 'A+ CORE 1')">[A] HARDWARE_CORE</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Networking', 'A+ CORE 1')">[B] NETWORKING</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Mobile', 'A+ CORE 1')">[C] MOBILE</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Cloud', 'A+ CORE 1')">[D] CLOUD_OPS</button>
-            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE1', 'A+ EXAM SIM')">[X] EXAM_SIMULATION</button>
-            <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
-        </div>
-    </div>
-    
-    <div id="core2-menu" class="hidden">
-        <div class="menu-grid">
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'OS', 'A+ CORE 2')">[A] OS_CONCEPTS</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Security', 'A+ CORE 2')">[B] SECURITY</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Software', 'A+ CORE 2')">[C] SOFTWARE</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Ops', 'A+ CORE 2')">[D] OPS_PROCEDURES</button>
-            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE2', 'A+ EXAM SIM')">[X] EXAM_SIMULATION</button>
-            <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK </button>
-        </div>
-    </div>
-    <div id="net-menu" class="hidden">
-        <div class="menu-grid">
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Fundamentals', 'NETWORK+')">[A] FUNDAMENTALS</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Implement', 'NETWORK+')">[B] IMPLEMENTATION</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Ops', 'NETWORK+')">[C] OPERATIONS</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Security', 'NETWORK+')">[D] SECURITY</button>
-            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('NET', 'NET+ EXAM SIM')">[X] EXAM_SIMULATION</button>
-            <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK </button>
-        </div>
-    </div>
-    <div id="sec-menu" class="hidden">
-        <div class="menu-grid">
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Attacks', 'SECURITY+')">[A] THREATS_ATTACKS</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Arch', 'SECURITY+')">[B] ARCHITECTURE</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Implement', 'SECURITY+')">[C] IMPLEMENTATION</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Gov', 'SECURITY+')">[D] GOVERNANCE</button>
-            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('SEC', 'SEC+ EXAM SIM')">[X] EXAM_SIMULATION</button>
-            <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK </button>
-        </div>
-    </div>
+    <div id="core1-menu" class="hidden"><div class="menu-grid">
+        <button class="btn" onclick="transitionToQuiz('CORE1', 'Hardware', 'A+ CORE 1')">[A] HARDWARE</button>
+        <button class="btn" onclick="transitionToQuiz('CORE1', 'Networking', 'A+ CORE 1')">[B] NETWORKING</button>
+        <button class="btn" onclick="startExam('CORE1', 'A+ EXAM')">[X] EXAM SIM</button>
+        <button class="btn" style="border-color:#666;color:#888;" onclick="goToRoot()">< BACK</button>
+    </div></div>
+    <div id="core2-menu" class="hidden"><div class="menu-grid"><button class="btn" onclick="startExam('CORE2', 'A+ EXAM 2')">[X] EXAM SIM</button><button class="btn" style="border-color:#666;color:#888;" onclick="goToRoot()">< BACK</button></div></div>
+    <div id="net-menu" class="hidden"><div class="menu-grid"><button class="btn" onclick="startExam('NET', 'NET+ EXAM')">[X] EXAM SIM</button><button class="btn" style="border-color:#666;color:#888;" onclick="goToRoot()">< BACK</button></div></div>
+    <div id="sec-menu" class="hidden"><div class="menu-grid"><button class="btn" onclick="startExam('SEC', 'SEC+ EXAM')">[X] EXAM SIM</button><button class="btn" style="border-color:#666;color:#888;" onclick="goToRoot()">< BACK</button></div></div>
 
     <div id="quiz-ui" class="hidden quiz-container">
         <div class="quiz-header-bar">
             <span onclick="shutdownSystem()" style="color:#fff; text-decoration:underline; font-weight:bold;">< ABORT</span>
-            <span style="opacity:0.8;">[TIME]: <span id="session-timer" style="color:#fff;">90:00</span></span>
-            <span style="opacity:0.8;">[PKT]: <span id="packet-counter" style="color:#fff;">00</span></span>
+            <span style="opacity:0.8;">[TIME]: <span id="session-timer">90:00</span></span>
+            <span style="opacity:0.8;">[PKT]: <span id="packet-counter">00</span></span>
         </div>
-        
         <div class="question-box"><span id="q-text"></span></div>
         <div id="explanation-box"></div>
-        
         <div class="options-list" id="opts-list"></div>
-
         <div id="pbq-area" class="pbq-wrapper"></div>
-        <button id="pbq-submit-btn" class="btn" onclick="submitPBQ()" style="display:none; background: var(--term-color);">[ EXECUTE ]</button>
-    </div>
-    
-    <div id="next-btn-container" class="hidden">
-        <button class="nav-btn" id="next-btn" onclick="nextSeq()">>> NEXT_PACKET >></button>
     </div>
 
-    <div id="results-ui" class="hidden" style="text-align: center; padding-top: 10px; overflow-y: auto; height: 100%;">
-        <h1 style="font-size: 5rem; margin-bottom: 0px;" id="final-percent">0%</h1>
-        <p style="font-size: 2rem; margin-bottom: 10px;">> DIAGNOSTIC COMPLETE</p>
-        <div id="breakdown-container" style="text-align:left; margin:20px;"></div>
-        <button class="nav-btn" style="position:relative; margin-top:30px;" onclick="AudioEngine.playMenuHover(); location.reload()">>> REBOOT_SYSTEM</button>
+    <div id="results-ui" class="hidden" style="text-align: center; padding-top: 10px;">
+        <h1 style="font-size: 5rem;" id="final-percent">0%</h1>
+        <p style="font-size: 2rem;">> DIAGNOSTIC COMPLETE</p>
+        <button class="nav-btn" style="position:relative; margin-top:30px;" onclick="location.reload()">>> REBOOT_SYSTEM</button>
     </div>
 
     <div id="fail-ui">
         <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
         <p style="font-size: 1.5rem; color: #ccffff;">> ALL_IS_LOST</p>
-        <button class="nav-btn" style="background: red; border-color: red; color:#fff !important; position: relative; margin-top:20px;" onclick="AudioEngine.playMenuHover(); location.reload()">>> EMERGENCY RESTART</button>
+        <button class="nav-btn" style="background: red; border-color: red; color:#fff !important; margin-top:20px;" onclick="location.reload()">>> EMERGENCY RESTART</button>
     </div>
 </div>
 
 <script>
-    /* ========================================================================= */
-    /* AUDIO ENGINE                                                              */
-    /* ========================================================================= */
+    // --- AUDIO ---
     const AudioEngine = {
-        ctx: null, masterGain: null, delayNode: null, isPlaying: false, isMuted: false, 
+        ctx: null, masterGain: null, isMuted: false, 
         init: function() {
             try {
                 const AC = window.AudioContext || window.webkitAudioContext;
                 this.ctx = new AC();
-                this.masterGain = this.ctx.createGain();
-                this.masterGain.gain.value = 0.3;
+                this.masterGain = this.ctx.createGain(); this.masterGain.gain.value = 0.3;
                 this.masterGain.connect(this.ctx.destination);
-                this.delayNode = this.ctx.createDelay(); this.delayNode.delayTime.value = 0.35; 
-                const feedback = this.ctx.createGain(); feedback.gain.value = 0.4;
-                this.delayNode.connect(feedback); feedback.connect(this.delayNode); this.delayNode.connect(this.masterGain);
                 if (this.ctx.state === 'suspended') this.ctx.resume();
-                this.startMusic();
             } catch(e) {}
-        },
-        startMusic: function() { if(this.isPlaying) return; this.isPlaying = true; this.musicLoop(); },
-        musicLoop: function() {
-            if (!this.isPlaying) return;
-            const now = this.ctx.currentTime;
-            const drone = this.ctx.createOscillator(); const droneGain = this.ctx.createGain();
-            drone.type = 'sine'; drone.frequency.value = 55; 
-            droneGain.gain.setValueAtTime(0.05, now); droneGain.gain.linearRampToValueAtTime(0, now + 6);
-            drone.connect(droneGain); droneGain.connect(this.masterGain); drone.start(now); drone.stop(now + 6);
-            
-            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
-            osc.type = 'triangle'; osc.frequency.value = [43.65, 55, 65.41][Math.floor(Math.random()*3)];
-            g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.1, now + 2); g.gain.linearRampToValueAtTime(0, now + 7); 
-            osc.connect(g); g.connect(this.masterGain); g.connect(this.delayNode); osc.start(now); osc.stop(now + 7);
-            setTimeout(() => this.musicLoop(), 4500); 
         },
         playSFX: function(type) {
             if (!this.ctx || this.isMuted) return;
-            const t = this.ctx.currentTime;
-            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            const t = this.ctx.currentTime; const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
             osc.connect(g); g.connect(this.masterGain);
-            if (type === 'type') { osc.type = 'square'; osc.frequency.setValueAtTime(2000+Math.random()*1000, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.03); osc.start(t); osc.stop(t+0.03); }
-            else if (type === 'click') { osc.type = 'square'; osc.frequency.setValueAtTime(800, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05); osc.start(t); osc.stop(t+0.05); } 
-            else if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.1); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.2); } 
-            else if (type === 'error') { osc.type = 'triangle'; osc.frequency.setValueAtTime(150+Math.random()*50, t); osc.frequency.linearRampToValueAtTime(50, t+0.4); g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4); osc.start(t); osc.stop(t+0.4); } 
+            if(type==='click'){osc.type='square';osc.frequency.setValueAtTime(800,t);g.gain.setValueAtTime(0.01,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.05);osc.start(t);osc.stop(t+0.05);}
+            else if(type==='success'){osc.type='sine';osc.frequency.setValueAtTime(600,t);osc.frequency.linearRampToValueAtTime(1200,t+0.1);g.gain.setValueAtTime(0.1,t);g.gain.linearRampToValueAtTime(0,t+0.2);osc.start(t);osc.stop(t+0.2);}
+            else if(type==='error'){osc.type='sawtooth';osc.frequency.setValueAtTime(100,t);osc.frequency.linearRampToValueAtTime(50,t+0.3);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.3);osc.start(t);osc.stop(t+0.3);}
         },
-        playMenuHover: function() {
-            if (!this.ctx || this.isMuted) return;
-            const t = this.ctx.currentTime;
-            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
-            osc.type = 'square'; osc.frequency.setValueAtTime(600 + Math.random() * 800, t);
-            g.gain.setValueAtTime(0.02, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15); 
-            osc.connect(g); g.connect(this.masterGain); osc.start(t); osc.stop(t + 0.15);
-        },
-        toggleMute: function() {
-            this.isMuted = !this.isMuted;
-            if(this.masterGain) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : 0.3, this.ctx.currentTime, 0.1);
-            document.getElementById('sound-toggle').innerText = this.isMuted ? "[AUDIO:OFF]" : "[AUDIO:ON]";
-        }
+        playMenuHover: function() { this.playSFX('click'); },
+        toggleMute: function() { this.isMuted = !this.isMuted; }
     };
 
-    /* ========================================================================= */
-    /* GAME LOGIC                                                                */
-    /* ========================================================================= */
+    // --- LOGIC ---
     let matchState = { selected: null, pairsFound: 0 };
     let qQueue = []; let currentStreak = 0; window.integrity = 100;
-    let explainTimer = null; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
-    let hudInterval = null; let sessionTime = 5400; let tempLevel = 0; const TEMP_MAX = 60;
-    
-    // --- DATA ---
+    let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
+    let hudInterval = null; let tempLevel = 0;
+
     const MASTER_DATABASE = [
-        { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
-        { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity." },
-        { tags: ["CORE1", "Hardware"], question: "A projector's image is flickering. What is the most likely cause?", options: ["Bulb life ending", "Loose cable", "Keystone setting", "Incompatible resolution"], answer: 1, explanation: "Flickering is often caused by a loose VGA or HDMI cable connection. A dying bulb usually dims." },
-        { tags: ["CORE1", "Hardware"], type: "match", question: "Match the cable standard to its maximum transfer speed.", pairs: [ { left: "Cat 5e", right: "1 Gbps" }, { left: "Cat 6a", right: "10 Gbps" }, { left: "USB 2.0", right: "480 Mbps" }, { left: "Thunderbolt 3", right: "40 Gbps" } ], explanation: "Cat5e is limited to 1Gbps. Cat6a supports 10Gbps up to 100m. USB 2.0 is 480Mbps." },
-        { tags: ["CORE1", "Troubleshooting"], type: "terminal", question: "A user suspects a specific application is causing the CPU to overheat. Enter the command to view running processes.", validCommands: ["tasklist", "tasklist | more"], hint: "Lists all tasks.", explanation: "The 'tasklist' command displays currently running processes." }
+        { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated"], answer: 0, explanation: "32-bit OS has a 4GB memory address limit." },
+        { tags: ["CORE1", "Troubleshooting"], type: "match", question: "Match Port to Protocol", pairs: [{left:"HTTP",right:"80"},{left:"HTTPS",right:"443"}], explanation: "HTTP is 80, HTTPS is 443." }
     ];
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
 
-    /* ========================================================================= */
-    /* VISUAL EFFECTS                                                            */
-    /* ========================================================================= */
-    function spawnScanline() {
-        if(isDead) return;
-        const line = document.createElement('div'); line.className = 'scan-line';
-        line.style.height = (Math.random() * 3 + 1) + 'px';
-        line.style.animation = `scan-drop ${Math.random() * 5 + 4}s linear forwards`;
-        document.getElementById('scan-container').appendChild(line);
-        setTimeout(() => line.remove(), 10000);
-        setTimeout(spawnScanline, Math.random() * 8000 + 6000); 
-    }
-    spawnScanline();
-
-    // ENHANCED GLITCH LOOP
-    function triggerRandomGlitch() {
-        if(isDead) return;
-        // Increased probability and frequency
-        if(Math.random() < 0.2) {
-            const targets = document.querySelectorAll('.btn, .question-box, h1');
-            if(targets.length > 0) {
-                const target = targets[Math.floor(Math.random()*targets.length)];
-                target.classList.add('random-glitch-active');
-                setTimeout(() => target.classList.remove('random-glitch-active'), 300);
-            }
-        }
-        setTimeout(triggerRandomGlitch, 400 + (Math.random() * 1000));
-    }
-    
-    function spawnHexDump() {
-        if(isDead) return;
-        const chars = "0123456789ABCDEF"; let str = "";
-        for(let r=0; r<6; r++) { str += "0x"; for(let i=0; i<4; i++) str += chars[Math.floor(Math.random()*16)]; str += "\n"; }
-        const el = document.createElement('div'); el.className = "hex-dump";
-        el.style[Math.random() > 0.5 ? 'left' : 'right'] = Math.random() * 15 + "%"; el.style.top = Math.random() * 90 + "%";
-        document.body.appendChild(el);
-        setTimeout(()=>el.remove(), 8000);
-        setTimeout(spawnHexDump, Math.random() * 3000 + 2000);
-    }
-    
-    // MATRIX RAIN
-    const canvas = document.getElementById('matrix-canvas'); const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const fontSize = 14; const columns = Math.floor(canvas.width / fontSize); const drops = Array(columns).fill(1); 
-    const baseChars = "01010x<>!@#{}[]ZEUS"; 
-    function drawRain() {
-        if(Math.random() > 0.5) { requestAnimationFrame(drawRain); return; } 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--term-color'); 
-        ctx.font = fontSize + 'px monospace';
-        for(let i=0; i<drops.length; i++) {
-            const char = baseChars[Math.floor(Math.random()*baseChars.length)];
-            ctx.fillText(char, i*fontSize, drops[i]*fontSize);
-            if(drops[i]*fontSize > canvas.height && Math.random() > 0.99) drops[i] = 0; drops[i]++;
-        }
-        requestAnimationFrame(drawRain);
-    }
-    drawRain();
-
-    function scrambleText(element, finalString, duration=500) {
-        const alphabet = "0101010101XYZ<>";
-        let start = Date.now();
-        let charCount = 0;
-        function update() {
-            let prog = (Date.now() - start) / duration;
-            if(prog >= 1) { element.innerText = finalString; return; }
-            let txt = "";
-            for(let i=0; i<finalString.length; i++) {
-                if(i < finalString.length * prog) txt += finalString[i];
-                else txt += alphabet[Math.floor(Math.random()*alphabet.length)];
-            }
-            element.innerText = txt;
-            charCount++;
-            if(charCount % 2 === 0) AudioEngine.playSFX('type');
-            requestAnimationFrame(update);
-        }
-        update();
-    }
-
-    function typeExplain(element, text) {
-        if (explainTimer) { clearTimeout(explainTimer); explainTimer = null; }
-        element.style.display = 'block'; element.innerHTML = ""; let i = 0;
-        function type() {
-            if (i < text.length) { 
-                element.innerHTML += text.charAt(i); i++; 
-                if(i % 2 === 0) AudioEngine.playSFX('type');
-                explainTimer = setTimeout(type, 20); 
-            }
-        }
-        type();
-    }
-
-    /* === HUD LOGIC === */
-    function startHUD() {
-        if (hudInterval) clearInterval(hudInterval);
-        hudInterval = setInterval(() => {
-            if(isDead) return;
-            if (sessionTime > 0) sessionTime--;
-            let mins = Math.floor(sessionTime / 60); let secs = sessionTime % 60;
-            document.getElementById('session-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
-
-            if (document.getElementById('next-btn-container').classList.contains('hidden')) {
-                if (tempLevel < TEMP_MAX) tempLevel++;
-                updateTempVisuals();
-            }
-        }, 1000);
-    }
-
-    function updateTempVisuals() {
-        const bar = document.getElementById('temp-bar');
-        const label = document.getElementById('temp-label');
-        const pct = tempLevel / TEMP_MAX;
-        bar.style.width = `${pct * 100}%`;
-
-        // Smooth transition logic with CSS + classes for critical
-        if (tempLevel >= 50) {
-            label.innerText = "!! OVERHEAT !!"; label.style.color = "#ff0000"; label.classList.add('label-crit'); 
-            bar.classList.add('temp-critical-active'); // RGB SPLIT STROBE
-        } else if (tempLevel >= 40) {
-            label.innerText = ">> DANGER <<"; label.style.color = "#ff4400"; label.classList.add('label-crit'); 
-            bar.classList.remove('temp-critical-active');
-            bar.style.background = "#ff4400";
-        } else if (tempLevel >= 30) {
-            label.innerText = ">> WARM <<"; label.style.color = "#ffaa00"; 
-            bar.classList.remove('temp-critical-active');
-            bar.style.background = "#ffaa00";
-        } else {
-            label.innerText = "TEMP"; label.style.color = "#ffffff"; label.classList.remove('label-crit'); 
-            bar.classList.remove('temp-critical-active');
-            bar.style.background = "#0affba";
-        }
-    }
-
-    /* ========================================================================= */
-    /* SYSTEM LOGIC                                                              */
-    /* ========================================================================= */
     function bootSystem() {
         document.getElementById('start-overlay').style.display = 'none';
         AudioEngine.init(); 
-        const term = document.getElementById('term-win');
-        term.style.display = 'flex'; term.classList.add('power-on');
-        const btns = document.querySelectorAll('.btn');
-        btns.forEach((b, i) => { setTimeout(() => { b.classList.add('visible'); }, 500 + (i * 150)); });
-        spawnHexDump(); triggerRandomGlitch();
+        document.getElementById('term-win').style.display = 'flex';
+        document.getElementById('term-win').classList.add('power-on');
+        spawnScanline(); drawRain();
     }
 
-    function updateHeader(titleName) {
-        const header = document.getElementById('main-header');
-        header.innerHTML = `SYSTEM <span style="font-size:0.6em; color:#fff;">${titleName || 'ROOT'}</span>`;
-        header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
-    }
-
-    function goToSubMenu(type, titleName) {
-        updateHeader(titleName);
+    function goToSubMenu(id, title) {
+        document.getElementById('main-header').innerHTML = `SYSTEM <span style="font-size:0.6em;color:#fff;">${title}</span>`;
         document.getElementById('root-menu').classList.add('hidden');
-        document.getElementById(type + '-menu').classList.remove('hidden');
-        const target = document.getElementById(type + '-menu');
-        const btns = target.querySelectorAll('.btn');
-        btns.forEach((b, i) => { b.classList.remove('visible'); setTimeout(() => { b.classList.add('visible'); }, 100 + (i * 100)); });
+        document.getElementById(id+'-menu').classList.remove('hidden');
     }
-
     function goToRoot() {
-        updateHeader('ROOT');
+        document.getElementById('main-header').innerHTML = `SYSTEM <span style="font-size:0.6em;color:#fff;">ROOT</span>`;
         document.querySelectorAll('[id$="-menu"]').forEach(m => m.classList.add('hidden'));
         document.getElementById('root-menu').classList.remove('hidden');
     }
-    
-    function transitionToQuiz(certTag, moduleTag, headerName) {
-        updateHeader(headerName);
-        qQueue = fetchQuestions([certTag, moduleTag]);
-        if(qQueue.length === 0) { alert("NO DATA"); return; }
-        for (let i = qQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; }
-        startQuiz();
+
+    function transitionToQuiz(tag1, tag2, title) {
+        qQueue = fetchQuestions([tag1, tag2]);
+        startQuiz(title);
     }
-    
-    function startExam(certTag, headerName) {
-        updateHeader(headerName);
-        qQueue = fetchQuestions([certTag]).slice(0, 90);
-        startQuiz();
+    function startExam(tag, title) {
+        qQueue = fetchQuestions([tag]);
+        startQuiz(title);
     }
 
-    function startQuiz() {
+    function startQuiz(title) {
+        document.getElementById('main-header').innerHTML = `SYSTEM <span style="font-size:0.6em;color:#fff;">${title}</span>`;
         document.querySelectorAll('[id$="-menu"], #root-menu').forEach(m => m.classList.add('hidden'));
         document.getElementById('quiz-ui').classList.remove('hidden');
-        resetGame(); startHUD(); loadSeq();
-    }
-    
-    function resetGame() {
-        currentStreak = 0; integrity = 100; tempLevel = 0; isDead = false; questionsCorrect = 0; questionsAttempted = 0;
-        document.getElementById('fail-ui').classList.remove('fail-visible'); 
+        document.getElementById('ui-buttons-container').classList.remove('hidden'); // Show button layer
+        
+        integrity = 100; currentStreak = 0; isDead = false;
         updateSystemState();
+        startHUD();
+        loadSeq();
     }
 
     function updateSystemState() {
-        if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
+        if(integrity > 100) integrity = 100; if(integrity < 0) integrity = 0;
         
         const bar = document.getElementById('integrity-bar');
-        bar.style.width = `${integrity}%`;
-        document.getElementById('score-ui').innerText = `STREAK: ${currentStreak}`;
+        bar.style.width = integrity + '%';
+        document.getElementById('score-ui').innerText = 'STREAK: ' + currentStreak;
 
-        const root = document.documentElement; 
+        // Dynamic Color Logic
+        let hue = integrity > 50 ? 140 + ((integrity - 50) * 0.4) : integrity * 1.2;
+        const col = `hsl(${hue}, 100%, 50%)`;
+        document.documentElement.style.setProperty('--term-color', col);
         
-        // HSL Transition for colors
-        let hue;
-        if(integrity > 50) { hue = 140 + ((integrity - 50) * 0.4); } 
-        else { hue = integrity * 1.2; }
+        // Edge Pulse Logic (Restored)
+        const panic = (100 - integrity) / 100;
+        document.documentElement.style.setProperty('--edge-opacity', panic); // Make visible
         
-        const newColor = `hsl(${hue}, 100%, 50%)`;
-        const glowColor = `hsla(${hue}, 100%, 50%, 0.85)`;
-        
-        root.style.setProperty('--term-color', newColor);
-        root.style.setProperty('--glow-color', glowColor);
-        
-        // Integrity based visual chaos
-        const panicLevel = (100 - integrity) / 100;
-        // Increase glitch offset based on panic
-        root.style.setProperty('--glitch-offset', (2 + (panicLevel * 8)) + 'px');
-        root.style.setProperty('--edge-opacity', panicLevel * 1.0); // Boosted visibility
-        root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px');
-
-        const termWindow = document.getElementById('term-win');
-        if(integrity < 30) {
-            termWindow.classList.add('stress-active'); 
-            bar.classList.add('integrity-critical');
-        } else {
-            termWindow.classList.remove('stress-active');
-            bar.classList.remove('integrity-critical');
-        }
-
-        if(integrity <= 0 && !isDead) triggerFailure();
+        if(integrity <= 0 && !isDead) { isDead = true; document.getElementById('fail-ui').style.display = 'flex'; }
     }
 
-    function triggerFailure() { 
-        isDead = true;
-        document.getElementById('fail-ui').classList.add('fail-visible'); 
-        AudioEngine.playSFX('error'); 
+    function startHUD() {
+        if(hudInterval) clearInterval(hudInterval);
+        hudInterval = setInterval(()=>{
+            if(isDead) return;
+            if(document.getElementById('next-btn').classList.contains('hidden')) {
+                if(tempLevel < 60) tempLevel++;
+            }
+            const pct = (tempLevel/60)*100;
+            document.getElementById('temp-bar').style.width = pct+'%';
+            if(pct>80) document.getElementById('temp-bar').style.background='red';
+            else document.getElementById('temp-bar').style.background='var(--term-color)';
+        }, 1000);
     }
 
     function loadSeq() {
-        if (integrity <= 0 || qQueue.length === 0) { if(qQueue.length === 0) finish(); return; }
+        if(integrity <= 0 || qQueue.length === 0) { /* Finish */ return; }
         
-        tempLevel = 0; updateTempVisuals();
+        tempLevel = 0;
         const q = qQueue.pop(); window.currentQ = q;
-        document.getElementById('packet-counter').innerText = qQueue.length;
-        scrambleText(document.getElementById('q-text'), q.question, 400);
+        document.getElementById('q-text').innerText = q.question;
         
-        document.getElementById('explanation-box').style.display = 'none';
-        document.getElementById('next-btn-container').classList.add('hidden');
+        // Hide/Show Elements
+        document.getElementById('explanation-box').style.display = 'none'; // RESET
+        document.getElementById('next-btn').classList.add('hidden');
+        document.getElementById('pbq-submit-btn').classList.add('hidden');
         document.getElementById('opts-list').innerHTML = '';
         document.getElementById('pbq-area').style.display = 'none';
-        document.getElementById('pbq-submit-btn').style.display = 'none';
 
-        if (q.type === 'terminal' || q.type === 'match') renderPBQ(q); else renderMCQ(q);
-    }
-
-    function renderMCQ(q) {
-        const optsList = document.getElementById('opts-list');
-        q.options.forEach((o, i) => {
-            const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o}`;
-            b.onclick = () => processResult(i === q.answer, b);
-            optsList.appendChild(b);
-        });
-    }
-
-    function renderPBQ(q) {
-        const area = document.getElementById('pbq-area'); area.innerHTML = ''; area.style.display = 'flex';
-        document.getElementById('pbq-submit-btn').style.display = 'block';
-
-        if (q.type === 'terminal') {
-            area.innerHTML = `<div class="cmd-input-line"><span>C:\\></span><input type="text" id="cmd-input"></div>`;
-        } else if (q.type === 'match') {
-            matchState = { selected: null, pairsFound: 0 };
-            area.innerHTML = `<div class="match-container"><div class="match-col" id="col-left"></div><div class="match-col" id="col-right"></div></div>`;
-            q.pairs.forEach((p, i) => {
-                const l = document.createElement('div'); l.className='match-item'; l.innerText=p.left; l.dataset.id=i; l.dataset.side='l'; l.onclick=e=>handleMatch(e.target);
-                document.getElementById('col-left').appendChild(l);
-                const r = document.createElement('div'); r.className='match-item'; r.innerText=p.right; r.dataset.id=i; r.dataset.side='r'; r.onclick=e=>handleMatch(e.target);
-                document.getElementById('col-right').appendChild(r);
+        if(q.type === 'match') {
+            document.getElementById('pbq-area').style.display = 'flex';
+            document.getElementById('pbq-submit-btn').classList.remove('hidden');
+            renderMatch(q);
+        } else {
+            q.options.forEach((o, i) => {
+                const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = '> '+o;
+                b.onclick = () => handleResult(i === q.answer, b);
+                document.getElementById('opts-list').appendChild(b);
             });
-            const rCol = document.getElementById('col-right');
-            for (let i = rCol.children.length; i >= 0; i--) rCol.appendChild(rCol.children[Math.random() * i | 0]);
         }
     }
 
-    function handleMatch(el) {
+    function renderMatch(q) {
+        matchState = {selected:null, pairsFound:0};
+        const area = document.getElementById('pbq-area');
+        area.innerHTML = `<div class="match-container"><div class="match-col" id="col-l"></div><div class="match-col" id="col-r"></div></div>`;
+        q.pairs.forEach((p, i) => {
+            const l = document.createElement('div'); l.className='match-item'; l.innerText=p.left; l.dataset.id=i; l.dataset.side='l'; l.onclick=e=>matchClick(e.target);
+            document.getElementById('col-l').appendChild(l);
+            const r = document.createElement('div'); r.className='match-item'; r.innerText=p.right; r.dataset.id=i; r.dataset.side='r'; r.onclick=e=>matchClick(e.target);
+            document.getElementById('col-r').appendChild(r);
+        });
+    }
+
+    function matchClick(el) {
         if(el.classList.contains('matched')) return;
         if(matchState.selected === el) { el.classList.remove('selected'); matchState.selected=null; return; }
         if(!matchState.selected) { matchState.selected = el; el.classList.add('selected'); }
         else {
             const prev = matchState.selected;
-            if(prev.dataset.side === el.dataset.side) { prev.classList.remove('selected'); el.classList.add('selected'); matchState.selected = el; return; }
+            if(prev.dataset.side === el.dataset.side) { prev.classList.remove('selected'); el.classList.add('selected'); matchState.selected=el; return; }
             if(prev.dataset.id === el.dataset.id) {
                 prev.classList.remove('selected'); el.classList.remove('selected');
                 prev.classList.add('matched'); el.classList.add('matched');
-                AudioEngine.playSFX('click'); matchState.pairsFound++; matchState.selected = null;
+                AudioEngine.playSFX('click'); matchState.pairsFound++; matchState.selected=null;
             } else {
                 prev.classList.remove('selected'); el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'), 400);
-                AudioEngine.playSFX('error'); matchState.selected = null; integrity-=1; updateSystemState(); 
-                const errs = ["SEG_FAULT", "NaN", "0x00DEAD", "NULL_REF", "BIT_FLIP"];
-                showFloatText(errs[Math.floor(Math.random()*errs.length)], el, 'red');
+                AudioEngine.playSFX('error'); matchState.selected=null;
+                integrity -= 5; updateSystemState(); showFloatText("-5", el, "red");
             }
         }
     }
 
     function submitPBQ() {
-        const q = window.currentQ; let correct = false;
-        if(q.type === 'terminal') { if(q.validCommands.includes(document.getElementById('cmd-input').value.trim().toLowerCase())) correct = true; }
-        else if (q.type === 'match') { if(matchState.pairsFound === q.pairs.length) correct = true; }
-        processResult(correct, document.getElementById('pbq-submit-btn'));
+        const correct = (matchState.pairsFound === window.currentQ.pairs.length);
+        handleResult(correct, document.getElementById('pbq-submit-btn'));
     }
 
-    function processResult(isCorrect, btn) {
-        questionsAttempted++;
-        document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
-        document.getElementById('pbq-submit-btn').style.display = 'none';
+    function handleResult(isCorrect, btn) {
+        document.querySelectorAll('.option-btn').forEach(b=>b.style.pointerEvents='none');
+        document.getElementById('pbq-submit-btn').classList.add('hidden');
         
-        if (isCorrect) {
-            questionsCorrect++;
-            btn.classList.add('correct'); currentStreak++; integrity += 5;
-            AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, '#0f0');
+        if(isCorrect) {
+            btn.classList.add('correct'); integrity += 5; currentStreak++;
+            AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, "#0f0");
         } else {
-            btn.classList.add('wrong'); integrity -= 15; currentStreak = 0;
-            AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
-            const wrap = document.getElementById('integrity-wrap');
-            wrap.classList.remove('dmg-shock'); void wrap.offsetWidth; wrap.classList.add('dmg-shock');
+            btn.classList.add('wrong'); integrity -= 15; currentStreak=0;
+            AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, "#f00");
+            // FORCE SHOCK
+            const w = document.getElementById('integrity-wrap'); w.classList.remove('dmg-shock'); void w.offsetWidth; w.classList.add('dmg-shock');
         }
-        
-        typeExplain(document.getElementById('explanation-box'), ">> " + window.currentQ.explanation);
         updateSystemState();
-        if (integrity > 0) document.getElementById('next-btn-container').classList.remove('hidden');
+
+        // RESTORED EXPLANATION VISIBILITY
+        const exp = document.getElementById('explanation-box');
+        exp.style.display = 'block'; // Force block
+        exp.innerText = ">> " + window.currentQ.explanation;
+        
+        if(integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
     }
 
     function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
+
+    function showFloatText(txt, el, col) {
+        const d = document.createElement('div'); d.className='float-text'; d.innerText=txt; d.style.color=col;
+        document.body.appendChild(d);
+        const r = el.getBoundingClientRect();
+        // Corrected coordinate logic for mobile
+        d.style.left = (r.left + r.width/2 - 20) + 'px'; 
+        d.style.top = (r.top - 20) + 'px'; 
+        setTimeout(()=>d.remove(), 2000);
+    }
+
+    // VISUAL FX
+    function spawnScanline() { 
+        if(isDead) return; 
+        const d=document.createElement('div');d.className='scan-line';d.style.animation='scan-drop 4s linear';
+        document.getElementById('scan-container').appendChild(d);
+        setTimeout(()=>d.remove(),4000); setTimeout(spawnScanline, 3000);
+    }
     
-    // UPDATED: Kaspa Popup (Fixed Mobile Width/Position)
+    const cvs = document.getElementById('matrix-canvas'); const ctx = cvs.getContext('2d');
+    cvs.width=window.innerWidth; cvs.height=window.innerHeight;
+    const cols = Math.floor(cvs.width/14); const drops = Array(cols).fill(1);
+    function drawRain() {
+        ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(0,0,cvs.width,cvs.height);
+        ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--term-color');
+        ctx.font='14px monospace';
+        drops.forEach((y,i)=>{
+            ctx.fillText(String.fromCharCode(0x30A0+Math.random()*96), i*14, y*14);
+            if(y*14 > cvs.height && Math.random()>0.975) drops[i]=0; drops[i]++;
+        });
+        requestAnimationFrame(drawRain);
+    }
+
     function showCrypto() {
-        AudioEngine.playSFX('success');
-        const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq"; 
-        
-        const popup = document.createElement('div');
-        popup.style.cssText = "position:fixed; top:20%; left:5%; width:90vw; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:15px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); backdrop-filter:blur(10px); animation: turnOn 0.3s forwards;";
-        
-        popup.innerHTML = `
-            <h2 style="color:#70c7ba; margin:0 0 10px 0; font-size:1.6rem; font-family:'VT323'; text-shadow:0 0 5px #70c7ba;">>> SECURE CHANNEL <<</h2>
-            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-size:0.8rem; font-family:monospace;">${walletAddress}</div>
-            <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
-            <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
-        `;
-        document.body.appendChild(popup);
-
-        document.getElementById('copy-btn').onclick = () => {
-            navigator.clipboard.writeText(walletAddress);
-            AudioEngine.playSFX('success');
-            document.getElementById('copy-btn').innerText = "[ COPIED ]";
-        };
-        document.getElementById('close-crypto').onclick = () => {
-             AudioEngine.playSFX('click');
-             popup.remove();
-        };
+        alert("kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq");
     }
-
-    function finish() {
-        document.getElementById('quiz-ui').classList.add('hidden');
-        document.getElementById('results-ui').classList.remove('hidden');
-        
-        let pct = 0;
-        if(questionsAttempted > 0) pct = Math.floor((questionsCorrect/questionsAttempted)*100);
-        
-        let i = 0;
-        const interval = setInterval(() => {
-            document.getElementById('final-percent').innerText = `${i}%`;
-            if (i >= pct) clearInterval(interval); i++;
-        }, 20);
-    }
-    
     function shutdownSystem() { location.reload(); }
-
 </script>
 </body>
 </html>
