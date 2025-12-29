@@ -47,7 +47,7 @@
             box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
             
             animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
-            transition: color 0.2s ease, text-shadow 0.2s ease;
+            transition: color 0.5s ease, text-shadow 0.5s ease;
         }
 
         /* --- BACKGROUND LAYERS --- */
@@ -118,7 +118,6 @@
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%;
         }
         
-        /* RESTORED: Original Header Style */
         .h-left h1 { 
             margin: 0;
             font-size: 2.2rem; letter-spacing: 2px; line-height: 1;
@@ -161,61 +160,34 @@
             height: 10px; border: 1px solid var(--term-color); 
             background: rgba(0,0,0,0.8); 
             transition: border-color 0.2s ease;
-            padding: 1px; /* Slight padding inside the container */
+            padding: 1px; 
         }
         
-        /* --- FIXED: ADDED MISSING CLASS FOR BARS --- */
+        /* --- FIXED: BAR TRANSITIONS --- */
         .integrity-fill {
             height: 100%;
             background: var(--term-color);
             box-shadow: 0 0 5px var(--term-color);
-            transition: width 0.3s ease, background-color 0.3s ease;
+            /* Linear 1s matches the 1000ms update tick for super smooth filling */
+            transition: width 1s linear, background-color 1s linear; 
         }
 
-        /* RESTART BTN: Chaos Mode */
-        .fail-restart-btn {
-            background: rgba(255, 0, 0, 0.3) !important;
-            border-color: red !important; 
-            color: #fff !important;
-            position: relative; margin-top:20px;
-            
-            /* UPDATED: Faster shake (0.1s) + RGB Color Split (0.05s) */
-            animation: stress-shake 0.1s infinite, vertical-rgb-split 0.05s infinite !important;
+        /* NEW: Temp Strobe Animation (White/Red Flash) */
+        @keyframes temp-strobe {
+            0% { background-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+            50% { background-color: #ffffff; box-shadow: 0 0 25px #ffffff; }
+            100% { background-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
         }
-        
-        /* FIX: Smooth Temp Gauge Transition */
-        #temp-bar {
-            /* Matches the 1000ms update interval for continuous gliding */
-            transition: width 1s linear !important;
-        }
-        
-        /* Phosphorus Flash Damage Effect */
-        .dmg-shock { 
-            animation: phosphorus-flash 0.5s ease-out;
-        }
-        @keyframes phosphorus-flash {
-            0% { filter: brightness(4) contrast(2);
-                box-shadow: 0 0 50px #fff; }
-            10% { filter: brightness(3) contrast(1.5) hue-rotate(90deg);
-                border-color: #fff; }
-            30% { filter: brightness(2);
-                box-shadow: 0 0 20px var(--term-color); }
-            50% { filter: brightness(1.5);
-                opacity: 0.5; }
-            70% { filter: brightness(1.2); opacity: 1;
-            }
-            100% { filter: brightness(1);
-            }
+        .strobe-active {
+            animation: temp-strobe 0.2s infinite !important;
         }
 
-        /* Audio Toggle - RESTORED ORIGINAL */
+        /* Audio Toggle */
         .audio-btn { 
-            /* ADDED: Forces the pixel font */
             font-family: 'VT323', monospace;
             text-transform: uppercase; 
             letter-spacing: 1px;
-
-            font-size: 1.0rem; /* Increased slightly for better pixel definition */
+            font-size: 1.0rem; 
             background: transparent; 
             border: 1px solid var(--term-color); color: inherit; padding: 2px 5px;
             cursor: pointer; position: relative; overflow: hidden;
@@ -243,50 +215,8 @@
             font-family: 'VT323', monospace; 
             font-size: 1.4rem; padding: 12px 15px;
             cursor: pointer; text-align: left; 
-            transition: 0.2s; /* Smoother transition */
-            
-            position: relative; 
-            overflow: hidden; /* Keeps the shimmer inside */
-            z-index: 1;
-
-            opacity: 0; transform: translateY(10px);
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-        }
-
-        /* NEW: The Shimmering Light Beam */
-        /* NEW: Subtle floating movement */
-        @keyframes subtle-drift {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-3px); } /* Floats up slightly */
-            100% { transform: translateY(0); }
-        }
-
-        /* NEW: Text & Border Pulse */
-        @keyframes pulse-glow {
-            0% { 
-                box-shadow: 0 0 5px rgba(10, 255, 186, 0.1);
-                text-shadow: 0 0 2px var(--term-color);
-            }
-            50% { 
-                box-shadow: 0 0 15px rgba(10, 255, 186, 0.4);
-                text-shadow: 0 0 10px var(--term-color), 0 0 15px rgba(255, 255, 255, 0.6);
-            }
-            100% { 
-                box-shadow: 0 0 5px rgba(10, 255, 186, 0.1);
-                text-shadow: 0 0 2px var(--term-color);
-            }
-        }
-
-        .btn { 
-            background: rgba(0,0,0,0.6);
-            border: 1px solid var(--term-color); 
-            color: var(--term-color); 
-            font-family: 'VT323', monospace; 
-            font-size: 1.4rem; padding: 12px 15px;
-            cursor: pointer; text-align: left; 
             transition: 0.2s;
             position: relative; overflow: hidden; 
-            
             /* Initial State (Hidden) */
             opacity: 0; 
             transform: translateY(10px); 
@@ -296,11 +226,9 @@
         /* Visible State (Animated) */
         .btn.visible { 
             opacity: 1 !important; 
-            /* Applies the Drift (4s) and the Pulse (3s) continuously */
             animation: subtle-drift 4s ease-in-out infinite, pulse-glow 3s ease-in-out infinite;
         }
         
-        /* Hover Effect: Slide right + Brighten */
         .btn:hover {
             transform: translateX(10px) !important;
             background: rgba(10, 255, 186, 0.1);
@@ -308,7 +236,6 @@
             text-shadow: 0 0 15px #fff;
         }
 
-        /* Click Effect: RGB Split + Flash */
         .btn:active { 
             background: #fff;
             color: #000; 
@@ -317,8 +244,26 @@
             transform: translate(-1px, -1px) !important;
         }
         
-        .btn.exam-mode { border-color: #ff4444;
-            color: #ff4444; }
+        /* --- NEW: EXAM BUTTON STATIC GLOW (Requested) --- */
+        @keyframes white-static {
+            0% { opacity: 0.9; text-shadow: 0 0 5px #fff; }
+            50% { opacity: 1; text-shadow: 0 0 15px #fff, 2px 0 rgba(255,255,255,0.5); }
+            100% { opacity: 0.9; text-shadow: 0 0 5px #fff; }
+        }
+
+        .btn.exam-mode {
+            /* Keep border/base text distinct if desired, or make it white/red */
+            border-color: #ff4444;
+            color: #ff4444; 
+        }
+        
+        .btn.exam-mode span {
+            /* Applying the glow specifically to the text inside */
+            color: #fff;
+            animation: white-static 0.1s infinite;
+            display: inline-block;
+        }
+
         .btn.exam-mode:active { background: #ff4444; color: white;
             box-shadow: 0 0 60px #ff4444; }
 
@@ -418,7 +363,6 @@
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00;
         }
         
-        /* EXECUTE BUTTON - now inherits .btn style & active effects */
         #pbq-submit-btn {
             /* Inherits .btn transparency */
         }
@@ -558,6 +502,18 @@
 
         .hidden { display: none !important;
         }
+        
+        /* --- NEW: STATIC GLOW ANIMATION FOR EXAM BUTTON --- */
+        @keyframes subtle-drift {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(10, 255, 186, 0.1); }
+            50% { box-shadow: 0 0 15px rgba(10, 255, 186, 0.4); }
+            100% { box-shadow: 0 0 5px rgba(10, 255, 186, 0.1); }
+        }
 
     </style>
 </head>
@@ -650,8 +606,10 @@
             transitionToQuiz('CORE1', 'Mobile')">[C] MOBILE</button>
             <button class="btn" onclick="AudioEngine.playMenuHover();
             transitionToQuiz('CORE1', 'Cloud')">[D] CLOUD_OPS</button>
+            
             <button class="btn exam-mode" onclick="AudioEngine.playMenuHover();
-            startExam('CORE1')">[X] EXAM_SIMULATION</button>
+            startExam('CORE1')"><span>[X] EXAM_SIMULATION</span></button>
+            
             <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover();
             goToRoot()"> < BACK TO ROOT </button>
         </div>
@@ -668,7 +626,7 @@
             <button class="btn" onclick="AudioEngine.playMenuHover();
             transitionToQuiz('CORE2', 'Ops')">[D] OPS_PROCEDURES</button>
             <button class="btn exam-mode" onclick="AudioEngine.playMenuHover();
-            startExam('CORE2')">[X] EXAM_SIMULATION</button>
+            startExam('CORE2')"><span>[X] EXAM_SIMULATION</span></button>
             <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover();
             goToRoot()"> < BACK </button>
         </div>
@@ -684,7 +642,7 @@
             <button class="btn" onclick="AudioEngine.playMenuHover();
             transitionToQuiz('NET', 'Security')">[D] SECURITY</button>
             <button class="btn exam-mode" onclick="AudioEngine.playMenuHover();
-            startExam('NET')">[X] EXAM_SIMULATION</button>
+            startExam('NET')"><span>[X] EXAM_SIMULATION</span></button>
             <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover();
             goToRoot()"> < BACK </button>
         </div>
@@ -700,7 +658,7 @@
             <button class="btn" onclick="AudioEngine.playMenuHover();
             transitionToQuiz('SEC', 'Gov')">[D] GOVERNANCE</button>
             <button class="btn exam-mode" onclick="AudioEngine.playMenuHover();
-            startExam('SEC')">[X] EXAM_SIMULATION</button>
+            startExam('SEC')"><span>[X] EXAM_SIMULATION</span></button>
             <button class="btn" style="border-color: #666; color: #888;" onclick="AudioEngine.playMenuHover();
             goToRoot()"> < BACK </button>
         </div>
@@ -751,12 +709,11 @@
 
 <script>
     /* ========================================================================= */
-    /* SECTION: AUDIO ENGINE (ORIGINAL RESTORED)                                 */
+    /* SECTION: AUDIO ENGINE                                                     */
     /* ========================================================================= */
     const AudioEngine = {
         ctx: null, masterGain: null, delayNode: null, isPlaying: false, isMuted: false, 
         init: function() {
-     
              try {
                 const AC = window.AudioContext || window.webkitAudioContext;
                 this.ctx = new AC();
@@ -848,13 +805,11 @@
             type: "match",
             question: "Match the cable standard to its maximum transfer speed.", 
             pairs: [
-     
                { left: "Cat 5e", right: "1 Gbps" },
                 { left: "Cat 6a", right: "10 Gbps" },
                 { left: "USB 2.0", right: "480 Mbps" },
                 { left: "Thunderbolt 3", right: "40 Gbps" }
             ],
- 
             explanation: "Cat5e is limited to 1Gbps. Cat6a supports 10Gbps up to 100m. USB 2.0 is 480Mbps. Thunderbolt 3 creates a massive 40Gbps pipe."
         },
         {
@@ -886,7 +841,6 @@
             tags: ["CORE1", "Networking"], 
             type: "terminal",
             question: " A user cannot access the internet. You suspect a DNS issue. Enter the command to clear the local DNS resolver cache.", 
-      
             validCommands: ["ipconfig /flushdns", "ipconfig/flushdns"], // Accept both formats
             hint: "The command starts with 'ipconfig' followed by a switch to 'flush' the data.",
             explanation: "The 'ipconfig /flushdns' command purges the local DNS resolver cache, forcing the computer to request new records from the DNS server."
@@ -923,7 +877,6 @@
             type: "terminal",
             question: " You need to trace the route packets take to google.com to identify a failed hop. Enter the command.",
             validCommands: ["tracert google.com", "traceroute google.com"],
-  
             hint: "In Windows, the command is 'tracert'. In Linux, it's 'traceroute'.",
             explanation: "Tracert (Windows) or Traceroute (Linux/Mac) maps the hops packets take to a destination."
         },
@@ -1094,23 +1047,39 @@
         }, 1000);
     }
 
+    /* === FIXED: TEMP GAUGE LOGIC (SMOOTHER + COLORS) === */
     function updateTempVisuals() {
         const bar = document.getElementById('temp-bar');
         const label = document.getElementById('temp-label');
         const pct = tempLevel / TEMP_MAX;
+        
+        // Ensure smooth transition
         bar.style.width = `${pct * 100}%`;
-        if (tempLevel >= 50) {
-            label.innerText = "!! OVERHEAT !!";
-            label.style.color = "#ff0000"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "red";
-        } else if (tempLevel >= 40) {
-            label.innerText = ">> DANGER <<";
-            label.style.color = "#ff4400"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "orange";
-        } else if (tempLevel >= 30) {
-            label.innerText = ">> WARNING <<";
-            label.style.color = "#ffaa00"; bar.classList.remove('temp-pulse-active'); bar.style.background = "yellow";
-        } else {
+        bar.classList.remove('strobe-active'); // Reset strobe
+
+        if (tempLevel >= 55) { // MAX / CRITICAL (Strobe)
+            label.innerText = "!! CRITICAL !!";
+            label.style.color = "#ff0000"; 
+            label.classList.add('label-crit'); 
+            bar.classList.add('strobe-active'); // Flashing Red/White
+        } else if (tempLevel >= 45) { // RED
+            label.innerText = "DANGER";
+            label.style.color = "#ff0000"; 
+            label.classList.add('label-crit');
+            bar.style.backgroundColor = "#ff0000";
+        } else if (tempLevel >= 30) { // ORANGE
+            label.innerText = "WARNING";
+            label.style.color = "#ffaa00"; 
+            bar.style.backgroundColor = "#ffaa00";
+        } else if (tempLevel >= 15) { // YELLOW
+            label.innerText = "CAUTION";
+            label.style.color = "#ffff00";
+            bar.style.backgroundColor = "#ffff00";
+        } else { // GREEN
             label.innerText = "TEMP";
-            label.style.color = "#ffffff"; label.classList.remove('label-crit'); bar.classList.remove('temp-pulse-active'); bar.style.background = "#0affba";
+            label.style.color = "#ffffff"; 
+            label.classList.remove('label-crit'); 
+            bar.style.backgroundColor = "#0affba";
         }
     }
 
@@ -1273,12 +1242,13 @@
 
         // --- NEW HINT LOGIC ---
         if (q.hint) {
+            // 1. Create Container
             const hintContainer = document.createElement('div');
             hintContainer.style.marginTop = "15px";
             hintContainer.style.borderTop = "1px dashed #555";
             hintContainer.style.paddingTop = "10px";
 
-            // Create the Button
+            // 2. Create the Button
             const hintBtn = document.createElement('button');
             hintBtn.className = 'sys-btn'; 
             hintBtn.innerText = '[ DECRYPT_HINT ]';
@@ -1286,7 +1256,7 @@
             hintBtn.style.borderColor = "#ffff00"; 
             hintBtn.style.width = "100%";
             
-            // Create the Message (Hidden initially)
+            // 3. Create the Message (Hidden initially)
             const hintMsg = document.createElement('div');
             hintMsg.innerText = ">> DATA_MINED: " + q.hint;
             hintMsg.style.display = "none";
@@ -1298,13 +1268,14 @@
             // --- FIX: This line makes it pulse slowly instead of glitching ---
             hintMsg.style.animation = "text-pulse-glow 3s infinite alternate"; 
 
-            // Click Logic
+            // 4. Click Logic
             hintBtn.onclick = () => {
                 AudioEngine.playSFX('click');
                 hintBtn.style.display = 'none'; // Hide button
                 hintMsg.style.display = 'block'; // Show text
             };
 
+            // 5. Append to DOM
             hintContainer.appendChild(hintBtn);
             hintContainer.appendChild(hintMsg);
             area.appendChild(hintContainer);
@@ -1398,9 +1369,11 @@
         
         const popup = document.createElement('div');
         popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:80%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3);";
+        
+        // ADDED: font-family VT323 explicit for address, removed text shadow
         popup.innerHTML = `
-            <h2 style="color:#70c7ba; margin:0 0 10px 0;">>> SECURE CHANNEL FOR KASPA WALLET<<</h2>
-            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all;">${walletAddress}</div>
+            <h2 style="color:#70c7ba; margin:0 0 10px 0; font-family:'VT323';">>> SECURE CHANNEL FOR KASPA WALLET<<</h2>
+            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-family:'VT323'; font-size:1.2rem; text-shadow:none;">${walletAddress}</div>
             <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
             <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
         `;
