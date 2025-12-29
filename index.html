@@ -443,7 +443,7 @@
             } 100% { transform: translateX(0); } }
 
         /* Helpers */
-        .logo-glitch { animation: slice-glitch 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite !important;
+        .logo-glitch { animation: slice-glitch 3s cubic-bezier(0.25, 0.8, 0.45, 0.94) both infinite !important;
             color: #fff !important; }
         .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important;
             color: #fff !important; }
@@ -527,7 +527,7 @@
 
 <div id="start-overlay" onclick="bootSystem()">
     <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);"
-    class="logo-glitch">
+    class="logo-glitch", class=".random-glitch-active">
         [MALEDICTION]
     </div>
     <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
@@ -1426,6 +1426,7 @@
 </script>
 </body>
 </html>
+
 
 
 
