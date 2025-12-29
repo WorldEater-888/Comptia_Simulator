@@ -95,7 +95,7 @@
             height: 100%;
             border: none;
             /* High transparency to see Matrix rain */
-            background: rgba(0, 5, 5, 0.65);
+            background: rgba(0, 5, 5, 0.40);
             /* REDUCED BLUR BY 50% */
             backdrop-filter: blur(2px);
             -webkit-backdrop-filter: blur(2px);
@@ -161,7 +161,17 @@
             height: 10px; border: 1px solid var(--term-color); 
             background: rgba(0,0,0,0.8); 
             transition: border-color 0.2s ease;
+            padding: 1px; /* Slight padding inside the container */
         }
+        
+        /* --- FIXED: ADDED MISSING CLASS FOR BARS --- */
+        .integrity-fill {
+            height: 100%;
+            background: var(--term-color);
+            box-shadow: 0 0 5px var(--term-color);
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
         /* RESTART BTN: Chaos Mode */
         .fail-restart-btn {
             background: rgba(255, 0, 0, 0.3) !important;
@@ -1077,7 +1087,7 @@
             document.getElementById('session-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
 
             if (document.getElementById('next-btn').classList.contains('hidden')) {
-               
+                
                 if (tempLevel < TEMP_MAX) tempLevel++;
                 updateTempVisuals();
             }
@@ -1176,9 +1186,9 @@
         // RESTORED HSL COLOR MATH
         let hue, sat, light;
         if(integrity > 50) {
-             hue = 140 + ((integrity - 50) * 0.4);
+              hue = 140 + ((integrity - 50) * 0.4);
         } else {
-             hue = integrity * 1.2;
+              hue = integrity * 1.2;
         }
         const newColor = `hsl(${hue}, 100%, 50%)`;
         const glowColor = `hsla(${hue}, 100%, 50%, 0.85)`;
@@ -1238,6 +1248,7 @@
     }
 
     /* === UPDATED: RENDER PBQ WITH HINT SUPPORT === */
+    /* === UPDATED: RENDER PBQ (FIXED HINT SPEED) === */
     function renderPBQ(q) {
         const area = document.getElementById('pbq-area');
         area.innerHTML = ''; area.style.display = 'flex';
@@ -1260,6 +1271,47 @@
             const rCol = document.getElementById('col-right');
             for (let i = rCol.children.length; i >= 0; i--) rCol.appendChild(rCol.children[Math.random() * i | 0]);
         }
+
+        // --- NEW HINT LOGIC ---
+        if (q.hint) {
+            const hintContainer = document.createElement('div');
+            hintContainer.style.marginTop = "15px";
+            hintContainer.style.borderTop = "1px dashed #555";
+            hintContainer.style.paddingTop = "10px";
+
+            // Create the Button
+            const hintBtn = document.createElement('button');
+            hintBtn.className = 'sys-btn'; 
+            hintBtn.innerText = '[ DECRYPT_HINT ]';
+            hintBtn.style.color = "#ffff00"; 
+            hintBtn.style.borderColor = "#ffff00"; 
+            hintBtn.style.width = "100%";
+            
+            // Create the Message (Hidden initially)
+            const hintMsg = document.createElement('div');
+            hintMsg.innerText = ">> DATA_MINED: " + q.hint;
+            hintMsg.style.display = "none";
+            hintMsg.style.color = "#ffff00";
+            hintMsg.style.fontFamily = "monospace";
+            hintMsg.style.fontSize = "1.1rem";
+            hintMsg.style.marginTop = "5px";
+            
+            // --- FIX: CHANGED ANIMATION HERE ---
+            // Changed from 'logo-glitch' (fast) to a slow glow pulse (3 seconds)
+            hintMsg.style.animation = "text-pulse-glow 3s infinite alternate"; 
+
+            // Click Logic
+            hintBtn.onclick = () => {
+                AudioEngine.playSFX('click');
+                hintBtn.style.display = 'none'; // Hide button
+                hintMsg.style.display = 'block'; // Show text
+            };
+
+            hintContainer.appendChild(hintBtn);
+            hintContainer.appendChild(hintMsg);
+            area.appendChild(hintContainer);
+        }
+    }
 
         // --- NEW HINT LOGIC ---
         if (q.hint) {
@@ -1425,6 +1477,3 @@
 </script>
 </body>
 </html>
-
-
-
