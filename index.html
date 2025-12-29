@@ -332,7 +332,74 @@
 
         /* --- SCREENS --- */
         #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        function renderPBQ(q) {
+        const area = document.getElementById('pbq-area');
+        area.innerHTML = ''; 
+        area.style.display = 'flex';
         
+        // Make submit visible
+        document.getElementById('pbq-submit-btn').style.display = 'block';
+
+        // 1. Render the Question Interface
+        if (q.type === 'terminal') {
+            area.innerHTML = `<div class="cmd-input-line"><span>C:\\></span><input type="text" id="cmd-input" autocomplete="off"></div>`;
+            // Auto-focus input for better UX
+            setTimeout(() => document.getElementById('cmd-input').focus(), 100);
+        } 
+        else if (q.type === 'match') {
+            matchState = { selected: null, pairsFound: 0 };
+            area.innerHTML = `<div class="match-container"><div class="match-col" id="col-left"></div><div class="match-col" id="col-right"></div></div>`;
+            
+            q.pairs.forEach((p, i) => {
+                const l = document.createElement('div'); l.className='match-item'; l.innerText=p.left; l.dataset.id=i; l.dataset.side='l'; l.onclick=e=>handleMatch(e.target);
+                document.getElementById('col-left').appendChild(l);
+                
+                const r = document.createElement('div'); r.className='match-item'; r.innerText=p.right; r.dataset.id=i; r.dataset.side='r'; r.onclick=e=>handleMatch(e.target);
+                document.getElementById('col-right').appendChild(r);
+            });
+            
+            // Shuffle Right Column
+            const rCol = document.getElementById('col-right');
+            for (let i = rCol.children.length; i >= 0; i--) rCol.appendChild(rCol.children[Math.random() * i | 0]);
+        }
+
+        // 2. [FIX] Render Hint Button if hint exists
+        if (q.hint) {
+            const hintContainer = document.createElement('div');
+            hintContainer.style.marginTop = "15px";
+            hintContainer.style.borderTop = "1px dashed #555";
+            hintContainer.style.paddingTop = "10px";
+
+            // Create the Button
+            const hintBtn = document.createElement('button');
+            hintBtn.className = 'sys-btn'; // Reusing your existing CSS class
+            hintBtn.innerText = '[ DECRYPT_HINT ]';
+            hintBtn.style.color = "#ffff00"; // Yellow text
+            hintBtn.style.borderColor = "#ffff00"; // Yellow border
+            hintBtn.style.width = "100%";
+            
+            // Create the Message (Hidden initially)
+            const hintMsg = document.createElement('div');
+            hintMsg.innerText = ">> DATA_MINED: " + q.hint;
+            hintMsg.style.display = "none";
+            hintMsg.style.color = "#ffff00";
+            hintMsg.style.fontFamily = "monospace";
+            hintMsg.style.fontSize = "1.1rem";
+            hintMsg.style.marginTop = "5px";
+            hintMsg.className = "logo-glitch"; // Adds your glitch effect to the text
+
+            // Click Logic
+            hintBtn.onclick = () => {
+                AudioEngine.playSFX('click');
+                hintBtn.style.display = 'none'; // Hide button
+                hintMsg.style.display = 'block'; // Show text
+            };
+
+            hintContainer.appendChild(hintBtn);
+            hintContainer.appendChild(hintMsg);
+            area.appendChild(hintContainer);
+        }
+    }
         /* FIXED: System Corrupt Screen Clipping */
         #fail-ui { 
             display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; 
@@ -12104,3 +12171,4 @@
 </script>
 </body>
 </html>
+
