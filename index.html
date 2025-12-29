@@ -59,11 +59,11 @@
             pointer-events: none;
         }
         
-        /* NEW: DARK RARE SCANLINE */
+        /* DARK RARE SCANLINE */
         .dark-scan-line {
             position: fixed;
             left: 0; width: 100%;
-            background: rgba(0, 0, 0, 0.9); /* Heavy dark line */
+            background: rgba(0, 0, 0, 0.9); 
             z-index: 850; 
             pointer-events: none;
             box-shadow: 0 0 10px rgba(0,0,0,0.8);
@@ -179,22 +179,24 @@
             animation: erratic-glow 2s ease-in-out infinite;
         }
 
-        /* --- STATIC JITTER (TINY AMOUNT CONSTANT) --- */
+        /* --- STATIC JITTER (REDUCED 70%) --- */
         @keyframes static-jitter {
+            /* Base State */
             0% { opacity: 1; text-shadow: 0 0 5px currentColor; transform: translate(0,0); }
-            /* Random micro jitters throughout timeline */
-            10% { transform: translate(0.5px, 0.5px); }
-            20% { transform: translate(-0.5px, 0); }
-            30% { transform: translate(0, 0.5px); }
-            40% { transform: translate(0.5px, -0.5px); }
-            50% { transform: translate(-0.5px, 0.5px); }
-            60% { transform: translate(0, -0.5px); }
-            70% { transform: translate(0.5px, 0); }
-            80% { transform: translate(-0.5px, -0.5px); }
             
-            /* The RGB Glitch at the end */
-            95% { opacity: 0.9; text-shadow: 3px 0 #00ffff, -3px 0 #ff00ff; transform: translateX(2px); }
-            96% { opacity: 0.8; text-shadow: -3px 0 #00ffff, 3px 0 #ff00ff; transform: translateX(-2px); }
+            /* Micro Jitters (0.15px range) */
+            10% { transform: translate(0.1px, 0.1px); }
+            20% { transform: translate(-0.1px, 0); }
+            30% { transform: translate(0, 0.1px); }
+            40% { transform: translate(0.1px, -0.1px); }
+            50% { transform: translate(-0.1px, 0.1px); }
+            60% { transform: translate(0, -0.1px); }
+            70% { transform: translate(0.1px, 0); }
+            80% { transform: translate(-0.1px, -0.1px); }
+            
+            /* Subtle RGB Glitch (Reduced distance to 1px) */
+            95% { opacity: 0.98; text-shadow: 1px 0 #00ffff, -1px 0 #ff00ff; transform: translateX(0.5px); }
+            96% { opacity: 0.95; text-shadow: -1px 0 #00ffff, 1px 0 #ff00ff; transform: translateX(-0.5px); }
             
             100% { opacity: 1; text-shadow: 0 0 5px currentColor; transform: translate(0,0); }
         }
@@ -210,7 +212,7 @@
             box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
             transition: all 0.2s ease;
             text-transform: uppercase;
-            animation: static-jitter 0.2s infinite; /* Fast tiny jitter */
+            animation: static-jitter 0.2s infinite; 
         }
         .sys-btn:active { transform: translate(1px, 1px);
             box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
@@ -300,7 +302,7 @@
             box-shadow: 0 0 8px var(--term-color), inset 0 0 8px rgba(10, 255, 186, 0.2);
             text-shadow: 0 0 5px var(--glow-color);
             
-            /* TINY CONSTANT JITTER */
+            /* REDUCED CONSTANT JITTER */
             animation: static-jitter 0.3s infinite;
         }
 
@@ -423,7 +425,7 @@
             100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } 
         }
         
-        /* UPDATED: VERTICAL/SIDEWAYS SCANLINE FOR TITLE */
+        /* VERTICAL/SIDEWAYS SCANLINE FOR TITLE */
         @keyframes scan-pass-vertical {
             0% { left: -100%; opacity: 0; }
             10% { opacity: 1; }
