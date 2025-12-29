@@ -18,6 +18,7 @@
             /* VARIABLES */
             --edge-opacity: 0; 
             --shake-amp: 0px; 
+            --sway-speed: 5s; /* Restored Sway Variable */
         }
 
         /* --- GLOBAL RESETS --- */
@@ -44,8 +45,8 @@
             
             text-shadow: 0 0 8px var(--glow-color), 0 0 12px var(--term-dim);
             
-            /* FIXED: Stopped the constant swaying/jiggling of the screen */
-            box-shadow: none; 
+            /* RESTORED: The sway animation you requested */
+            animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
             transition: color 0.5s ease, text-shadow 0.5s ease;
         }
 
@@ -126,23 +127,19 @@
             display: flex; align-items: center;
         }
 
-        /* HEADER TEXT: WHITE & MINT SPLIT (NO RED) */
+        /* HEADER TEXT: SLEEK & RETRO (VT323) */
         .h-left h1 { 
             margin: 0;
-            font-family: 'Press Start 2P', cursive;
-            
-            /* FIXED: Sized down to match the layout better */
-            font-size: 0.9rem; 
-            
-            letter-spacing: 1px; 
+            /* CHANGED to VT323 for "sleek" look instead of blocky Press Start */
+            font-family: 'VT323', monospace; 
+            font-size: 2.0rem; /* Increased size since this font is thinner */
+            letter-spacing: 2px; 
             line-height: 1;
-            font-weight: normal;
+            font-weight: bold;
             color: var(--term-color);
-            
-            /* FIXED: Replaced Red/Cyan with White/Neon Mint */
-            text-shadow: 2px 0 #ffffff, -2px 0 #0affba;
-            
-            padding-top: 5px; 
+            /* Subtle white glow, no green/red shift */
+            text-shadow: 0 0 5px #fff;
+            padding-top: 0px; 
         }
         
         /* THE CURSOR BOX */
@@ -153,20 +150,22 @@
             background-color: var(--term-color);
             vertical-align: bottom;
             margin-left: 5px;
-            margin-bottom: 2px;
+            margin-bottom: 5px; /* Adjusted for new font */
             animation: blink-cursor 0.8s steps(2) infinite;
             box-shadow: 0 0 8px var(--term-color);
         }
         @keyframes blink-cursor { 0% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* --- GLOBAL STATIC JITTER ANIMATION --- */
-        /* This is the effect you liked on the Exam button, now available for all */
+        /* --- GLOBAL STATIC JITTER ANIMATION (REFINED) --- */
+        /* Toned down by 65% - mostly stable with occasional white flicker */
         @keyframes static-jitter {
-            0% { opacity: 0.9; text-shadow: 0 0 5px #fff; }
-            25% { opacity: 1; text-shadow: 2px 0 #fff, -2px 0 var(--term-color); }
-            50% { opacity: 1; text-shadow: 0 0 15px #fff, 0 0 10px #fff; }
-            75% { opacity: 0.9; text-shadow: -2px 0 #fff, 2px 0 var(--term-color); }
-            100% { opacity: 0.9; text-shadow: 0 0 5px #fff; }
+            0% { opacity: 1; text-shadow: 0 0 5px #fff; transform: translateX(0); }
+            95% { opacity: 1; text-shadow: 0 0 5px #fff; transform: translateX(0); }
+            96% { opacity: 0.8; text-shadow: 1px 0 #fff; transform: translateX(1px); } /* Micro-shift */
+            97% { opacity: 1; text-shadow: 0 0 5px #fff; transform: translateX(0); }
+            98% { opacity: 0.9; text-shadow: -1px 0 #fff; transform: translateX(0); }
+            99% { opacity: 1; text-shadow: 0 0 8px #fff; } /* Bright flash */
+            100% { opacity: 1; text-shadow: 0 0 5px #fff; transform: translateX(0); }
         }
 
         /* Donation Buttons */
@@ -181,8 +180,8 @@
             transition: all 0.2s ease;
             text-transform: uppercase;
             
-            /* APPLIED JITTER HERE */
-            animation: static-jitter 0.15s infinite;
+            /* Slower animation for subtler effect */
+            animation: static-jitter 4s infinite; 
         }
         .sys-btn:active { transform: translate(1px, 1px);
             box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
@@ -239,13 +238,12 @@
             opacity: 0; transform: translateY(10px); 
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
             
-            /* APPLIED JITTER HERE */
-            animation: static-jitter 0.1s infinite;
+            /* JITTER: Slower duration (2.5s) and randomized delays via JS would be ideal, but CSS delay is fixed */
+            animation: static-jitter 3s infinite;
         }
 
         .btn.visible { 
             opacity: 1 !important; 
-            /* Removed subtle-drift so buttons don't float around */
             transform: translateY(0);
         }
         
@@ -271,8 +269,7 @@
             font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500; text-transform: uppercase;
             
-            /* APPLIED JITTER HERE */
-            animation: static-jitter 0.1s infinite;
+            animation: static-jitter 5s infinite;
         }
         .nav-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 40px var(--term-color); }
 
@@ -308,8 +305,7 @@
             cursor: pointer; position: relative;
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
             
-            /* APPLIED JITTER HERE */
-            animation: static-jitter 0.1s infinite;
+            animation: static-jitter 3.5s infinite;
         }
 
         .option-btn:active { 
@@ -332,13 +328,13 @@
         .match-col { display: flex; flex-direction: column; gap: 10px; width: 48%; }
         .match-item { border: 1px solid var(--term-color); background: rgba(0, 20, 20, 0.6);
             padding: 10px; text-align: center; font-size: 1.1rem; color: #fff; transition: 0.2s;
-            animation: static-jitter 0.2s infinite;
+            animation: static-jitter 4s infinite;
         }
         .match-item.selected { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); }
         .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
 
-        /* --- ANIMATIONS (RESTORED ALL) --- */
+        /* --- ANIMATIONS --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         
         @keyframes stress-shake { 
@@ -347,7 +343,11 @@
             80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } 
         }
         
-        /* Removed ghost-sway as requested */
+        @keyframes ghost-sway { 
+            0% { transform: translate(0, 0) rotate(0deg); } 
+            50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 
+            100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } 
+        }
         
         @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
@@ -664,10 +664,7 @@
     const drops = Array(columns).fill(1); 
     const baseChars = "01010x<>!@#{}[]ZEUS"; 
 
-    // REMOVED ZALGO FUNCTION TO SAVE PERFORMANCE
-    
     function drawRain() {
-        // Slowed down rain slightly for performance
         if(Math.random() > 0.6) { requestAnimationFrame(drawRain); return; } 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -717,8 +714,18 @@
         type();
     }
 
-    /* --- HEADER JACKPOT --- */
+    /* --- HEADER JACKPOT (FIXED TO PREVENT OVERLAP) --- */
+    let typeWriterTimeouts = [];
+    
+    function clearTypewriter() {
+        typeWriterTimeouts.forEach(id => clearTimeout(id));
+        typeWriterTimeouts = [];
+    }
+
     function typewriterJackpot(targetId, text) {
+        // Clear previous instances first
+        clearTypewriter();
+        
         const el = document.getElementById(targetId);
         el.innerHTML = "";
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_[]<>";
@@ -731,20 +738,20 @@
             const maxCycles = 3; 
             
             const span = document.createElement('span');
-            // FIX: Applied correct font to the cycling letters
-            span.style.fontFamily = "'Press Start 2P', cursive";
+            // Font matches the SLEEK RETRO look now
+            span.style.fontFamily = "'VT323', monospace";
             el.appendChild(span);
             
             function cycle() {
                 if (cycles < maxCycles) {
                     span.innerText = chars[Math.floor(Math.random() * chars.length)];
                     cycles++;
-                    setTimeout(cycle, 50);
+                    typeWriterTimeouts.push(setTimeout(cycle, 50));
                 } else {
                     span.innerText = targetChar;
                     AudioEngine.playSFX('type');
                     i++;
-                    setTimeout(addChar, 50);
+                    typeWriterTimeouts.push(setTimeout(addChar, 50));
                 }
             }
             cycle();
@@ -761,9 +768,7 @@
             let mins = Math.floor(sessionTime / 60); let secs = sessionTime % 60;
             document.getElementById('session-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
             
-            // FIXED TEMP LOGIC: SLOWER RISE
             if (document.getElementById('next-btn').classList.contains('hidden')) {
-                // Only rise every 4 seconds roughly
                 if (sessionTime % 4 === 0 && tempLevel < TEMP_MAX) tempLevel++;
                 updateTempVisuals();
             }
