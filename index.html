@@ -219,6 +219,13 @@
             gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px;
         }
 
+        /* NEW: Shimmer Light Sweep Animation */
+        @keyframes shimmer-sweep {
+            0% { transform: translateX(-150%) skewX(-20deg); }
+            40% { transform: translateX(350%) skewX(-20deg); }
+            100% { transform: translateX(350%) skewX(-20deg); }
+        }
+
         .btn { 
             background: rgba(0,0,0,0.6);
             border: 1px solid var(--term-color); 
@@ -226,10 +233,35 @@
             font-family: 'VT323', monospace; 
             font-size: 1.4rem; padding: 12px 15px;
             cursor: pointer; text-align: left; 
-            transition: 0.1s;
-            position: relative; overflow: hidden; 
+            transition: 0.2s; /* Smoother transition */
+            
+            position: relative; 
+            overflow: hidden; /* Keeps the shimmer inside */
+            z-index: 1;
+
             opacity: 0; transform: translateY(10px);
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+        }
+
+        /* NEW: The Shimmering Light Beam */
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 50px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: translateX(-150%) skewX(-20deg);
+            animation: shimmer-sweep 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        /* NEW: Hover Slide & Glow Effect */
+        .btn:hover {
+            transform: translate(10px, 0) !important; 
+            background: rgba(10, 255, 186, 0.15);
+            text-shadow: 0 0 8px var(--term-color);
+            box-shadow: -4px 0 15px var(--term-color);
         }
         .btn.visible { opacity: 1 !important; transform: translateY(0) !important;
             transition: opacity 0.4s ease, transform 0.4s ease; }
@@ -514,7 +546,7 @@
         <div class="header-top">
           
           <div class="h-left">
-                <h1 id="main-header">COMPTIA<span style="font-size: 0.6em; color:#fff;">SIM</span></h1>
+                <h1 id="main-header">COMPTIA_ <span style="font-size: 0.6em; color:#fff;">SIM</span></h1>
             </div>
             <div class="donate-group">
                 <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[DONATE]</button>
@@ -526,7 +558,7 @@
         <div class="header-stats-row">
             <div class="bars-group">
                 <div class="integrity-wrapper" id="integrity-wrap">
-                    <div class="integrity-label">INTEGRITY</div>
+                    <div class="integrity-label">CORE INTEGRITY</div>
                     <div 
                     class="integrity-container">
                         <div class="integrity-fill" id="integrity-bar"></div>
@@ -544,7 +576,7 @@
             <div style="text-align: right;">
                  <div id="score-ui" style="font-weight: bold;
                  font-size: 1.2rem; margin-bottom: 5px;">PTS: 0</div>
-                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO:ON]</button>
+                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[NOISE:ON]</button>
             </div>
         </div>
     </div>
@@ -1032,10 +1064,10 @@
             label.innerText = ">> DANGER <<";
             label.style.color = "#ff4400"; label.classList.add('label-crit'); bar.classList.add('temp-pulse-active'); bar.style.background = "orange";
         } else if (tempLevel >= 30) {
-            label.innerText = ">> WARM <<";
+            label.innerText = ">> WARNING <<";
             label.style.color = "#ffaa00"; bar.classList.remove('temp-pulse-active'); bar.style.background = "yellow";
         } else {
-            label.innerText = "TEMP";
+            label.innerText = "SYSTEM TEMP";
             label.style.color = "#ffffff"; label.classList.remove('label-crit'); bar.classList.remove('temp-pulse-active'); bar.style.background = "#0affba";
         }
     }
@@ -1057,7 +1089,7 @@
     function goToSubMenu(type, titleName) {
         // Change header name
         const header = document.getElementById('main-header');
-        header.innerHTML = `SYSTEM <span style="font-size:0.6em; color:#fff;">${titleName || 'ROOT'}</span>`;
+        header.innerHTML = `COMPTIA_ <span style="font-size:0.6em; color:#fff;">${titleName || 'SIM'}</span>`;
         header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
 
         document.getElementById('root-menu').classList.add('hidden');
@@ -1106,7 +1138,7 @@
         
         const bar = document.getElementById('integrity-bar');
         bar.style.width = `${integrity}%`;
-        document.getElementById('score-ui').innerText = `PTS: ${currentScore}`;
+        document.getElementById('score-ui').innerText = `SYNC: ${currentScore}`;
         const root = document.documentElement; 
         
         // RESTORED HSL COLOR MATH
@@ -1323,7 +1355,7 @@
         const popup = document.createElement('div');
         popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:80%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3);";
         popup.innerHTML = `
-            <h2 style="color:#70c7ba; margin:0 0 10px 0;">>> SECURE CHANNEL <<</h2>
+            <h2 style="color:#70c7ba; margin:0 0 10px 0;">>> SECURE CHANNEL FOR KASPA WALLET<<</h2>
             <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all;">${walletAddress}</div>
             <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
             <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
@@ -1361,4 +1393,5 @@
 </script>
 </body>
 </html>
+
 
