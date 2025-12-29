@@ -95,7 +95,7 @@
             height: 100%;
             border: none;
             /* High transparency to see Matrix rain */
-            background: rgba(0, 5, 5, 0.65);
+            background: rgba(0, 5, 5, 0.45);
             /* REDUCED BLUR BY 50% */
             backdrop-filter: blur(2px);
             -webkit-backdrop-filter: blur(2px);
@@ -528,7 +528,7 @@
 <div id="start-overlay" onclick="bootSystem()">
     <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);"
     class="logo-glitch">
-        [SIMULACRUM]
+        [COGITATOR_ONLINE]
     </div>
     <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
         >> TAP_TO_INITIALIZE <<
@@ -701,9 +701,9 @@
     <div id="fail-ui">
         <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
         <p style="font-size: 1.5rem;
-        color: #ccffff;">> _ALL_IS_LOST</p>
+        color: #ccffff;"> _ALL_IS_LOST_ </p>
         <button class="nav-btn fail-restart-btn" onclick="AudioEngine.playMenuHover();
-        location.reload()">>> PURGE_SYSTEM</button>
+        location.reload()">>> >>PURGE_SYSTEM<</button>
     </div>
 </div>
 
@@ -1368,23 +1368,25 @@
         const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq"; 
         
         const popup = document.createElement('div');
-        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:80%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3);";
+        // Added font-family explicitly to container to ensure inheritance
+        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:80%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); font-family:'VT323';";
         
-        // ADDED: font-family VT323 explicit for address, removed text shadow
         popup.innerHTML = `
-            <h2 style="color:#70c7ba; margin:0 0 10px 0; font-family:'VT323';">>> SECURE CHANNEL FOR KASPA WALLET<<</h2>
-            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-family:'VT323'; font-size:1.2rem; text-shadow:none;">${walletAddress}</div>
+            <h2 style="color:#70c7ba; margin:0 0 10px 0; text-shadow: none;">>> SECURE CHANNEL FOR KASPA WALLET<<</h2>
+            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-size:1.2rem; text-shadow: none;">${walletAddress}</div>
             <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
             <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
         `;
         document.body.appendChild(popup);
 
-        document.getElementById('copy-btn').onclick = () => {
+        // FIX: Use 'popup.querySelector' to target elements ONLY inside this specific popup
+        popup.querySelector('#copy-btn').onclick = function() {
             navigator.clipboard.writeText(walletAddress);
             AudioEngine.playSFX('success');
-            document.getElementById('copy-btn').innerText = "[ COPIED ]";
+            this.innerText = "[ COPIED ]";
         };
-        document.getElementById('close-crypto').onclick = () => {
+        
+        popup.querySelector('#close-crypto').onclick = function() {
              AudioEngine.playSFX('click');
             popup.remove();
         };
@@ -1410,4 +1412,5 @@
 </script>
 </body>
 </html>
+
 
