@@ -242,12 +242,27 @@
         }
         .btn:active { background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; transform: translate(-1px, -1px) !important; }
         
+        /* EXAM BUTTON SPECIFIC - BRIGHTER NEON RED */
         .btn.exam-mode { 
-            border-color: #ff0000; background-color: #cc0000 !important; color: #ffffff !important; 
-            text-shadow: 0 0 5px #fff; box-shadow: 0 0 10px #ff0000, inset 0 0 10px #500;
+            border-color: #ff0000; 
+            background-color: #ff0000 !important; /* CHANGED from #cc0000 to #ff0000 */
+            color: #ffffff !important; 
+            text-shadow: 0 0 10px #fff; /* Increased text glow */
+            
+            /* Increased box-shadow glow for brightness */
+            box-shadow: 0 0 25px #ff0000, inset 0 0 15px rgba(255, 255, 255, 0.4);
         }
-        .btn.exam-mode:hover { background-color: #ff0000 !important; box-shadow: 0 0 20px #ff0000; }
-        .btn.exam-mode:active { background: #fff !important; color: #cc0000 !important; box-shadow: 0 0 60px #ff0000; }
+        
+        .btn.exam-mode:hover {
+            background-color: #ff3333 !important; /* Even lighter on hover */
+            box-shadow: 0 0 40px #ff0000, inset 0 0 25px rgba(255, 255, 255, 0.6);
+        }
+        
+        .btn.exam-mode:active { 
+            background: #fff !important; 
+            color: #ff0000 !important; 
+            box-shadow: 0 0 80px #ff0000; 
+        }
 
         .nav-btn { 
             position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px); font-weight: bold; text-align: center; 
@@ -375,7 +390,7 @@
             </div>
             <div style="text-align: right;">
                  <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">SYNC: 0</div>
-                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO SCRUB: ON]</button>
+                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO: ON]</button>
             </div>
         </div>
     </div>
@@ -455,8 +470,8 @@
     </div>
 
     <div id="fail-ui">
-        <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
-        <p style="font-size: 1.3rem; color: #ccffff;"> _ALL_IS_LOST_</p>
+        <h1 class="fail-text">CORRUPTION</h1>
+        <p style="font-size: 2rem; color: #ccffff;"> _ALL_IS_LOST_</p>
         <button class="nav-btn fail-restart-btn" onclick="AudioEngine.playMenuHover(); location.reload()">>> PURGE_SYSTEM</button>
     </div>
 </div>
@@ -1022,5 +1037,6 @@
 </script>
 </body>
 </html>
+
 
 
