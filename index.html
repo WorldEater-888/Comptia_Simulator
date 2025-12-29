@@ -154,8 +154,7 @@
         }
         @keyframes blink-cursor { 0% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* --- ERRATIC PULSE ANIMATION (Base class) --- */
-        /* JS will assign random durations of this to elements */
+        /* --- ERRATIC PULSE ANIMATION --- */
         @keyframes erratic-glow {
             0%, 100% { text-shadow: 0 0 5px var(--glow-color); opacity: 1; }
             50% { text-shadow: 0 0 15px var(--glow-color), 0 0 20px var(--term-color); opacity: 0.9; }
@@ -215,7 +214,8 @@
             background: #fff; opacity: 0;
             width: 100%;
             pointer-events: none; z-index: 1;
-            transition: width 2s ease-out, opacity 1s ease-out; /* Slow fade */
+            /* Ghost takes 2.5s to fade out - creating the trail */
+            transition: width 0.2s linear, opacity 2.5s ease-out; 
         }
 
         /* Main Bar */
@@ -227,10 +227,12 @@
             transition: width 0.2s cubic-bezier(0.1, 0.9, 0.2, 1); /* Fast drop */
         }
         
-        /* When damage is taken, this class is added to the container to flash */
+        /* When damage is taken, this class triggers the white flare */
         .damage-flash .integrity-ghost {
-            background: #fff; opacity: 0.8;
-            box-shadow: 0 0 15px #fff;
+            opacity: 1 !important;
+            background: #fff !important;
+            box-shadow: 0 0 20px #fff;
+            transition: none; /* Instant ON */
         }
 
         /* Temp Strobe Animation */
@@ -1019,7 +1021,7 @@
                 // FLASH DAMAGE
                 const wrap = document.getElementById('integrity-cont'); 
                 wrap.classList.add('damage-flash');
-                setTimeout(() => wrap.classList.remove('damage-flash'), 200);
+                setTimeout(() => wrap.classList.remove('damage-flash'), 1000); // Increased timeout to match CSS animation
 
                 const errs = ["SEG_FAULT", "NaN", "0x00DEAD", "NULL_REF", "BIT_FLIP"]; showFloatText(errs[Math.floor(Math.random()*errs.length)], el, 'red');
             }
@@ -1048,7 +1050,7 @@
             // FLASH DAMAGE
             const wrap = document.getElementById('integrity-cont'); 
             wrap.classList.add('damage-flash');
-            setTimeout(() => wrap.classList.remove('damage-flash'), 200);
+            setTimeout(() => wrap.classList.remove('damage-flash'), 1000); // Increased timeout
         }
         typeExplain(document.getElementById('explanation-box'), ">> " + window.currentQ.explanation);
         updateSystemState(); if (integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
