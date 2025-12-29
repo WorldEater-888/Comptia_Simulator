@@ -11940,8 +11940,85 @@
         startQuiz();
     }
     
+    /* --- NEW: WEIGHT CONFIGURATION --- */
+    // Weights based on official CompTIA domain percentages (Adjusted for your specific tags)
+    const EXAM_WEIGHTS = {
+        "CORE1": { 
+            "Mobile": 0.14,      // 14%
+            "Networking": 0.20,  // 20%
+            "Hardware": 0.54,    // 27% Hardware + 27% Troubleshooting (Combined)
+            "Cloud": 0.12        // 12% Virtualization & Cloud
+        },
+        "CORE2": { 
+            "OS": 0.27,          // 27% Operating Systems
+            "Security": 0.24,    // 24% Security
+            "Software": 0.26,    // 26% Software Troubleshooting
+            "Ops": 0.23          // 23% Operational Procedures
+        },
+        "NET": { 
+            "Fundamentals": 0.30,// ~24% + share of Troubleshooting
+            "Implement": 0.25,   // ~19% + share of Troubleshooting
+            "Ops": 0.20,         // ~16% + share of Troubleshooting
+            "Security": 0.25     // ~19% + share of Troubleshooting
+        },
+        "SEC": { 
+            "Attacks": 0.24,     // 24% Threats, Attacks, Vuln
+            "Arch": 0.21,        // 21% Architecture
+            "Implement": 0.25,   // 25% Implementation
+            "Gov": 0.30          // 30% Governance & Ops
+        }
+    };
+
+    function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
+
+    /* --- MODIFIED EXAM START FUNCTION --- */
     function startExam(certTag) {
-        qQueue = fetchQuestions([certTag]).slice(0, 90);
+        // 1. Get Weights for the selected Cert
+        const weights = EXAM_WEIGHTS[certTag];
+        
+        // Safety Fallback: If no weights defined, use old logic (flat slice)
+        if (!weights) { 
+            qQueue = fetchQuestions([certTag]).slice(0, 90);
+            startQuiz();
+            return;
+        }
+
+        let examDeck = [];
+        const TOTAL_QUESTIONS = 90;
+
+        // 2. Build Deck based on weighted percentages
+        for (const [moduleTag, pct] of Object.entries(weights)) {
+            // Calculate exact number of questions needed for this domain
+            const countNeeded = Math.ceil(TOTAL_QUESTIONS * pct);
+            
+            // Fetch all available candidates for this specific [Cert + Module]
+            let candidates = fetchQuestions([certTag, moduleTag]);
+            
+            // Shuffle the candidate pool
+            for (let i = candidates.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+            }
+            
+            // Add the calculated amount to the exam deck
+            // (If we don't have enough in DB, we just take what we have)
+            examDeck = examDeck.concat(candidates.slice(0, countNeeded));
+        }
+
+        // 3. Final Shuffle of the mixed deck so domains aren't grouped sequentially
+        for (let i = examDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [examDeck[i], examDeck[j]] = [examDeck[j], examDeck[i]];
+        }
+
+        // 4. Trim to exact 90 (Math.ceil might have added 1-2 extra)
+        qQueue = examDeck.slice(0, TOTAL_QUESTIONS);
+        
+        if (qQueue.length === 0) { 
+            alert("DATABASE_ERROR: NO_DATA_FOUND_FOR_EXAM"); 
+            return; 
+        }
+
         startQuiz();
     }
 
