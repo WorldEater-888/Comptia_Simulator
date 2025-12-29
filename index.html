@@ -59,27 +59,14 @@
             pointer-events: none;
         }
         
-        /* DARK RARE SCANLINE */
         .dark-scan-line {
-            position: fixed;
-            left: 0; width: 100%;
-            background: rgba(0, 0, 0, 0.9); 
-            z-index: 850; 
-            pointer-events: none;
+            position: fixed; left: 0; width: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 850; pointer-events: none;
             box-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
-        @keyframes scan-drop { 
-            0% { top: -10%; opacity: 0; } 
-            10% { opacity: 0.2; } 
-            100% { top: 110%; opacity: 0; } 
-        }
-        
-        @keyframes dark-scan-drop { 
-            0% { top: -20%; opacity: 0; } 
-            5% { opacity: 0.8; } 
-            100% { top: 120%; opacity: 0.8; } 
-        }
+        @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.2; } 100% { top: 110%; opacity: 0; } }
+        @keyframes dark-scan-drop { 0% { top: -20%; opacity: 0; } 5% { opacity: 0.8; } 100% { top: 120%; opacity: 0.8; } }
 
         .pixel-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -87,10 +74,7 @@
             background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
         }
         
-        #matrix-canvas { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            z-index: -2; opacity: 0.25; 
-        }
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.25; }
         
         .retro-grid {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh; z-index: -3;
@@ -136,90 +120,46 @@
             flex-shrink: 0; position: relative;
             transition: border-color 0.2s ease;
         }
-        .header-top { 
-            display: flex; justify-content: space-between; align-items: flex-start; width: 100%;
-        }
-        
-        .h-left {
-            display: flex; align-items: center;
-        }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
+        .h-left { display: flex; align-items: center; }
 
-        /* HEADER TEXT */
         .h-left h1 { 
-            margin: 0;
-            font-family: 'VT323', monospace; 
-            font-size: 2.0rem;
-            letter-spacing: 2px; 
-            line-height: 1;
-            font-weight: bold;
-            color: var(--term-color); 
-            padding-top: 0px; 
+            margin: 0; font-family: 'VT323', monospace; font-size: 2.0rem; letter-spacing: 2px; line-height: 1; font-weight: bold;
+            color: var(--term-color); padding-top: 0px; 
         }
         
-        /* THE CURSOR BOX */
         .cursor-block {
-            display: inline-block;
-            width: 0.6em;
-            height: 1em;
-            background-color: var(--term-color);
-            vertical-align: bottom;
-            margin-left: 5px;
-            margin-bottom: 5px; 
-            animation: blink-cursor 0.8s steps(2) infinite;
-            box-shadow: 0 0 8px var(--term-color);
+            display: inline-block; width: 0.6em; height: 1em; background-color: var(--term-color);
+            vertical-align: bottom; margin-left: 5px; margin-bottom: 5px; 
+            animation: blink-cursor 0.8s steps(2) infinite; box-shadow: 0 0 8px var(--term-color);
         }
         @keyframes blink-cursor { 0% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* --- ERRATIC PULSE ANIMATION --- */
-        @keyframes erratic-glow {
-            0%, 100% { text-shadow: 0 0 5px var(--glow-color); opacity: 1; }
-            50% { text-shadow: 0 0 15px var(--glow-color), 0 0 20px var(--term-color); opacity: 0.9; }
-        }
-        .erratic-target {
-            animation: erratic-glow 2s ease-in-out infinite;
-        }
-
-        /* --- STATIC JITTER (REDUCED 70%) --- */
-        @keyframes static-jitter {
-            /* Base State */
-            0% { opacity: 1; text-shadow: 0 0 5px currentColor; transform: translate(0,0); }
-            
-            /* Micro Jitters (0.15px range) */
-            10% { transform: translate(0.3px, 0.1px); }
-            20% { transform: translate(-0.1px, 0); }
-            30% { transform: translate(0, 0.2px); }
-            40% { transform: translate(0.2px, -0.3px); }
-            50% { transform: translate(-0.4px, 0.2px); }
-            60% { transform: translate(0, -0.2px); }
-            70% { transform: translate(0.2px, 0); }
-            80% { transform: translate(-0.2px, -0.1px); }
-            
-            /* Subtle RGB Glitch (Reduced distance to 1px) */
-            95% { opacity: 0.98; text-shadow: 2px 0 #00ffff, -1px 0 #ff00ff; transform: translateX(0.5px); }
-            96% { opacity: 0.95; text-shadow: -1px 0 #00ffff, 1px 0 #ff00ff; transform: translateX(-0.5px); }
-            
-            100% { opacity: 1; text-shadow: 0 0 5px currentColor; transform: translate(0,0); }
+        /* --- RARE STATIC JITTER (FIXED) --- */
+        /* mostly stable, rare glitch */
+        @keyframes rare-static {
+            0%, 96% { opacity: 1; transform: translate(0,0); text-shadow: 0 0 5px currentColor; }
+            97% { opacity: 0.9; transform: translate(1px, 0); text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff; } /* Quick chromatic aberration */
+            98% { transform: translate(-1px, 1px); }
+            99% { transform: translate(0,0); opacity: 1; }
+            100% { transform: translate(0,0); }
         }
 
         /* Donation Buttons */
         .donate-group { display: flex; gap: 6px; }
         .sys-btn {
             background: rgba(0, 0, 0, 0.8);
-            font-family: 'VT323', monospace;
-            font-size: 0.9rem; font-weight: bold;
-            cursor: pointer; padding: 4px 8px;
-            border: 1px solid;
-            box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-            transition: all 0.2s ease;
+            font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; padding: 4px 8px; border: 1px solid;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.5); transition: all 0.2s ease;
             text-transform: uppercase;
-            animation: static-jitter 5s infinite; 
+            animation: rare-static 4s infinite; /* Long cycle for rareness */
         }
-        .sys-btn:active { transform: translate(1px, 1px);
-            box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
+        .sys-btn:active { transform: translate(1px, 1px); box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
 
-        /* Integrity & Temp Bars */
+        /* Integrity Bars */
         .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
         .bars-group { display: flex; flex-direction: column; gap: 4px; width: 65%; }
         .integrity-wrapper { width: 100%; display: flex; align-items: center; gap: 5px; }
@@ -231,68 +171,41 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         
-        /* PHOSPHORUS EFFECT LAYER */
+        /* --- PURPLE PHOSPHORUS TRAIL (The "Ghost") --- */
         .integrity-ghost {
             position: absolute; top: 1px; left: 1px; bottom: 1px;
-            background: #fff; opacity: 0;
-            width: 100%;
-            pointer-events: none; z-index: 1;
-            transition: width 0.2s linear, opacity 2.5s ease-out; 
+            background: #bc13fe; /* Purple Phosphorus */
+            box-shadow: 0 0 10px #bc13fe;
+            width: 100%; 
+            pointer-events: none; z-index: 1; /* Behind the main bar */
+            
+            /* SLOW FADE: This creates the "After Image" effect */
+            /* Width changes slowly (1.5s), Opacity changes slowly */
+            transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.5s ease-out; 
         }
 
-        /* Main Bar */
+        /* --- MAIN BAR (Neon Mint) --- */
         .integrity-fill {
-            position: relative; z-index: 2;
+            position: relative; z-index: 2; /* On top */
             height: 100%; background: var(--term-color);
             box-shadow: 0 0 5px var(--term-color);
             width: 100%;
-            transition: width 0.2s cubic-bezier(0.1, 0.9, 0.2, 1); 
+            
+            /* INSTANT DROP: Moves faster than the ghost to reveal the trail */
+            transition: width 0.1s linear; 
         }
         
-        /* CRITICAL STATE */
-        /* Update this class */
-.integrity-critical { 
-    /* Remove the 'crit-pulse' animation and use the new glow one */
-    animation: purple-phos-glow 1.5s ease-out infinite !important;
-    
-    /* Remove the hard striped background */
-    background: transparent !important; 
-    
-    /* Base border to hold the shape */
-    border: 1px solid #bc13fe; 
-    
-    /* Ensure the glow sits on top or behind as preferred */
-    position: relative;
-    z-index: 10;
-}
-
-/* Add this new Keyframe Animation */
-@keyframes purple-phos-glow {
-    0% {
-        /* Bright flash */
-        box-shadow: 0 0 10px #bc13fe, 0 0 20px #bc13fe, inset 0 0 10px #bc13fe;
-        opacity: 1;
-    }
-    50% {
-        /* The "After Image" expansion */
-        box-shadow: 0 0 30px #bc13fe, 0 0 50px rgba(188, 19, 254, 0.4);
-        opacity: 0.8;
-    }
-    100% {
-        /* Fade out */
-        box-shadow: 0 0 60px transparent;
-        opacity: 0.4;
-    }
-}
-
-        .damage-flash .integrity-ghost {
-            opacity: 1 !important;
-            background: #fff !important;
-            box-shadow: 0 0 20px #fff;
-            transition: none; 
+        /* Only pulse the BORDER on critical, not the fill */
+        .integrity-critical { 
+            animation: crit-border-pulse 0.2s infinite !important; background: rgba(0,0,0,0.8) !important;
+        }
+        @keyframes crit-border-pulse {
+            0% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+            50% { border-color: #fff; box-shadow: 0 0 20px #ff0000; }
+            100% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
         }
 
-        /* Temp Strobe Animation */
+        /* Temp Bar */
         @keyframes temp-strobe {
             0% { background-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
             50% { background-color: #ffffff; box-shadow: 0 0 25px #ffffff; }
@@ -300,178 +213,92 @@
         }
         .strobe-active { animation: temp-strobe 0.2s infinite !important; }
 
-        /* Audio Toggle */
         .audio-btn { 
-            font-family: 'VT323', monospace; text-transform: uppercase; 
-            letter-spacing: 1px; font-size: 1.0rem; background: transparent; 
-            border: 1px solid var(--term-color); color: inherit; padding: 2px 5px;
-            cursor: pointer; position: relative; overflow: hidden; transition: 0.2s;
+            font-family: 'VT323', monospace; text-transform: uppercase; letter-spacing: 1px; font-size: 1.0rem; background: transparent; 
+            border: 1px solid var(--term-color); color: inherit; padding: 2px 5px; cursor: pointer; position: relative; overflow: hidden; transition: 0.2s;
         }
 
-        /* --- MENUS & BUTTONS --- */
-        .menu-grid { 
-            display: grid; grid-template-columns: 1fr; 
-            gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px;
-        }
+        /* --- MENUS --- */
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
 
         .btn { 
-            background: rgba(0,0,0,0.6);
-            border: 1px solid var(--term-color); 
-            color: var(--term-color); 
-            font-family: 'VT323', monospace; 
-            font-size: 1.4rem; padding: 12px 15px;
-            cursor: pointer; text-align: left; 
-            transition: 0.2s; position: relative; overflow: hidden; 
-            opacity: 0; transform: translateY(10px); 
+            background: rgba(0,0,0,0.6); border: 1px solid var(--term-color); color: var(--term-color); 
+            font-family: 'VT323', monospace; font-size: 1.4rem; padding: 12px 15px; cursor: pointer; text-align: left; 
+            transition: 0.2s; position: relative; overflow: hidden; opacity: 0; transform: translateY(10px); 
             
+            /* Enhanced Edge Glow */
             box-shadow: 0 0 8px var(--term-color), inset 0 0 8px rgba(10, 255, 186, 0.2);
             text-shadow: 0 0 5px var(--glow-color);
             
-            /* REDUCED CONSTANT JITTER */
-            animation: static-jitter 6s infinite;
+            /* RARE STATIC */
+            animation: rare-static 5s infinite;
+            animation-delay: 0.5s; /* Offset */
         }
 
-        .btn.visible { 
-            opacity: 1 !important; 
-            transform: translateY(0);
-        }
-        
+        .btn.visible { opacity: 1 !important; transform: translateY(0); }
         .btn:hover {
-            transform: translateX(10px) !important;
-            background: rgba(10, 255, 186, 0.1); border-color: #fff; text-shadow: 0 0 15px #fff;
+            transform: translateX(10px) !important; background: rgba(10, 255, 186, 0.1); border-color: #fff; text-shadow: 0 0 15px #fff;
             box-shadow: 0 0 15px var(--term-color), inset 0 0 15px rgba(255, 255, 255, 0.2);
         }
-
-        .btn:active { 
-            background: #fff; color: #000; 
-            box-shadow: 0 0 30px #fff; border-color: #fff; 
-            transform: translate(-1px, -1px) !important;
-        }
+        .btn:active { background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; transform: translate(-1px, -1px) !important; }
         
-        /* EXAM BUTTON SPECIFIC - SOLID RED */
         .btn.exam-mode { 
-            border-color: #ff0000; 
-            background-color: #cc0000 !important; /* Solid Red */
-            color: #ffffff !important; 
-            text-shadow: 0 0 5px #fff;
-            box-shadow: 0 0 10px #ff0000, inset 0 0 10px #500;
+            border-color: #ff0000; background-color: #cc0000 !important; color: #ffffff !important; 
+            text-shadow: 0 0 5px #fff; box-shadow: 0 0 10px #ff0000, inset 0 0 10px #500;
         }
-        .btn.exam-mode:hover {
-            background-color: #ff0000 !important;
-            box-shadow: 0 0 20px #ff0000;
-        }
-        .btn.exam-mode:active { 
-            background: #fff !important; color: #cc0000 !important; 
-            box-shadow: 0 0 60px #ff0000; 
-        }
+        .btn.exam-mode:hover { background-color: #ff0000 !important; box-shadow: 0 0 20px #ff0000; }
+        .btn.exam-mode:active { background: #fff !important; color: #cc0000 !important; box-shadow: 0 0 60px #ff0000; }
 
         .nav-btn { 
-            position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px);
-            font-weight: bold; text-align: center; 
-            background: #000; color: var(--term-color); border: 2px solid var(--term-color);
-            font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; 
+            position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px); font-weight: bold; text-align: center; 
+            background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500; text-transform: uppercase;
-            animation: static-jitter 4s infinite;
+            
+            animation: rare-static 7s infinite; /* Even rarer */
         }
         .nav-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 40px var(--term-color); }
 
-        /* --- QUIZ AREA --- */
-        .quiz-container { 
-            display: flex; flex-direction: column; flex-grow: 1; 
-            overflow-y: auto; overflow-x: hidden; padding-bottom: 90px;
-        }
-        .quiz-header-bar {
-            display:flex; justify-content:space-between; align-items:center; 
-            border-bottom: 1px solid var(--term-color); 
-            padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem;
-        }
+        /* --- QUIZ --- */
+        .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; }
+        .quiz-header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem; }
         .question-box { 
-            font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; 
-            background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
-            border-left: 6px solid var(--term-color); padding: 10px; 
-            color: #ffffff !important; text-shadow: none;
-            /* Keeps gentle drift for question box only */
+            font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+            border-left: 6px solid var(--term-color); padding: 10px; color: #ffffff !important; text-shadow: none;
             animation: random-drift 7s ease-in-out infinite alternate;
         }
-        #explanation-box {
-            margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color);
-            background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none;
-            text-shadow: 0 0 5px var(--glow-color);
-        }
+        #explanation-box { margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color); background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none; text-shadow: 0 0 5px var(--glow-color); }
         .options-list { display: flex; flex-direction: column; gap: 10px; }
         
         .option-btn { 
-            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); 
-            color: #ffffff !important; padding: 12px; 
-            font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
-            cursor: pointer; position: relative;
+            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); color: #ffffff !important; padding: 12px; 
+            font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; cursor: pointer; position: relative;
             box-shadow: 0 0 8px var(--term-color), inset 0 0 5px rgba(255,255,255,0.1);
-            animation: static-jitter 8s infinite;
+            
+            animation: rare-static 6s infinite;
         }
-
-        .option-btn:active { 
-            background: #fff !important; padding-left: 15px; color: #000 !important; border-color: #fff; box-shadow: 0 0 40px #fff;
-        }
-        .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white;
-            box-shadow: 0 0 50px var(--term-color) !important; animation: answer-thump 0.3s ease-out forwards !important;
-        }
-        .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red;
-            box-shadow: 0 0 50px red !important; animation: answer-shake 0.4s ease-in-out forwards !important;
-        }
+        .option-btn:active { background: #fff !important; padding-left: 15px; color: #000 !important; border-color: #fff; box-shadow: 0 0 40px #fff; }
+        .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; box-shadow: 0 0 50px var(--term-color) !important; animation: answer-thump 0.3s ease-out forwards !important; }
+        .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 50px red !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
 
         /* --- PBQ --- */
         .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
-        .cmd-input-line { display: flex; align-items: center;
-            background: rgba(0,0,0,0.8); border: 1px solid var(--term-color); padding: 10px; font-size: 1.3rem;
-        }
+        .cmd-input-line { display: flex; align-items: center; background: rgba(0,0,0,0.8); border: 1px solid var(--term-color); padding: 10px; font-size: 1.3rem; }
         #cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
         .match-container { display: flex; justify-content: space-between; gap: 10px; }
         .match-col { display: flex; flex-direction: column; gap: 10px; width: 48%; }
-        .match-item { border: 1px solid var(--term-color); background: rgba(0, 20, 20, 0.6);
-            padding: 10px; text-align: center; font-size: 1.1rem; color: #fff; transition: 0.2s;
-            animation: static-jitter 7s infinite;
-        }
+        .match-item { border: 1px solid var(--term-color); background: rgba(0, 20, 20, 0.6); padding: 10px; text-align: center; font-size: 1.1rem; color: #fff; transition: 0.2s; animation: rare-static 5.5s infinite; }
         .match-item.selected { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); }
         .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
 
         /* --- ANIMATIONS --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
+        @keyframes stress-shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } }
+        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
+        @keyframes scan-pass-vertical { 0% { left: -100%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 200%; opacity: 0; } }
         
-        @keyframes stress-shake { 
-            0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 
-            40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 
-            80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } 
-        }
-        
-        @keyframes ghost-sway { 
-            0% { transform: translate(0, 0) rotate(0deg); } 
-            50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 
-            100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } 
-        }
-        
-        /* VERTICAL/SIDEWAYS SCANLINE FOR TITLE */
-        @keyframes scan-pass-vertical {
-            0% { left: -100%; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { left: 200%; opacity: 0; }
-        }
-        .black-scan {
-            position: relative; overflow: hidden; display: inline-block;
-        }
-        .black-scan::after {
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: -50%;          
-            width: 25px;         
-            height: 100%;        
-            background: #000; 
-            opacity: 0.8;
-            animation: scan-pass-vertical 2.5s infinite ease-in-out;
-            pointer-events: none;
-        }
+        .black-scan { position: relative; overflow: hidden; display: inline-block; }
+        .black-scan::after { content: ''; position: absolute; top: 0; left: -50%; width: 25px; height: 100%; background: #000; opacity: 0.8; animation: scan-pass-vertical 2.5s infinite ease-in-out; pointer-events: none; }
         
         @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
@@ -483,7 +310,6 @@
         @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 100px #fff; } 100% { transform: scale(1); } }
         @keyframes answer-shake { 0% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } 100% { transform: translateX(0); } }
 
-        /* Helpers */
         .stress-active { animation: stress-shake 0.4s infinite !important; }
         .temp-pulse-active { animation: intense-pulse 0.5s infinite alternate !important; }
         .label-crit { animation: label-flash 0.3s infinite; }
@@ -497,12 +323,8 @@
         
         #fail-ui { display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 2000; background: rgba(5, 0, 0, 0.95); flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; padding: 20px; overflow: hidden; }
         .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: fail-entry 0.3s ease-out forwards; color: #ccffff; }
-        
-        /* FAIL TEXT: Retro Font */
         .fail-text { font-size: 1.5rem; font-family: 'Press Start 2P', cursive; word-break: break-word; color:#fff; animation: vertical-rgb-split 0.1s infinite; text-shadow: 3px 0 red, -3px 0 blue; margin-bottom: 20px; }
-
         .fail-restart-btn { background: rgba(255, 0, 0, 0.3) !important; border-color: red !important; color: #fff !important; position: relative; margin-top:20px; animation: stress-shake 0.8s infinite !important; }
-
         .hidden { display: none !important; }
 
     </style>
@@ -517,22 +339,16 @@
 
 <div id="start-overlay" onclick="bootSystem()">
     <div id="intro-title" class="black-scan" style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 0 0 10px var(--term-color); font-family: 'VT323'; font-weight: bold;"></div>
-    
-    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink-cursor 1s infinite;">
-        >> TAP_TO_INITIALIZE <<
-    </div>
-    <div style="margin-top: 100px; font-size: 0.6rem; opacity: 0.5; font-family: 'Press Start 2P', cursive; line-height: 1.5;">
-        MOBILE_CORE_V2.0 // SOUL_RESTORED
-    </div>
+    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink-cursor 1s infinite;">>> TAP_TO_INITIALIZE <<</div>
+    <div style="margin-top: 100px; font-size: 0.6rem; opacity: 0.5; font-family: 'Press Start 2P', cursive; line-height: 1.5;">MOBILE_CORE_V2.0 // SOUL_RESTORED</div>
 </div>
 
 <div class="terminal-window" id="term-win">
     
     <div class="header">
         <div class="header-top">
-          
           <div class="h-left">
-                <h1 id="main-header" class="erratic-target"></h1>
+                <h1 id="main-header"></h1>
                 <div id="header-cursor" class="cursor-block"></div>
             </div>
             <div class="donate-group">
@@ -623,7 +439,7 @@
             <span style="opacity:0.8;">[TIME]: <span id="session-timer" style="color:#fff;">90:00</span></span>
             <span style="opacity:0.8;">[PKT]: <span id="packet-counter" style="color:#fff;">00</span></span>
         </div>
-        <div class="question-box"><span id="q-text" class="erratic-target"></span></div>
+        <div class="question-box"><span id="q-text"></span></div>
         <div id="explanation-box"></div>
         <div class="options-list" id="opts-list"></div>
         <div id="pbq-area" class="pbq-wrapper"></div>
@@ -752,17 +568,17 @@
     }
     spawnScanline();
     
-    // NEW: SPAWN RARE DARK SCANLINE
+    // SPAWN RARE DARK SCANLINE
     function spawnDarkScanline() {
         if(isDead) return;
-        if(Math.random() > 0.7) { // 30% chance to spawn when called
+        if(Math.random() > 0.7) { 
             const line = document.createElement('div'); line.className = 'dark-scan-line';
-            line.style.height = (Math.random() * 10 + 5) + 'px'; // Thicker
-            line.style.animation = `dark-scan-drop 0.5s linear forwards`; // Fast drop
+            line.style.height = (Math.random() * 10 + 5) + 'px'; 
+            line.style.animation = `dark-scan-drop 0.5s linear forwards`; 
             document.getElementById('scan-container').appendChild(line);
             setTimeout(() => line.remove(), 600);
         }
-        setTimeout(spawnDarkScanline, Math.random() * 15000 + 10000); // Rare (10-25s)
+        setTimeout(spawnDarkScanline, Math.random() * 15000 + 10000); 
     }
     spawnDarkScanline();
 
@@ -945,7 +761,6 @@
 
         const btns = document.querySelectorAll('.btn, .nav-btn, .option-btn, .sys-btn');
         btns.forEach((b, i) => { 
-            // RANDOMIZE GLOW PULSE FOR ERRATIC LOOK
             b.classList.add('erratic-target');
             b.style.animationDelay = `${Math.random() * 2}s`;
             
@@ -1003,9 +818,6 @@
         const ghost = document.getElementById('integrity-ghost');
         
         bar.style.width = `${integrity}%`;
-        
-        // Sync ghost bar with a slight delay for phosphorus effect
-        // We set ghost to same width but with a transition lag defined in CSS
         ghost.style.width = `${integrity}%`;
         
         document.getElementById('score-ui').innerText = `SYNC: ${currentScore}`;
@@ -1024,7 +836,6 @@
 
         const termWindow = document.getElementById('term-win');
         
-        // CRITICAL LOGIC - VISUALS ONLY ON BAR ITSELF
         if(integrity < 30) {
             termWindow.classList.add('stress-active'); 
             document.getElementById('integrity-cont').classList.add('integrity-critical');
@@ -1211,9 +1022,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
