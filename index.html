@@ -250,11 +250,24 @@
         }
         
         /* CRITICAL STATE */
-        .integrity-critical { 
-            animation: crit-border-pulse 0.2s infinite !important; 
-            background: rgba(0,0,0,0.8) !important;
-        }
-        @keyframes purple-phos-glow {
+        /* Update this class */
+.integrity-critical { 
+    /* Remove the 'crit-pulse' animation and use the new glow one */
+    animation: purple-phos-glow 1.5s ease-out infinite !important;
+    
+    /* Remove the hard striped background */
+    background: transparent !important; 
+    
+    /* Base border to hold the shape */
+    border: 1px solid #bc13fe; 
+    
+    /* Ensure the glow sits on top or behind as preferred */
+    position: relative;
+    z-index: 10;
+}
+
+/* Add this new Keyframe Animation */
+@keyframes purple-phos-glow {
     0% {
         /* Bright flash */
         box-shadow: 0 0 10px #bc13fe, 0 0 20px #bc13fe, inset 0 0 10px #bc13fe;
@@ -1198,6 +1211,7 @@
 </script>
 </body>
 </html>
+
 
 
 
