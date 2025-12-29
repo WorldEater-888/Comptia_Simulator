@@ -244,29 +244,61 @@
         }
 
         /* NEW: The Shimmering Light Beam */
-        .btn::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0;
-            width: 50px;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transform: translateX(-150%) skewX(-20deg);
-            animation: shimmer-sweep 3s ease-in-out infinite;
-            pointer-events: none;
+        /* NEW: Subtle floating movement */
+        @keyframes subtle-drift {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-3px); } /* Floats up slightly */
+            100% { transform: translateY(0); }
         }
 
-        /* NEW: Hover Slide & Glow Effect */
-        .btn:hover {
-            transform: translate(10px, 0) !important; 
-            background: rgba(10, 255, 186, 0.15);
-            text-shadow: 0 0 8px var(--term-color);
-            box-shadow: -4px 0 15px var(--term-color);
+        /* NEW: Text & Border Pulse */
+        @keyframes pulse-glow {
+            0% { 
+                box-shadow: 0 0 5px rgba(10, 255, 186, 0.1);
+                text-shadow: 0 0 2px var(--term-color);
+            }
+            50% { 
+                box-shadow: 0 0 15px rgba(10, 255, 186, 0.4);
+                text-shadow: 0 0 10px var(--term-color), 0 0 15px rgba(255, 255, 255, 0.6);
+            }
+            100% { 
+                box-shadow: 0 0 5px rgba(10, 255, 186, 0.1);
+                text-shadow: 0 0 2px var(--term-color);
+            }
         }
-        .btn.visible { opacity: 1 !important; transform: translateY(0) !important;
-            transition: opacity 0.4s ease, transform 0.4s ease; }
+
+        .btn { 
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--term-color); 
+            color: var(--term-color); 
+            font-family: 'VT323', monospace; 
+            font-size: 1.4rem; padding: 12px 15px;
+            cursor: pointer; text-align: left; 
+            transition: 0.2s;
+            position: relative; overflow: hidden; 
+            
+            /* Initial State (Hidden) */
+            opacity: 0; 
+            transform: translateY(10px); 
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+        }
+
+        /* Visible State (Animated) */
+        .btn.visible { 
+            opacity: 1 !important; 
+            /* Applies the Drift (4s) and the Pulse (3s) continuously */
+            animation: subtle-drift 4s ease-in-out infinite, pulse-glow 3s ease-in-out infinite;
+        }
         
-        /* RESTORED: RGB Split on Active */
+        /* Hover Effect: Slide right + Brighten */
+        .btn:hover {
+            transform: translateX(10px) !important;
+            background: rgba(10, 255, 186, 0.1);
+            border-color: #fff;
+            text-shadow: 0 0 15px #fff;
+        }
+
+        /* Click Effect: RGB Split + Flash */
         .btn:active { 
             background: #fff;
             color: #000; 
@@ -530,7 +562,7 @@
 <div id="start-overlay" onclick="bootSystem()">
     <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);"
     class="logo-glitch">
-        [ COMPTIA_SIM ]
+        [COMPTIA_SIM]
     </div>
     <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
         >> TAP_TO_INITIALIZE <<
@@ -558,7 +590,7 @@
         <div class="header-stats-row">
             <div class="bars-group">
                 <div class="integrity-wrapper" id="integrity-wrap">
-                    <div class="integrity-label">CORE INTEGRITY</div>
+                    <div class="integrity-label">INTEGRITY</div>
                     <div 
                     class="integrity-container">
                         <div class="integrity-fill" id="integrity-bar"></div>
@@ -575,7 +607,7 @@
             </div>
             <div style="text-align: right;">
                  <div id="score-ui" style="font-weight: bold;
-                 font-size: 1.2rem; margin-bottom: 5px;">PTS: 0</div>
+                 font-size: 1.2rem; margin-bottom: 5px;">SYNC: 0</div>
                  <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[NOISE:ON]</button>
             </div>
         </div>
@@ -1067,7 +1099,7 @@
             label.innerText = ">> WARNING <<";
             label.style.color = "#ffaa00"; bar.classList.remove('temp-pulse-active'); bar.style.background = "yellow";
         } else {
-            label.innerText = "SYSTEM TEMP";
+            label.innerText = "TEMP";
             label.style.color = "#ffffff"; label.classList.remove('label-crit'); bar.classList.remove('temp-pulse-active'); bar.style.background = "#0affba";
         }
     }
@@ -1089,7 +1121,7 @@
     function goToSubMenu(type, titleName) {
         // Change header name
         const header = document.getElementById('main-header');
-        header.innerHTML = `COMPTIA_ <span style="font-size:0.6em; color:#fff;">${titleName || 'SIM'}</span>`;
+        header.innerHTML = `COMPTIA <span style="font-size:0.6em; color:#fff;">${titleName || 'SIM'}</span>`;
         header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
 
         document.getElementById('root-menu').classList.add('hidden');
@@ -1393,5 +1425,6 @@
 </script>
 </body>
 </html>
+
 
 
