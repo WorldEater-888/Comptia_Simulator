@@ -43,7 +43,7 @@
             display: flex;
             flex-direction: column;
             
-            /* Base glow - pulsed via animation below */
+            /* Base glow */
             text-shadow: 0 0 8px var(--glow-color);
             
             /* Sway maintained */
@@ -124,7 +124,6 @@
         }
         
         .h-left {
-            /* Container for the logo + Text */
             display: flex; align-items: center;
         }
 
@@ -160,21 +159,17 @@
             50% { text-shadow: 0 0 15px var(--glow-color), 0 0 20px var(--term-color); opacity: 0.9; }
         }
         .erratic-target {
-            /* Default fallback */
             animation: erratic-glow 2s ease-in-out infinite;
         }
 
-        /* --- STATIC JITTER WITH RGB SHIFT (CYAN/MAGENTA) --- */
+        /* --- STATIC JITTER WITH RGB SHIFT --- */
         @keyframes static-jitter {
             0% { opacity: 1; text-shadow: 0 0 5px currentColor; transform: translateX(0); }
             94% { opacity: 1; text-shadow: 0 0 5px currentColor; transform: translateX(0); }
-            
-            /* THE RGB SHIFT (Cyan left, Magenta right) */
             95% { opacity: 0.9; text-shadow: 3px 0 #00ffff, -3px 0 #ff00ff; transform: translateX(2px); }
             96% { opacity: 0.8; text-shadow: -3px 0 #00ffff, 3px 0 #ff00ff; transform: translateX(-2px); }
-            
             97% { opacity: 1; text-shadow: 0 0 5px currentColor; transform: translateX(0); }
-            98% { opacity: 0.9; text-shadow: 0 0 20px #fff; transform: skewX(10deg); } /* White Flash */
+            98% { opacity: 0.9; text-shadow: 0 0 20px #fff; transform: skewX(10deg); } 
             100% { opacity: 1; text-shadow: 0 0 5px currentColor; transform: translateX(0); }
         }
 
@@ -205,16 +200,15 @@
         .integrity-container { 
             flex-grow: 1; height: 10px; border: 1px solid var(--term-color); 
             background: rgba(0,0,0,0.8); padding: 1px; position: relative;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         
         /* PHOSPHORUS EFFECT LAYER */
-        /* The ghost bar that sits behind and fades slow */
         .integrity-ghost {
             position: absolute; top: 1px; left: 1px; bottom: 1px;
             background: #fff; opacity: 0;
             width: 100%;
             pointer-events: none; z-index: 1;
-            /* Ghost takes 2.5s to fade out - creating the trail */
             transition: width 0.2s linear, opacity 2.5s ease-out; 
         }
 
@@ -224,15 +218,26 @@
             height: 100%; background: var(--term-color);
             box-shadow: 0 0 5px var(--term-color);
             width: 100%;
-            transition: width 0.2s cubic-bezier(0.1, 0.9, 0.2, 1); /* Fast drop */
+            transition: width 0.2s cubic-bezier(0.1, 0.9, 0.2, 1); 
         }
         
-        /* When damage is taken, this class triggers the white flare */
+        /* FIXED: CRITICAL STATE - Only Border Pulses, NO Background Fill */
+        .integrity-critical { 
+            animation: crit-border-pulse 0.2s infinite !important; 
+            /* background is explicitly removed/transparent here */
+            background: rgba(0,0,0,0.8) !important;
+        }
+        @keyframes crit-border-pulse {
+            0% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+            50% { border-color: #fff; box-shadow: 0 0 20px #ff0000; }
+            100% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        }
+
         .damage-flash .integrity-ghost {
             opacity: 1 !important;
             background: #fff !important;
             box-shadow: 0 0 20px #fff;
-            transition: none; /* Instant ON */
+            transition: none; 
         }
 
         /* Temp Strobe Animation */
@@ -266,8 +271,10 @@
             cursor: pointer; text-align: left; 
             transition: 0.2s; position: relative; overflow: hidden; 
             opacity: 0; transform: translateY(10px); 
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-            /* Jitter applied via base class + erratic glow added via JS */
+            
+            /* FIXED: Enhanced "Blow" (Glow) on edges */
+            box-shadow: 0 0 8px var(--term-color), inset 0 0 8px rgba(10, 255, 186, 0.2);
+            text-shadow: 0 0 5px var(--glow-color);
         }
 
         .btn.visible { 
@@ -278,6 +285,7 @@
         .btn:hover {
             transform: translateX(10px) !important;
             background: rgba(10, 255, 186, 0.1); border-color: #fff; text-shadow: 0 0 15px #fff;
+            box-shadow: 0 0 15px var(--term-color), inset 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
         .btn:active { 
@@ -292,6 +300,7 @@
             background-color: #cc0000 !important; /* Solid Red */
             color: #ffffff !important; 
             text-shadow: 0 0 5px #fff;
+            box-shadow: 0 0 10px #ff0000, inset 0 0 10px #500;
         }
         .btn.exam-mode:hover {
             background-color: #ff0000 !important;
@@ -341,7 +350,7 @@
             color: #ffffff !important; padding: 12px; 
             font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
             cursor: pointer; position: relative;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            box-shadow: 0 0 8px var(--term-color), inset 0 0 5px rgba(255,255,255,0.1);
         }
 
         .option-btn:active { 
@@ -384,13 +393,23 @@
             100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } 
         }
         
-        /* MGS REVEAL ANIMATION */
-        @keyframes mgs-reveal {
-            0% { opacity: 0; transform: scaleY(0.1); letter-spacing: -10px; }
-            50% { opacity: 1; transform: scaleY(1.2); letter-spacing: 0px; }
-            100% { opacity: 1; transform: scaleY(1); letter-spacing: 5px; }
+        /* BLACK SCANLINE ANIMATION FOR INTRO */
+        @keyframes scan-pass {
+            0% { top: -100%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 200%; opacity: 0; }
         }
-        .mgs-anim { animation: mgs-reveal 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
+        .black-scan {
+            position: relative; overflow: hidden; display: inline-block;
+        }
+        .black-scan::after {
+            content: ''; position: absolute; top: -50%; left: 0; width: 100%; height: 20px;
+            background: #000; 
+            opacity: 0.7;
+            animation: scan-pass 2s infinite ease-in-out;
+            pointer-events: none;
+        }
         
         @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
         @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
@@ -404,7 +423,6 @@
 
         /* Helpers */
         .stress-active { animation: stress-shake 0.4s infinite !important; }
-        .integrity-critical { animation: crit-pulse 0.2s infinite !important; background: repeating-linear-gradient(90deg, #ff0000, #ff0000 8px, transparent 8px, transparent 10px) !important; box-shadow: 0 0 25px #ff0000 !important; }
         .temp-pulse-active { animation: intense-pulse 0.5s infinite alternate !important; }
         .label-crit { animation: label-flash 0.3s infinite; }
 
@@ -436,9 +454,8 @@
 <div id="scan-container"></div> 
 
 <div id="start-overlay" onclick="bootSystem()">
-    <div class="mgs-anim" style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 0 0 10px var(--term-color);">
-        [CORE ONLINE]
-    </div>
+    <div id="intro-title" class="black-scan" style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 0 0 10px var(--term-color); font-family: 'VT323'; font-weight: bold;"></div>
+    
     <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink-cursor 1s infinite;">
         >> TAP_TO_INITIALIZE <<
     </div>
@@ -769,6 +786,7 @@
     function typewriterJackpot(targetId, text) {
         clearTypewriter();
         const el = document.getElementById(targetId);
+        if(!el) return;
         el.innerHTML = "";
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_[]<>";
         let i = 0;
@@ -929,12 +947,18 @@
         root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px');
 
         const termWindow = document.getElementById('term-win');
+        
+        // CRITICAL LOGIC - VISUALS ONLY ON BAR ITSELF
         if(integrity < 30) {
             termWindow.classList.add('stress-active'); 
             document.getElementById('integrity-cont').classList.add('integrity-critical');
+            bar.style.backgroundColor = '#ff0000'; // Make bar red
+            bar.style.boxShadow = '0 0 15px #ff0000';
         } else {
             termWindow.classList.remove('stress-active'); 
             document.getElementById('integrity-cont').classList.remove('integrity-critical');
+            bar.style.backgroundColor = ''; // Reset to default var
+            bar.style.boxShadow = '';
         }
         if(integrity <= 0 && !isDead) triggerFailure();
     }
@@ -1021,7 +1045,7 @@
                 // FLASH DAMAGE
                 const wrap = document.getElementById('integrity-cont'); 
                 wrap.classList.add('damage-flash');
-                setTimeout(() => wrap.classList.remove('damage-flash'), 1000); // Increased timeout to match CSS animation
+                setTimeout(() => wrap.classList.remove('damage-flash'), 1000); 
 
                 const errs = ["SEG_FAULT", "NaN", "0x00DEAD", "NULL_REF", "BIT_FLIP"]; showFloatText(errs[Math.floor(Math.random()*errs.length)], el, 'red');
             }
@@ -1050,7 +1074,7 @@
             // FLASH DAMAGE
             const wrap = document.getElementById('integrity-cont'); 
             wrap.classList.add('damage-flash');
-            setTimeout(() => wrap.classList.remove('damage-flash'), 1000); // Increased timeout
+            setTimeout(() => wrap.classList.remove('damage-flash'), 1000); 
         }
         typeExplain(document.getElementById('explanation-box'), ">> " + window.currentQ.explanation);
         updateSystemState(); if (integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
@@ -1103,6 +1127,11 @@
     }
     
     function shutdownSystem() { location.reload(); }
+    
+    // ON LOAD INIT
+    window.onload = function() {
+        typewriterJackpot('intro-title', '[ CORE ONLINE ]');
+    };
 </script>
 </body>
 </html>
