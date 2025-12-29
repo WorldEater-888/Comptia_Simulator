@@ -443,8 +443,62 @@
             } 100% { transform: translateX(0); } }
 
         /* Helpers */
-        .logo-glitch { animation: slice-glitch 3s cubic-bezier(0.25, 0.8, 0.45, 0.94) both infinite !important;
+        /* --- NEW: JACKPOT PIXEL GLITCH EFFECTS --- */
+        
+        /* The "Roll In": Vertical slide + Blur + Scale stretch */
+        @keyframes jackpot-fuzz {
+            0% { 
+                transform: translateY(-150%) scaleY(3); 
+                filter: blur(8px); 
+                opacity: 0; 
+                text-shadow: 10px 0 #ff0000, -10px 0 #00ffff;
+            }
+            40% { 
+                transform: translateY(20%) scaleY(1.5); 
+                filter: blur(4px); 
+                opacity: 1; 
+                text-shadow: -5px 0 #ff0000, 5px 0 #00ffff;
+            }
+            70% { 
+                transform: translateY(-5%); 
+                filter: blur(1px); 
+                text-shadow: 3px 0 #ff0000, -3px 0 #00ffff;
+            }
+            100% { 
+                transform: translateY(0); 
+                scaleY(1); 
+                filter: blur(0); 
+                text-shadow: 2px 0 #ff0000, -2px 0 #00ffff; /* Settles with slight RGB split */
+            }
+        }
+
+        /* The "Pixel Chop": Randomly slices the text */
+        @keyframes pixel-chop {
+            0% { clip-path: inset(0 0 0 0); transform: translate(0); }
+            10% { clip-path: inset(20% 0 80% 0); transform: translate(-4px, 2px); }
+            30% { clip-path: inset(80% 0 5% 0); transform: translate(4px, -2px); }
+            50% { clip-path: inset(40% 0 40% 0); transform: translate(-4px, 0); }
+            70% { clip-path: inset(10% 0 60% 0); transform: translate(4px, 4px); }
+            90% { clip-path: inset(70% 0 10% 0); transform: translate(-4px, -2px); }
+            100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+        }
+
+        /* Helpers */
+        .logo-glitch { 
+            color: #0affba !important; /* Neon Mint Force */
+            /* Animation 1: The Roll In (0.4s) | Animation 2: The Pixel Chop (Infinite while active) */
+            animation: 
+                jackpot-fuzz 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+                pixel-chop 0.4s steps(4) infinite !important;
+            
+            /* Aggressive RGB Split */
+            text-shadow: 3px 0 #ff0000, -3px 0 #00ffff !important;
+        }
+        
+        .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important;
             color: #fff !important; }
+        .stress-active { animation: stress-shake 0.4s infinite !important;
+            }
         .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important;
             color: #fff !important; }
         .stress-active { animation: stress-shake 0.4s infinite !important;
@@ -527,7 +581,7 @@
 
 <div id="start-overlay" onclick="bootSystem()">
     <div style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);"
-    class="logo-glitch", class=".random-glitch-active">
+    class="logo-glitch">
         [MALEDICTION]
     </div>
     <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3s infinite;">
@@ -1115,7 +1169,7 @@
         // Change header name
         const header = document.getElementById('main-header');
         header.innerHTML = `COMPTIA <span style="font-size:0.6em; color:#fff;">${titleName || 'SIM'}</span>`;
-        header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 300);
+        header.classList.add('logo-glitch'); setTimeout(()=>header.classList.remove('logo-glitch'), 500);
 
         document.getElementById('root-menu').classList.add('hidden');
         document.getElementById(type + '-menu').classList.remove('hidden');
@@ -1426,6 +1480,7 @@
 </script>
 </body>
 </html>
+
 
 
 
