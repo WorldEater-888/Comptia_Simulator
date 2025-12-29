@@ -95,7 +95,7 @@
             height: 100%;
             border: none;
             /* High transparency to see Matrix rain */
-            background: rgba(0, 5, 5, 0.40);
+            background: rgba(0, 5, 5, 0.65);
             /* REDUCED BLUR BY 50% */
             backdrop-filter: blur(2px);
             -webkit-backdrop-filter: blur(2px);
@@ -1247,7 +1247,6 @@
         });
     }
 
-    /* === UPDATED: RENDER PBQ WITH HINT SUPPORT === */
     /* === UPDATED: RENDER PBQ (FIXED HINT SPEED) === */
     function renderPBQ(q) {
         const area = document.getElementById('pbq-area');
@@ -1296,47 +1295,8 @@
             hintMsg.style.fontSize = "1.1rem";
             hintMsg.style.marginTop = "5px";
             
-            // --- FIX: CHANGED ANIMATION HERE ---
-            // Changed from 'logo-glitch' (fast) to a slow glow pulse (3 seconds)
+            // --- FIX: This line makes it pulse slowly instead of glitching ---
             hintMsg.style.animation = "text-pulse-glow 3s infinite alternate"; 
-
-            // Click Logic
-            hintBtn.onclick = () => {
-                AudioEngine.playSFX('click');
-                hintBtn.style.display = 'none'; // Hide button
-                hintMsg.style.display = 'block'; // Show text
-            };
-
-            hintContainer.appendChild(hintBtn);
-            hintContainer.appendChild(hintMsg);
-            area.appendChild(hintContainer);
-        }
-    }
-
-        // --- NEW HINT LOGIC ---
-        if (q.hint) {
-            const hintContainer = document.createElement('div');
-            hintContainer.style.marginTop = "15px";
-            hintContainer.style.borderTop = "1px dashed #555";
-            hintContainer.style.paddingTop = "10px";
-
-            // Create the Button
-            const hintBtn = document.createElement('button');
-            hintBtn.className = 'sys-btn'; 
-            hintBtn.innerText = '[ DECRYPT_HINT ]';
-            hintBtn.style.color = "#ffff00"; 
-            hintBtn.style.borderColor = "#ffff00"; 
-            hintBtn.style.width = "100%";
-            
-            // Create the Message (Hidden initially)
-            const hintMsg = document.createElement('div');
-            hintMsg.innerText = ">> DATA_MINED: " + q.hint;
-            hintMsg.style.display = "none";
-            hintMsg.style.color = "#ffff00";
-            hintMsg.style.fontFamily = "monospace";
-            hintMsg.style.fontSize = "1.1rem";
-            hintMsg.style.marginTop = "5px";
-            hintMsg.className = "logo-glitch"; 
 
             // Click Logic
             hintBtn.onclick = () => {
