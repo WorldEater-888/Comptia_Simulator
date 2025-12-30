@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SYSTEM_ROOT_V21_MASTER_THEMED</title>
+    <title>SYSTEM_ROOT_FINAL_MERGE</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
-        /* ============================ CSS: THEME & GLOBALS ============================ */
         :root {
-            /* Dynamic Variables driven by Integrity Level */
-            --term-color: #0affba;       /* Neon Mint Default */
-            --term-dim: rgba(10, 255, 186, 0.4); 
+            /* --- CORE THEME VARIABLES (From Backup) --- */
+            --term-color: #0affba;
+            --term-dim: rgba(10, 255, 186, 0.4);
             --split-1: #ff0000; 
             --split-2: #00ffff;
             --glow-color: rgba(10, 255, 186, 0.5);
             --hint-color: #ffd700;
             
-            /* Damage/Panic Variables */
-            --edge-opacity: 0; 
+            --edge-opacity: 0;
             --shake-amp: 0px; 
             --glitch-amp: 1px;
             --sway-speed: 5s; 
         }
 
         /* --- GLOBAL RESETS --- */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; cursor: none !important; }
+        html, body, * { cursor: none !important; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         ::-webkit-scrollbar { width: 8px; background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--term-color); border: 1px solid #000; box-shadow: 0 0 5px var(--term-color); }
         ::-webkit-scrollbar-track { background: rgba(0, 20, 20, 0.5); border-left: 1px solid var(--term-color); }
 
         body {
-            background-color: #000000; margin: 0; padding: 40px 20px 20px 20px; 
+            background-color: #000000; margin: 0; 
+            padding: 40px 20px 35px 20px; /* Padding for header/footer */
             font-family: 'VT323', monospace; color: var(--term-color);
             overflow: hidden; height: 100vh;
             display: flex; justify-content: center; align-items: center;
@@ -42,7 +42,7 @@
             transition: color 0.4s ease, text-shadow 0.4s ease; 
         }
 
-        /* --- V16 VISUAL FX ENGINES --- */
+        /* --- BACKGROUND FX (From Backup) --- */
         .scan-line { position: fixed; left: 0; width: 100%; background: var(--term-color); opacity: 0.25; z-index: 600; pointer-events: none; box-shadow: 0 0 11px var(--term-color); }
         @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
 
@@ -61,7 +61,7 @@
             animation: pulse-breath-erratic 4s infinite; 
         }
 
-        /* --- CURSOR --- */
+        /* --- CURSOR (Ghosting Restored) --- */
         #custom-cursor {
             position: fixed; top: 0; left: 0; width: 15px; height: 15px;
             border: 2px solid var(--term-color); 
@@ -74,7 +74,7 @@
             mix-blend-mode: screen;
         }
 
-        /* --- START SCREEN --- */
+        /* --- START SCREEN (Exact Match Core Online) --- */
         #start-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #000; z-index: 2000;
@@ -95,12 +95,11 @@
             z-index: 100; overflow: hidden; margin-top: 10px;
         }
         .power-on { display: flex !important; animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
-        /* Dynamic Stress Class for Damage */
         .stress-active { animation: stress-shake 0.1s infinite !important; }
 
         /* --- HEADER & DASHBOARD --- */
         .header { 
-            border-bottom: 4px solid var(--term-color); padding-bottom: 10px; margin-bottom: 15px; 
+            border-bottom: 4px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; 
             display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; position: relative;
         }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
@@ -111,7 +110,8 @@
             display: inline-block; font-weight: normal;
         }
 
-        /* --- V21 DASHBOARD WITH V16 GLOW EFFECTS --- */
+        .jackpot-text { font-family: 'VT323', monospace; display: inline-block; }
+
         .sys-dashboard {
             display: grid; grid-template-columns: 2fr 1fr 2fr; /* Integrity | Stats | Temp */
             gap: 20px; align-items: end; margin-top: 5px;
@@ -120,13 +120,21 @@
         .dash-module { display: flex; flex-direction: column; gap: 4px; }
         .dash-label { font-size: 0.9rem; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; display: flex; justify-content: space-between; color: var(--term-color); }
         
+        /* PHOSPHORUS DAMAGE EFFECT */
+        .dmg-shock { animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
+        @keyframes damage-flash { 
+            0% { transform: scale(1); filter: brightness(1); } 
+            50% { transform: scale(1.15); filter: brightness(5) hue-rotate(180deg); } 
+            100% { transform: scale(1); filter: brightness(1); } 
+        }
+
         .gauge-container {
-            width: 100%; height: 30px;
+            width: 100%; height: 25px;
             border: 2px solid var(--term-color); background: #000;
             position: relative; padding: 2px;
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
         }
-        .gauge-container::after { /* Ruler Lines */
+        .gauge-container::after { 
             content: " "; position: absolute; top:0; left:0; width: 100%; height: 100%; pointer-events: none;
             background: repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.1) 20px); z-index: 5;
         }
@@ -144,7 +152,6 @@
             box-shadow: 0 0 25px #ff0000 !important;
         }
 
-        /* TEMP BAR */
         #temp-bar { width: 0%; height: 100%; transition: width 1s linear; background: var(--term-color); box-shadow: 0 0 15px var(--term-color); }
         .strobe-active { animation: temp-strobe 0.15s infinite !important; }
 
@@ -154,12 +161,12 @@
         }
         .score-display { font-size: 1.8rem; font-weight: bold; line-height: 1; margin-bottom: 2px; }
 
-        /* --- BUTTONS --- */
+        /* --- BUTTONS & DONATE (Slimmed) --- */
         .donate-group { display: flex; gap: 6px; }
         .sys-btn {
             background: rgba(0, 0, 0, 0.8); color: var(--term-color);
-            font-family: 'VT323', monospace; font-size: 1.0rem; font-weight: bold;
-            cursor: pointer; padding: 4px 12px; border: 1px solid;
+            font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; padding: 3px 8px; border: 1px solid;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.5); transition: all 0.2s ease; text-transform: uppercase;
         }
         .sys-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0px rgba(0,0,0,0.8); z-index: 1001; opacity: 1; }
@@ -168,23 +175,689 @@
         .bmc-btn { color: #FF813F; border-color: #FF813F; } .bmc-btn:hover { background: #FF813F; color: #000; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; } .kas-btn:hover { background: #70c7ba; color: #000; }
 
-        /* --- MENU SYSTEM --- */
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 5px; overflow-y: auto; padding-right: 5px; padding-bottom: 20px; }
+        /* --- MENU SYSTEM (Slimmed Layout) --- */
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 5px; overflow-y: auto; padding-right: 5px; padding-bottom: 10px; }
         .btn { 
             background: rgba(0,0,0,0.5); border: 2px solid var(--term-color); color: var(--term-color); 
-            font-family: 'VT323', monospace; font-size: 1.35rem; padding: 10px 15px;
+            font-family: 'VT323', monospace; font-size: 1.25rem; /* SLIMMED FONT */
+            padding: 8px 12px; /* SLIMMED PADDING */
             cursor: pointer; text-align: left; transition: 0.1s; position: relative;
             overflow: hidden; opacity: 0; transform: translateY(10px);
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
         }
-        /* RESTORED: Random Drift Animation from Backup */
+        
         .btn.drift-active { animation: random-drift 6s ease-in-out infinite alternate; }
         .btn.visible { opacity: 1 !important; transform: translateY(0) !important; transition: opacity 0.5s ease, transform 0.5s ease; }
         
-        .btn:hover { background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; text-shadow: none; z-index: 10; animation: rgb-split-hover 0.1s infinite !important; transform: translate(-2px, -2px) !important; }
+        /* RESTORED HOVER ANIMATION FROM BACKUP */
+        .btn:hover { 
+            background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; text-shadow: none; z-index: 10; 
+            animation: rgb-split-hover 0.1s infinite !important; 
+            transform: translate(-2px, -2px) !important; 
+        }
         .btn.exam-mode { border-color: #ff4444; color: #ff4444; } .btn.exam-mode:hover { background: #ff4444; color: white; box-shadow: 0 0 60px #ff4444; }
         
         /* --- QUIZ UI --- */
+        .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 10px; }
+        .quiz-header-bar {
+            display:flex; justify-content:space-between; align-items:center; 
+            border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 15px; font-size: 1.2rem; flex-shrink: 0;
+        }
+
+        .abort-btn { cursor:pointer; text-decoration:underline; font-weight: bold; color: #fff; transition: 0.2s; }
+        .abort-btn:hover { color: #ff0000; text-shadow: 0 0 15px #ff0000; }
+
+        .question-box { 
+            font-size: 1.6rem; line-height: 1.3; margin-bottom: 15px; min-height: 60px; 
+            background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+            border-left: 8px solid var(--term-color); padding-left: 20px; flex-shrink: 0; position: relative; color: #ffffff !important;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3); animation: random-drift 7s ease-in-out infinite alternate;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+        }
+
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { 
+            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); color: #ffffff !important; 
+            padding: 10px 15px; font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; 
+            cursor: pointer; transition: 0.1s; position: relative; box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
+        }
+        .option-btn:hover { 
+            background: #fff !important; color: #000 !important; border-color: #fff; box-shadow: 0 0 40px #fff; 
+            transform: translate(-2px, -2px); animation: rgb-split-hover 0.1s infinite !important;
+        }
+        .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; box-shadow: 0 0 80px var(--term-color) !important; animation: answer-thump 0.3s ease-out forwards; }
+        .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 80px red !important; animation: answer-shake 0.4s; }
+
+        .nav-btn { 
+            margin-top: 20px; width: 100%; font-weight: bold; text-align: center; 
+            background: rgba(0, 0, 0, 0.8); color: #ffffff; border: 1px solid #ffffff;
+            font-size: 1.8rem; padding: 15px; cursor: pointer; border-radius: 0px; 
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.8); margin-bottom: 10px;
+        }
+        .nav-btn:hover { background: #ffffff; color: #000000; box-shadow: 0 0 20px #ffffff; }
+
+        /* --- SIDEWAYS FOOTER --- */
+        .hacker-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 25px;
+            background: rgba(0, 0, 0, 0.8); border-top: 1px solid var(--term-color);
+            z-index: 1000; display: flex; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        .ticker-content { white-space: nowrap; font-size: 0.9rem; color: var(--term-color); animation: ticker-scroll 30s linear infinite; padding-left: 100%; }
+        @keyframes ticker-scroll { 100% { transform: translateX(-100%); } }
+
+        /* --- DECORATION & FLUFF --- */
+        .hex-dump { position: absolute; font-family: monospace; font-size: 14px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--glow-color); transition: color 0.2s ease; }
+        .random-glitch-active { animation: rgb-split-hover 0.2s infinite !important; color: #fff !important; }
+        .float-text { position: absolute; font-weight: bold; font-size: 2rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
+        .hidden { display: none !important; }
+
+        /* V16 FAIL UI */
+        #fail-ui { 
+            display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
+            background: rgba(5, 0, 0, 0.95); flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+        }
+        .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: fail-entry 0.3s ease-out forwards; color: #ccffff; }
+        .fail-text { font-size: 8rem; margin-bottom: 20px; color: #fff; animation: vertical-rgb-split 0.15s infinite; }
+
+        /* --- ANIMATIONS --- */
+        @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
+        @keyframes random-drift { 0% { transform: translate(0, 0); } 40% { transform: translate(-1px, 2px); } 80% { transform: translate(1.5px, 1px); } 100% { transform: translate(0, 0); } }
+        @keyframes cursor-flicker { 0% { opacity: 1; transform: translate(-50%, -50%) skewX(0deg); } 50% { opacity: 0.8; transform: translate(-50%, -50%) skewX(-10deg); } 100% { opacity: 1; transform: translate(-50%, -50%) skewX(0deg); } }
+        @keyframes rgb-split-hover { 
+            0% { text-shadow: -1px 0 var(--split-1), 1px 0 var(--split-2); transform: translate(0,0); } 
+            25% { text-shadow: 1px 0 var(--split-1), -1px 0 var(--split-2); transform: translate(-2px, 1px); } 
+            50% { text-shadow: 0 -1px var(--split-1), 0 1px var(--split-2); transform: translate(2px, -1px); } 
+            75% { text-shadow: 0 1px var(--split-1), 0 -1px var(--split-2); transform: translate(-1px, 2px); } 
+            100% { text-shadow: -1px 0 var(--split-1), 1px 0 var(--split-2); transform: translate(0,0); } 
+        }
+        @keyframes answer-shake { 0% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } 100% { transform: translateX(0); } }
+        @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 100px #fff; } 100% { transform: scale(1); } }
+        @keyframes pulse-breath-erratic { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.4); } 90% { opacity: calc(var(--edge-opacity) * 0.9); } 100% { opacity: var(--edge-opacity); } }
+        @keyframes crit-pulse { 0% { filter: brightness(1); opacity: 1; box-shadow: 0 0 25px #ff0000; } 50% { filter: brightness(5); opacity: 0.8; box-shadow: 0 0 50px #ff0000; } 100% { filter: brightness(1); opacity: 1; box-shadow: 0 0 25px #ff0000; } }
+        @keyframes temp-strobe { 0% { background-color: #ff0000; box-shadow: 0 0 20px #ff0000; } 50% { background-color: #ffffff; box-shadow: 0 0 40px #ffffff; } 100% { background-color: #ff0000; box-shadow: 0 0 20px #ff0000; } }
+        @keyframes slice-glitch { 0% { clip-path: inset(0 0 0 0); transform: translate(0); } 10% { clip-path: inset(10% 0 85% 0); transform: translate(-5px, 2px); } 20% { clip-path: inset(85% 0 5% 0); transform: translate(5px, -2px); } 30% { clip-path: inset(50% 0 30% 0); transform: translate(-3px, 0); } 40% { clip-path: inset(10% 0 40% 0); transform: translate(3px, 0); } 50% { clip-path: inset(0 0 0 0); transform: translate(0); } 100% { clip-path: inset(0 0 0 0); transform: translate(0); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } } 
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.2); } }
+        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
+        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        @keyframes stress-shake { 0% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 75% { transform: translate(-2px, -2px); } 100% { transform: translate(0, 0); } }
+        @keyframes fail-entry { 0% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes vertical-rgb-split { 0% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; transform: translate(0, 0); } 25% { text-shadow: 0 -4px #ff0000, 0 4px #00ffff; transform: translate(0, 2px); } 50% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; transform: translate(0, -1px); } 75% { text-shadow: 0 0px #ff0000, 0 0px #00ffff; transform: translate(0, 1px); } 100% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; transform: translate(0, 0); } }
+
+    </style>
+</head>
+<body class="glitch-active">
+
+<div id="custom-cursor"></div>
+<div class="pixel-overlay"></div>
+<canvas id="matrix-canvas"></canvas>
+<div class="retro-grid"></div>
+<div id="panic-pulse"></div> 
+<div id="scan-container"></div> 
+
+<div id="start-overlay" onclick="bootSystem()">
+    <div style="margin-bottom: 60px; font-size: 3.5rem; color: #fff; letter-spacing: 6px; text-shadow: 4px 0 var(--split-1), -4px 0 var(--split-2);" class="logo-glitch">
+        [ SYSTEM_ROOT ]
+    </div>
+    
+    <div style="font-size: 1.5rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink 3.25s infinite;">
+        >> CLICK_TO_INITIALIZE <<
+    </div>
+    
+    <div style="margin-top: 100px; font-size: 0.8rem; opacity: 0.5; font-family: monospace;">
+        BIOS_REV_21.0 // ANALYTICS_ENGINE: ONLINE // LOGIC_PATCHED
+    </div>
+</div>
+
+<div class="terminal-window" id="term-win">
+    
+    <div class="header">
+        <div class="header-top">
+            <div class="h-left">
+                <h1 id="main-header">SYSTEM <span style="font-size: 0.6em; color:#fff;">ROOT</span></h1>
+                
+                <div style="display:flex; gap: 20px; font-size:1.1rem; opacity:0.8; margin-top:5px;">
+                    <div id="status-text-1" class="jackpot-text">> STATUS: WAITING...</div>
+                    <div id="status-text-2" class="jackpot-text">> NET: IDLE</div>
+                </div>
+            </div>
+            
+            <div class="donate-group">
+                <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[ SUPPORT ]</button>
+                <button class="sys-btn bmc-btn" onclick="AudioEngine.playMenuHover(); window.open('https://buymeacoffee.com', '_blank')">[ COFFEE ]</button>
+                <button class="sys-btn kas-btn" onclick="AudioEngine.playMenuHover(); showCrypto()">[ KASPA ]</button>
+            </div>
+        </div>
+        
+        <div class="sys-dashboard">
+            <div class="dash-module">
+                <div class="dash-label">
+                    <span>CORE_INTEGRITY</span>
+                    <span id="integrity-pct">100%</span>
+                </div>
+                <div class="gauge-container" id="integrity-cont">
+                    <div class="integrity-fill" id="integrity-bar" style="width: 100%;"></div>
+                </div>
+            </div>
+
+            <div class="dash-module ctrl-cluster">
+                <div class="score-display" id="score-ui">PTS: 0</div>
+                <button id="sound-toggle" class="sys-btn" style="font-size:0.8rem; padding: 2px;" onclick="AudioEngine.toggleMute()">[ AUDIO: ON ]</button>
+            </div>
+
+            <div class="dash-module">
+                <div class="dash-label">
+                    <span id="temp-label">SYS_TEMP</span>
+                    <span id="temp-val">0°C</span>
+                </div>
+                <div class="gauge-container" style="border-color: #fff;">
+                    <div class="gauge-fill" id="temp-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="root-menu">
+        <p style="font-size: 1.2rem; border-bottom: 1px dashed var(--term-color); padding-bottom: 9px;">> SELECT_CERTIFICATION:</p>
+        <div class="menu-grid">
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="goToSubMenu('core1')">[1] COMPTIA A+ CORE 1 <span style="float:right">>></span></button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="goToSubMenu('core2')">[2] COMPTIA A+ CORE 2 <span style="float:right">>></span></button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="goToSubMenu('net')">[3] NETWORK+ <span style="float:right">>></span></button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="goToSubMenu('sec')">[4] SECURITY+ <span style="float:right">>></span></button>
+        </div>
+    </div>
+
+    <div id="core1-menu" class="hidden">
+        <p style="font-size: 1.2rem; border-bottom: 1px dashed var(--term-color);">> CORE_1 // MODULES:</p>
+        <div class="menu-grid">
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE1', 'Mobile')">[A] MOBILE_DEVICES</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE1', 'Networking')">[B] NETWORKING</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE1', 'Hardware')">[C] HARDWARE</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE1', 'Cloud')">[D] VIRTUALIZATION</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE1', 'Troubleshoot')">[E] TROUBLESHOOTING</button>
+            <button class="btn exam-mode" onmouseenter="AudioEngine.playMenuHover()" onclick="startExam('CORE1')">[X] EXAM_SIMULATION</button>
+            <button class="btn" style="border-color: #666; color: #888;" onmouseenter="AudioEngine.playMenuHover()" onclick="goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+    
+    <div id="core2-menu" class="hidden">
+        <div class="menu-grid">
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE2', 'OS')">[A] OS_CONCEPTS</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE2', 'Security')">[B] SECURITY</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE2', 'Software')">[C] SOFTWARE_TRBL</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE2', 'Ops')">[D] OPS_PROCEDURES</button>
+            <button class="btn exam-mode" onmouseenter="AudioEngine.playMenuHover()" onclick="startExam('CORE2')">[X] EXAM_SIMULATION</button>
+            <button class="btn" style="border-color: #666; color: #888;" onmouseenter="AudioEngine.playMenuHover()" onclick="goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+
+    <div id="net-menu" class="hidden">
+        <div class="menu-grid">
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('NET', 'Fundamentals')">[A] FUNDAMENTALS</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('NET', 'Implement')">[B] IMPLEMENTATION</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('NET', 'Ops')">[C] OPERATIONS</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('NET', 'Security')">[D] SECURITY</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('NET', 'Troubleshoot')">[E] TROUBLESHOOTING</button>
+            <button class="btn exam-mode" onmouseenter="AudioEngine.playMenuHover()" onclick="startExam('NET')">[X] EXAM_SIMULATION</button>
+            <button class="btn" style="border-color: #666; color: #888;" onmouseenter="AudioEngine.playMenuHover()" onclick="goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+
+    <div id="sec-menu" class="hidden">
+        <div class="menu-grid">
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('SEC', 'Concepts')">[A] GEN_CONCEPTS</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('SEC', 'Threats')">[B] THREATS_VULNS</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('SEC', 'Arch')">[C] ARCHITECTURE</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('SEC', 'Ops')">[D] SECURITY_OPS</button>
+            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('SEC', 'Mgmt')">[E] MGMT_GOVERNANCE</button>
+            <button class="btn exam-mode" onmouseenter="AudioEngine.playMenuHover()" onclick="startExam('SEC')">[X] EXAM_SIMULATION</button>
+            <button class="btn" style="border-color: #666; color: #888;" onmouseenter="AudioEngine.playMenuHover()" onclick="goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+
+    <div id="quiz-ui" class="hidden quiz-container">
+        <div class="quiz-header-bar">
+            <div style="display:flex; gap: 20px;">
+                <span onclick="shutdownSystem()" onmouseenter="AudioEngine.playOptionHover()" class="abort-btn">< ABORT</span>
+                <span style="color:var(--term-color);">[COUNTDOWN]: <span id="session-timer" style="color:#fff; font-weight:bold;">90:00</span></span>
+                <span style="color:var(--term-color);">[PKT]: <span id="packet-counter" style="color:#fff; font-weight:bold;">00</span></span>
+            </div>
+            <span id="streak-text" class="jackpot-text" style="font-weight: bold;">CONNECTIONS: 0</span>
+        </div>
+        
+        <div class="question-box"><span id="q-text" class="jackpot-text"></span></div>
+        <div id="explanation-box" style="margin-bottom:20px; padding:15px; border:2px dashed #0affba; display:none; font-size:1.6rem; color:#fff;"></div>
+        <div class="options-list" id="opts-list"></div>
+        
+        <button class="nav-btn hidden" id="next-btn" onmouseenter="AudioEngine.playMenuHover()" onclick="nextSeq()">>> NEXT_PACKET >> </button>
+    </div>
+
+    <div id="results-ui" class="hidden" style="text-align: center; padding-top: 10px;">
+        <h1 style="font-size: 5rem; margin-bottom: 0px;" id="final-percent" class="jackpot-text">0%</h1>
+        <p style="font-size: 2rem; margin-bottom: 10px;">> DIAGNOSTIC COMPLETE</p>
+        <div id="breakdown-container" style="text-align:left; margin:20px auto; max-width:700px;"></div>
+        <button class="btn" style="margin-top: 40px;" onmouseenter="AudioEngine.playMenuHover()" onclick="location.reload()">>> REBOOT_SYSTEM</button>
+    </div>
+
+    <div id="fail-ui">
+        <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
+        <p style="font-size: 2rem; color: #ccffff;">> ALL_IS_LOST</p>
+        <br>
+        <button class="btn" style="background: red; color: white; border-color: red;" onmouseenter="AudioEngine.playMenuHover()" onclick="location.reload()">>> EMERGENCY RESTART</button>
+    </div>
+</div>
+
+<div class="hacker-footer">
+    <div class="ticker-content">
+        >> SYS_LOG_START [0x1A4F] >> INITIATING_CORE_DUMP... COMPTIA_SIMULATOR_HYBRID_V21... LOADING_MODULES... VISUAL_CORE_RESTORED... 
+    </div>
+</div>
+
+<script>
+    /* ============================ CONFIG ============================ */
+    const EXAM_WEIGHTS = {
+        'CORE1': [{ tag: 'Mobile', pct: 0.14 }, { tag: 'Networking', pct: 0.20 }, { tag: 'Hardware', pct: 0.27 }, { tag: 'Cloud', pct: 0.11 }, { tag: 'Troubleshoot', pct: 0.28 }],
+        'CORE2': [{ tag: 'OS', pct: 0.27 }, { tag: 'Security', pct: 0.24 }, { tag: 'Software', pct: 0.26 }, { tag: 'Ops', pct: 0.23 }],
+        'NET': [{ tag: 'Fundamentals', pct: 0.23 }, { tag: 'Implement', pct: 0.18 }, { tag: 'Ops', pct: 0.16 }, { tag: 'Security', pct: 0.20 }, { tag: 'Troubleshoot', pct: 0.23 }],
+        'SEC': [{ tag: 'Concepts', pct: 0.12 }, { tag: 'Threats', pct: 0.22 }, { tag: 'Arch', pct: 0.18 }, { tag: 'Ops', pct: 0.28 }, { tag: 'Mgmt', pct: 0.20 }]
+    };
+
+    let qQueue = []; let currentScore = 0; let integrity = 100; let tempLevel = 0; const TEMP_MAX = 60;
+    let isDead = false; let isExam = false; let quizHistory = [];
+    let hudInterval = null; let sessionTime = 5400; 
+    let questionsAttempted = 0; let questionsCorrect = 0; let currentStreak = 0;
+
+    /* ============================ AUDIO ENGINE (RESTORED) ============================ */
+    const AudioEngine = {
+        ctx: null, masterGain: null, isMuted: false, delayNode: null, isPlaying: false,
+        init: function() {
+            try {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AC();
+                this.masterGain = this.ctx.createGain(); this.masterGain.gain.value = 0.3;
+                this.masterGain.connect(this.ctx.destination);
+                this.delayNode = this.ctx.createDelay(); this.delayNode.delayTime.value = 0.35;
+                const fb = this.ctx.createGain(); fb.gain.value = 0.4;
+                this.delayNode.connect(fb); fb.connect(this.delayNode); this.delayNode.connect(this.masterGain);
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+                this.playBoot(); this.startMusic();
+            } catch(e) {}
+        },
+        startMusic: function() { if(this.isPlaying) return; this.isPlaying = true; this.musicLoop(); },
+        musicLoop: function() {
+            if (!this.isPlaying || this.isMuted) return;
+            const now = this.ctx.currentTime;
+            const drone = this.ctx.createOscillator(); const droneGain = this.ctx.createGain();
+            drone.type = 'sine'; drone.frequency.value = 55; 
+            droneGain.gain.setValueAtTime(0.05, now); droneGain.gain.linearRampToValueAtTime(0, now + 6);
+            drone.connect(droneGain); droneGain.connect(this.masterGain); drone.start(now); drone.stop(now + 6);
+            setTimeout(() => this.musicLoop(), 4500); 
+        },
+        playSFX: function(type) {
+            if(!this.ctx || this.isMuted) return;
+            const t = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            osc.connect(g); g.connect(this.masterGain);
+            if(type === 'click') { osc.type='square'; osc.frequency.setValueAtTime(800, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05); osc.start(t); osc.stop(t+0.05); } 
+            else if(type === 'success') { osc.type='sine'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.1); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.2); } 
+            else if(type === 'error') { osc.type='triangle'; osc.frequency.setValueAtTime(150, t); osc.frequency.linearRampToValueAtTime(50, t+0.4); g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4); osc.start(t); osc.stop(t+0.4); } 
+        },
+        playMenuHover: function() {
+            if (!this.ctx || this.isMuted) return;
+            const t = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            osc.type = 'square'; osc.frequency.setValueAtTime(600 + Math.random() * 200, t); g.gain.setValueAtTime(0.02, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.1); 
+            osc.connect(g); g.connect(this.masterGain); osc.start(t); osc.stop(t + 0.1);
+        },
+        playOptionHover: function() { this.playMenuHover(); },
+        playBoot: function() {
+            if (!this.ctx || this.isMuted) return;
+            const t = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(50, t); osc.frequency.exponentialRampToValueAtTime(600, t + 0.5);
+            g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.2, t + 0.1); g.gain.linearRampToValueAtTime(0, t + 0.5);
+            osc.connect(g); g.connect(this.masterGain); osc.start(t); osc.stop(t + 0.5);
+        },
+        toggleMute: function() {
+            this.isMuted = !this.isMuted;
+            if(this.masterGain) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : 0.3, this.ctx.currentTime, 0.1);
+            document.getElementById('sound-toggle').innerText = this.isMuted ? "[ AUDIO: OFF ]" : "[ AUDIO: ON ]";
+        }
+    };
+
+    /* ============================ THEMATIC ENGINES ============================ */
+    
+    // 1. Scanline Spawner
+    function spawnScanline() {
+        if(isDead) return;
+        const line = document.createElement('div'); line.className = 'scan-line';
+        line.style.height = (Math.random() * 3 + 1) + 'px';
+        line.style.animation = `scan-drop ${Math.random() * 5 + 4}s linear forwards`;
+        document.getElementById('scan-container').appendChild(line);
+        setTimeout(() => line.remove(), 10000);
+        setTimeout(spawnScanline, Math.random() * 8000 + 6000); 
+    }
+    spawnScanline();
+
+    // 2. Status Scrambler
+    const techPhrases = ["> SPIRIT: AGGRIEVED", "> CANTICLE://SULPHURIC", "> SCRAPCODE://DETECTED", "> NOOSPHERE: DARKENED", "> VOID-LINK: ESTABLISHED", "> MACHINE_GOD://HEARS_YOU", "> SYSTEM: AWAKENING", "> CONSUME: PROCREATE", "> CHAOS: UNDIVIDED", "> CRUSH//MAIM//KILL", "> WAAAGH: ENERGY_SPIKE"];
+    const techStatus = ["> PRAYER_LATENCY: 666ms", "> RITUAL_CYCLES: INFINITE", "> HOLY_INCENSE: IGNITED", "> DATA-GHOSTS: DETECTED", "> ENCRYPTION: CYTHRA-LOCK"];
+    
+    function cycleStatus() {
+        if(isDead) return;
+        scrambleText(document.getElementById('status-text-1'), techPhrases[Math.floor(Math.random() * techPhrases.length)], 500);
+        setTimeout(() => { scrambleText(document.getElementById('status-text-2'), techStatus[Math.floor(Math.random() * techStatus.length)], 800); }, 1000 + Math.random() * 1000);
+        setTimeout(cycleStatus, 5000 + Math.random() * 10000);
+    }
+    cycleStatus();
+
+    function spawnHexDump() {
+        if(isDead) return;
+        const chars = "0123456789ABCDEF"; let str = "";
+        for(let r=0; r<6; r++) { str += "0x"; for(let i=0; i<4; i++) str += chars[Math.floor(Math.random()*16)]; str += "\n"; }
+        const el = document.createElement('div'); el.className = "hex-dump";
+        el.style[Math.random() > 0.5 ? 'left' : 'right'] = Math.random() * 15 + "%";
+        el.style.top = Math.random() * 90 + "%";
+        document.body.appendChild(el);
+        scrambleText(el, str, 1000);
+        setTimeout(()=>el.remove(), 8000);
+        setTimeout(spawnHexDump, Math.random() * 3000 + 2000);
+    }
+
+    function triggerRandomGlitch() {
+        if(isDead) return;
+        const chaos = 1 - (integrity / 100);
+        const chance = 0.05 + (chaos * 0.5);
+        if(Math.random() < chance) {
+            const targets = document.querySelectorAll('.btn, .question-box, h1, #score-ui');
+            if(targets.length > 0) {
+                const target = targets[Math.floor(Math.random()*targets.length)];
+                target.classList.add('random-glitch-active');
+                setTimeout(() => target.classList.remove('random-glitch-active'), 200);
+            }
+        }
+        setTimeout(triggerRandomGlitch, 200 + (integrity * 5));
+    }
+
+    function scrambleText(element, finalString, duration=500) {
+        const alphabet = "0101010101XYZ<>";
+        let start = Date.now();
+        function update() {
+            let prog = (Date.now() - start) / duration;
+            if(prog >= 1) { element.innerText = finalString; return; }
+            let txt = "";
+            for(let i=0; i<finalString.length; i++) {
+                if(i < finalString.length * prog) txt += finalString[i]; else txt += alphabet[Math.floor(Math.random()*alphabet.length)];
+            }
+            element.innerText = txt;
+            requestAnimationFrame(update);
+        }
+        update();
+    }
+
+    // 3. Zalgo Matrix Rain
+    const canvas = document.getElementById('matrix-canvas'); const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const drops = Array(Math.floor(canvas.width / 14)).fill(1);
+    function drawRain() {
+        if(Math.random() > 0.5) { requestAnimationFrame(drawRain); return; }
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const color = getComputedStyle(document.documentElement).getPropertyValue('--term-color');
+        ctx.fillStyle = color; ctx.font = '14px monospace';
+        for(let i=0; i<drops.length; i++) {
+            let char = String.fromCharCode(0x30A0 + Math.random() * 96);
+            if(Math.random() < 0.1) char += String.fromCharCode(0x0300 + Math.floor(Math.random() * 50)); // Zalgo
+            ctx.fillText(char, i*14, drops[i]*14);
+            if(drops[i]*14 > canvas.height && Math.random() > 0.99) drops[i] = 0;
+            drops[i]++;
+        }
+        requestAnimationFrame(drawRain);
+    }
+    drawRain();
+
+    // 4. RESTORED CURSOR GHOSTING (FROM BACKUP)
+    const cursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        if(Math.random() > 0.6) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            trail.style.position = 'fixed';
+            trail.style.left = e.clientX + 'px';
+            trail.style.top = e.clientY + 'px';
+            trail.style.width = '20px';
+            trail.style.height = '20px';
+            trail.style.transform = 'translate(-50%, -50%)';
+            const currentColor = getComputedStyle(document.documentElement).getPropertyValue('--term-color');
+            trail.style.border = `1px solid ${currentColor}`;
+            trail.style.boxShadow = `0 0 5px ${currentColor}`;
+            trail.style.opacity = 0.5;
+            trail.style.pointerEvents = 'none';
+            trail.style.zIndex = 9998; 
+            document.body.appendChild(trail);
+            setTimeout(() => { trail.style.opacity = 0; trail.style.transform = 'translate(-50%, -50%) scale(0.5)'; }, 50);
+            setTimeout(() => { trail.remove(); }, 500);
+        }
+    });
+
+    /* ============================ CORE LOGIC ============================ */
+    function bootSystem() {
+        document.getElementById('start-overlay').style.display = 'none';
+        AudioEngine.init(); 
+        document.getElementById('term-win').style.display = 'flex';
+        document.getElementById('term-win').classList.add('power-on');
+        spawnHexDump(); triggerRandomGlitch();
+        const rootBtns = document.querySelectorAll('#root-menu .btn');
+        rootBtns.forEach((b, i) => setTimeout(() => { b.classList.add('visible'); b.classList.add('drift-active'); }, 500 + i*150));
+    }
+
+    function shutdownSystem() { AudioEngine.playSFX('error'); location.reload(); }
+
+    function startHUD() {
+        if (hudInterval) clearInterval(hudInterval);
+        document.getElementById('packet-counter').innerText = qQueue.length.toString().padStart(3, '0');
+        
+        hudInterval = setInterval(() => {
+            if(isDead) return;
+            if (sessionTime > 0) sessionTime--;
+            let mins = Math.floor(sessionTime / 60); let secs = sessionTime % 60;
+            document.getElementById('session-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            if (document.getElementById('next-btn').classList.contains('hidden')) {
+                if (tempLevel < TEMP_MAX) tempLevel++;
+                updateTempVisuals();
+            }
+        }, 1000);
+    }
+
+    function updateTempVisuals() {
+        const bar = document.getElementById('temp-bar');
+        const label = document.getElementById('temp-label');
+        const val = document.getElementById('temp-val');
+        const pct = tempLevel / TEMP_MAX;
+        
+        bar.style.width = `${pct * 100}%`; val.innerText = `${tempLevel * 2}°C`; 
+        bar.classList.remove('strobe-active'); label.classList.remove('label-crit');
+
+        if (tempLevel >= 50) {
+            label.innerText = "!! CRITICAL !!"; label.style.color = "#ff0000"; 
+            label.classList.add('label-crit'); bar.classList.add('strobe-active'); bar.style.backgroundColor = '#ff0000';
+            bar.style.boxShadow = "0 0 25px #ff0000";
+        } else if (tempLevel >= 40) {
+            label.innerText = ">> DANGER <<"; label.style.color = "orange"; bar.style.backgroundColor = '#ff4400';
+            bar.style.boxShadow = "0 0 15px #ff4400";
+        } else if (tempLevel >= 20) {
+            label.innerText = "WARMING..."; label.style.color = "yellow"; bar.style.backgroundColor = '#ffff00';
+            bar.style.boxShadow = "0 0 10px #ffff00";
+        } else {
+            label.innerText = "SYS_TEMP"; label.style.color = "#0affba"; bar.style.backgroundColor = '#0affba';
+            bar.style.boxShadow = "0 0 15px #0affba";
+        }
+    }
+    
+    function resetTemp() { tempLevel = 0; updateTempVisuals(); }
+
+    function updateIntegrity() {
+        if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
+        
+        const bar = document.getElementById('integrity-bar');
+        const txt = document.getElementById('integrity-pct');
+        const cont = document.getElementById('integrity-cont');
+        
+        bar.style.width = `${integrity}%`; txt.innerText = `${integrity}%`;
+        document.getElementById('score-ui').innerText = `PTS: ${currentScore}`;
+        document.getElementById('streak-text').innerText = `CONNECTIONS: ${currentStreak}`;
+
+        // V16 VISUAL FEEDBACK (Screen Shake & Color Shift)
+        const term = document.getElementById('term-win');
+        const root = document.documentElement;
+
+        // Dynamic Color Logic based on Health
+        let hue = 140; 
+        if(integrity < 50) hue = integrity * 2; // Shift to red as health drops
+        const newColor = `hsl(${hue}, 100%, 50%)`;
+        root.style.setProperty('--term-color', newColor);
+        root.style.setProperty('--glow-color', `hsla(${hue}, 100%, 50%, 0.5)`);
+
+        if(integrity < 30) { 
+            cont.classList.add('integrity-critical'); bar.style.backgroundColor = "red";
+            term.classList.add('stress-active');
+            root.style.setProperty('--shake-amp', '5px');
+        } else {
+            cont.classList.remove('integrity-critical'); bar.style.backgroundColor = newColor;
+            term.classList.remove('stress-active');
+            root.style.setProperty('--shake-amp', '0px');
+        }
+        
+        // Damage Overlay Opacity
+        if(integrity > 50) { root.style.setProperty('--edge-opacity', 0); } 
+        else { root.style.setProperty('--edge-opacity', (50-integrity)/50); }
+
+        if (integrity <= 0 && !isDead) {
+             isDead = true; 
+             document.getElementById('quiz-ui').classList.add('hidden');
+             const fail = document.getElementById('fail-ui');
+             fail.style.display = 'flex'; fail.classList.add('fail-visible');
+             AudioEngine.playSFX('error');
+        }
+    }
+
+    function loadSeq() {
+        if (integrity <= 0) return;
+        resetTemp();
+        document.getElementById('explanation-box').style.display = 'none';
+        document.getElementById('opts-list').style.display = 'none';
+        document.getElementById('next-btn').classList.add('hidden');
+
+        if (qQueue.length === 0) { finish(); return; }
+        
+        window.currentQ = qQueue.pop();
+        document.getElementById('packet-counter').innerText = qQueue.length.toString().padStart(3, '0');
+        const qEl = document.getElementById('q-text'); 
+        scrambleText(qEl, window.currentQ.question, 600);
+
+        document.getElementById('opts-list').style.display = 'flex'; 
+        renderMCQ(window.currentQ);
+    }
+
+    function renderMCQ(q) {
+        const optsList = document.getElementById('opts-list'); optsList.innerHTML = '';
+        q.options.forEach((o, i) => {
+            const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o}`;
+            b.onclick = () => processResult(i === q.answer, b);
+            b.onmouseenter = () => AudioEngine.playMenuHover();
+            optsList.appendChild(b);
+        });
+    }
+
+    function processResult(isCorrect, btn) {
+        questionsAttempted++;
+        const all = document.querySelectorAll('.option-btn'); all.forEach(b => b.disabled = true);
+        
+        if (isCorrect) {
+            btn.classList.add('correct'); currentScore++; integrity += 5; questionsCorrect++; currentStreak++;
+            AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, '#0f0');
+        } else {
+            btn.classList.add('wrong'); integrity -= 15; currentStreak = 0;
+            AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
+            // PHOSPHORUS DAMAGE EFFECT
+            const cont = document.getElementById('integrity-cont');
+            cont.classList.remove('dmg-shock'); void cont.offsetWidth; cont.classList.add('dmg-shock');
+        }
+        
+        document.getElementById('explanation-box').style.display = 'block';
+        document.getElementById('explanation-box').innerText = ">> ANALYSIS: " + window.currentQ.explanation;
+        updateIntegrity();
+        
+        if(integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
+
+    function finish() {
+        document.getElementById('quiz-ui').classList.add('hidden');
+        document.getElementById('results-ui').classList.remove('hidden');
+        document.getElementById('final-percent').innerText = Math.floor((questionsCorrect/questionsAttempted)*100) + "%";
+    }
+
+    function showFloatText(text, element, color) {
+        const floatEl = document.createElement('div'); floatEl.className = 'float-text'; floatEl.innerText = text;
+        floatEl.style.color = color; floatEl.style.textShadow = `0 0 10px ${color}`;
+        document.getElementById('term-win').appendChild(floatEl); 
+        const rect = element.getBoundingClientRect();
+        floatEl.style.left = (rect.left + 50) + 'px'; floatEl.style.top = (rect.top - 20) + 'px';
+        setTimeout(() => floatEl.remove(), 2000);
+    }
+    
+    function showCrypto() {
+        const addr = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq";
+        alert("COPIED KASPA ADDRESS:\n" + addr); navigator.clipboard.writeText(addr);
+    }
+
+    /* === DATA & NAVIGATION === */
+    const MASTER_DATABASE = [
+        { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
+        { tags: ["CORE1", "Networking"], question: "Which port does SSH use?", options: ["21", "22", "23", "80"], answer: 1, explanation: "SSH uses port 22." },
+        { tags: ["CORE1", "Mobile"], question: "Which component in a mobile device is responsible for changing screen orientation?", options: ["Gyroscope/Accelerometer", "Digitizer", "Inverter", "Magnetometer"], answer: 0, explanation: "The gyroscope and accelerometer detect physical movement and orientation changes." },
+        { tags: ["CORE2", "OS"], question: "Which Windows command line tool is used to manage disk partitions?", options: ["Diskpart", "Format", "Chkdsk", "Defrag"], answer: 0, explanation: "Diskpart is the command-line utility for managing drives, partitions, and volumes." }
+    ];
+
+    function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
+    
+    function updateHeader(text) {
+        document.getElementById('main-header').innerHTML = text;
+    }
+
+    function goToSubMenu(id) {
+        document.getElementById('root-menu').classList.add('hidden');
+        const m = document.getElementById(id+'-menu'); m.classList.remove('hidden');
+        
+        let txt = 'SYSTEM <span style="font-size:0.6em; color:#fff;">ROOT</span>';
+        if(id === 'core1') txt = 'COMPTIA <span style="font-size:0.6em; color:#fff;">CORE 1</span>';
+        if(id === 'core2') txt = 'COMPTIA <span style="font-size:0.6em; color:#fff;">CORE 2</span>';
+        if(id === 'net') txt = 'COMPTIA <span style="font-size:0.6em; color:#fff;">NET+</span>';
+        if(id === 'sec') txt = 'COMPTIA <span style="font-size:0.6em; color:#fff;">SEC+</span>';
+        updateHeader(txt);
+
+        m.querySelectorAll('.btn').forEach((b,i) => setTimeout(() => { b.classList.add('visible'); b.classList.add('drift-active'); }, i*100));
+    }
+    
+    function goToRoot() {
+        document.querySelectorAll('[id$="-menu"]').forEach(e => e.classList.add('hidden'));
+        document.getElementById('root-menu').classList.remove('hidden');
+        updateHeader('SYSTEM <span style="font-size:0.6em; color:#fff;">ROOT</span>');
+        document.querySelectorAll('#root-menu .btn').forEach((b,i) => setTimeout(() => { b.classList.add('visible'); b.classList.add('drift-active'); }, i*100));
+    }
+
+    function transitionToQuiz(c, m) { qQueue = fetchQuestions([c, m]); startQuiz(); }
+    function startExam(c) { qQueue = fetchQuestions([c]); while(qQueue.length < 10) qQueue = qQueue.concat(qQueue); startQuiz(); }
+    function startQuiz() { document.querySelectorAll('[id$="-menu"], #root-menu').forEach(e => e.classList.add('hidden')); document.getElementById('quiz-ui').classList.remove('hidden'); startHUD(); loadSeq(); }
+</script>
+</body>
+</html>        /* --- QUIZ UI --- */
         .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 10px; }
         .quiz-header-bar {
             display:flex; justify-content:space-between; align-items:center; 
