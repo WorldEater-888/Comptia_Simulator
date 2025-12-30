@@ -156,6 +156,7 @@
         .sys-btn:active { transform: translate(1px, 1px); box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
+        .bmc-btn { color: #FF813F; border-color: #FF813F; }
 
         /* Integrity Bars */
         .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
@@ -342,9 +343,10 @@
                 <div id="header-cursor" class="cursor-block"></div>
             </div>
             <div class="donate-group">
-                <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[DONATE]</button>
-                <button class="sys-btn kas-btn" onclick="AudioEngine.playMenuHover(); showCrypto()">[KAS]</button>
-          </div>
+    <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[DONATE]</button>
+    <button class="sys-btn bmc-btn" onclick="AudioEngine.playMenuHover(); window.open('https://buymeacoffee.com/comptia_simulator', '_blank')">[COFFEE]</button>
+    <button class="sys-btn kas-btn" onclick="AudioEngine.playMenuHover(); showCrypto()">[KAS]</button>
+</div>
         </div>
         
         <div class="header-stats-row">
@@ -2976,48 +2978,9 @@
         typewriterJackpot('intro-title', '[ CORE ONLINE ]');
     };
 </script>
-                <style>
-  .bmc-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #FF813F; /* The "Buy Me a Coffee" Orange */
-    color: #FFFFFF !important;
-    padding: 10px 20px;
-    border-radius: 50px;
-    text-decoration: none !important;
-    font-family: 'Arial', sans-serif; /* Clean, simple font */
-    font-weight: bold;
-    font-size: 18px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    z-index: 9999; /* Keeps it on top of your game */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 1px solid transparent;
-  }
-
-  .bmc-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
-    background-color: #e86c2d; /* Slightly darker orange on hover */
-  }
-
-  .bmc-btn img {
-    height: 22px;
-    width: 22px;
-    margin-bottom: 1px;
-    vertical-align: middle;
-  }
-</style>
-
-<a href="https://buymeacoffee.com/comptia_simulator" target="_blank" class="bmc-btn">
-  <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy me a coffee">
-  <span>Buy me a coffee</span>
-</a>
 </body>
 </html>
+
 
 
 
