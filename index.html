@@ -1239,13 +1239,32 @@ position: relative; /* Required for float/jitter */
     function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
     
     function showFloatText(text, element, color) {
-        const floatEl = document.createElement('div'); floatEl.className = 'float-text'; floatEl.innerText = text;
-        floatEl.style.color = color; floatEl.style.textShadow = `0 0 10px ${color}`;
-        document.body.appendChild(floatEl); 
-        const rect = element.getBoundingClientRect();
-        floatEl.style.left = (rect.left + rect.width/2 - 20) + 'px'; floatEl.style.top = rect.top + 'px';
-        setTimeout(() => floatEl.remove(), 2000);
-    }
+    const floatEl = document.createElement('div');
+    floatEl.className = 'float-text';
+    floatEl.innerText = text;
+    floatEl.style.color = color;
+    floatEl.style.textShadow = `0 0 10px ${color}`;
+    floatEl.style.position = 'fixed'; // Use fixed to ignore scroll offsets
+    floatEl.style.zIndex = '5000';
+    floatEl.style.pointerEvents = 'none';
+    
+    document.body.appendChild(floatEl);
+
+    // Get the element position relative to the viewport
+    const rect = element.getBoundingClientRect();
+    
+    // Calculate center of the button
+    const centerX = rect.left + (rect.width / 2);
+    const centerY = rect.top + (rect.height / 2);
+
+    // Position the float text exactly at the center of the clicked element
+    floatEl.style.left = `${centerX}px`;
+    floatEl.style.top = `${centerY}px`;
+    floatEl.style.transform = 'translate(-50%, -50%)'; // Center it over the point
+
+    // Cleanup after animation
+    setTimeout(() => floatEl.remove(), 2000);
+}
     
     function showCrypto() {
         AudioEngine.playSFX('success');
@@ -1321,3 +1340,4 @@ position: relative; /* Required for float/jitter */
 </script>
 </body>
 </html>
+
