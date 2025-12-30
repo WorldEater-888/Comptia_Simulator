@@ -1116,8 +1116,6 @@
 { tags: ["CORE1", "Hardware"], question: "A technician needs to power a legacy IDE hard drive. Which connector should they look for on the PSU cables?", options: ["SATA Power", "Molex", "PCIe 6-pin", "EPS 8-pin"], answer: 1, explanation: "Molex is the legacy 4-pin connector used for older IDE/PATA hard drives and optical drives.", hint: "The old 4-pin." },
 { tags: ["CORE1", "Hardware"], question: "What is the key visual difference between a SATA power connector and a SATA data connector?", options: ["SATA power is 15-pin and wider; SATA data is 7-pin and narrower", "SATA power is 7-pin; SATA data is 15-pin", "SATA power is white; SATA data is black", "SATA power is round; SATA data is L-shaped"], answer: 0, explanation: "The SATA power connector has 15 pins and is wider/longer than the SATA data cable, which has only 7 pins.", hint: "Wider vs Narrower." },
 { tags: ["CORE1", "Hardware"], question: "Why should a technician avoid using a power drill when installing case fans?", options: ["It drains the drill battery too quickly", "It can over-torque screws and crack the plastic frame", "It causes the fan to spin backwards", "It interferes with the Wi-Fi signal"], answer: 1, explanation: "Power drills can over-torque screws, leading to cracked plastic fan frames, or generate magnetic fields that are dangerous near sensitive electronics.", hint: "Too much torque." },
-
-
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the Rear Port to its Signal Type.", pairs: [{ left: "VGA", right: "Analog Video" }, { left: "HDMI", right: "Digital Audio & Video" }, { left: "S/PDIF", right: "Optical Digital Audio" }, { left: "RJ45", right: "Networking Data" }], explanation: "VGA is analog. HDMI is digital AV. S/PDIF is optical audio. RJ45 is network.", hint: "Connects screens and networks." },
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the Troubleshooting Methodology Step to the Action.", pairs: [{ left: "Identify the Problem", right: "Ask the User Questions" }, { left: "Establish Theory", right: "Question the Obvious" }, { left: "Test Theory", right: "Confirm the Cause" }, { left: "Verify Functionality", right: "Implement Preventative Measures" }], explanation: "Identify involves user inquiry. Theory involves guessing/checking obvious. Test involves confirmation. Verify involves full checks and prevention.", hint: "The CompTIA troubleshooting steps." },
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the Expansion Card to the Port/Slot Used.", pairs: [{ left: "Modern GPU", right: "PCIe x16" }, { left: "Wi-Fi Adapter", right: "PCIe x1" }, { left: "M.2 SSD", right: "M.2 Slot" }, { left: "Laptop Wi-Fi", right: "Mini-PCIe" }], explanation: "GPUs use x16. Wi-Fi uses x1. SSDs use M.2. Laptops use Mini-PCIe.", hint: "Slots for upgrades." },
@@ -1572,10 +1570,6 @@
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the front-panel header to its case function.", pairs: [{ left: "Power SW", right: "Physical power button" }, { left: "Reset SW", right: "Physical restart button" }, { left: "Power LED", right: "Power status light" }, { left: "HDD LED", right: "Drive activity light" }], explanation: "Front panel headers link the chassis controls to the motherboard system panel.", hint: "Button functions." },
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the HDD geometry term to its mechanical part.", pairs: [{ left: "Circular Disk", right: "Platter" }, { left: "Needle", right: "Read/Write Head" }, { left: "Arm", right: "Actuator" }], explanation: "Mechanical hard drives rely on the interaction between the platters, heads, and actuator arm.", hint: "Mechanical parts." },
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the BIOS mode to the storage feature it enables.", pairs: [{ left: "AHCI", right: "Hot-Swapping / NCQ" }, { left: "RAID", right: "Multi-disk logical arrays" }, { left: "Legacy / IDE", right: "Compatibility with old OS" }], explanation: "BIOS configuration determines how the OS interacts with storage hardware.", hint: "Mode features." },
-
-
-
-
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the Logical Protocol to its Physical Connection.", pairs: [{ left: "NVMe", right: "M.2 or PCIe Slot" }, { left: "AHCI", right: "SATA Port" }, { left: "SCSI", right: "Legacy Parallel or SAS" }], explanation: "NVMe runs over PCIe; AHCI is for SATA; SCSI is legacy/enterprise server protocol.", hint: "Protocol roles." },
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the Maintenance Best Practice to its component.", pairs: [{ left: "ESD Wrist Strap", right: "Motherboard / Memory" }, { left: "Cable Management", right: "Case Airflow" }, { left: "S.M.A.R.T. Enable", right: "Drive Failure Warning" }], explanation: "ESD straps protect circuits; cable management aids cooling; S.M.A.R.T. provides health reporting.", hint: "Safety and health." },
 { tags: ["CORE1", "Hardware"], type: "match", question: "Match the Drive Component to its role.", pairs: [{ left: "Platter", right: "Storage Medium" }, { left: "Actuator", right: "Mechanical Movement" }, { left: "Controller", right: "Drive Logic / Firmware" }], explanation: "The platter holds the magnetic data; the actuator moves the arm; the controller manages operations.", hint: "Physical parts." },
@@ -2420,7 +2414,6 @@
 { tags: ["CORE1", "Troubleshooting"], type: "match", question: "Match the Network IP to the category.", pairs: [{ left: "169.254.x.x", right: "APIPA" }, { left: "127.0.0.1", right: "Loopback" }, { left: "192.168.x.x", right: "Private Class C" }], explanation: "IP addressing ranges provide immediate diagnostic information.", hint: "IP classes." },
 { tags: ["CORE1", "Troubleshooting"], type: "match", question: "Match the 2.4GHz Wi-Fi channel to the non-overlapping set.", pairs: [{ left: "Channel 1", right: "Set 1" }, { left: "Channel 6", right: "Set 2" }, { left: "Channel 11", right: "Set 3" }], explanation: "1, 6, and 11 are the only 2.4GHz channels that do not overlap.", hint: "Wi-Fi lanes." },
 { tags: ["CORE1", "Troubleshooting"], type: "match", question: "Match the PSU Wire color to its voltage.", pairs: [{ left: "Yellow", right: "+12V" }, { left: "Red", right: "+5V" }, { left: "Orange", right: "+3.3V" }], explanation: "Standard wire colors help in testing power rails.", hint: "PSU colors." },
-
     ]; 
 
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
@@ -2995,5 +2988,6 @@
 </script>
 </body>
 </html>
+
 
 
