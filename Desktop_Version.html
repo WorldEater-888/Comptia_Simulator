@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SYSTEM_ROOT_V19_HYBRID</title>
+    <title>SYSTEM_ROOT_V20_FINAL</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* V17 VARIABLES (Restored) */
+            /* GLOBAL VARS */
             --term-color: #0affba; 
             --term-dim: rgba(10, 255, 186, 0.4); 
             --split-1: #ff0000; 
@@ -22,7 +22,6 @@
             --sway-speed: 5s; 
         }
 
-        /* --- V17 CURSOR LOGIC (Restored) --- */
         html, body, * { cursor: none !important; }
 
         #custom-cursor {
@@ -33,8 +32,7 @@
             animation: cursor-flicker 0.05s infinite;
             z-index: 9999; pointer-events: none;
             transform: translate(-50%, -50%);
-            transition: width 0.1s, height 0.1s, border-color 0.2s, box-shadow 0.2s;
-            mix-blend-mode: screen;
+            transition: width 0.1s, height 0.1s; mix-blend-mode: screen;
         }
         @keyframes cursor-flicker {
             0% { opacity: 1; transform: translate(-50%, -50%) skewX(0deg); }
@@ -42,7 +40,6 @@
             100% { opacity: 1; transform: translate(-50%, -50%) skewX(0deg); }
         }
 
-        /* --- GLOBAL RESETS --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         ::-webkit-scrollbar { width: 8px; background: #000; }
@@ -60,7 +57,6 @@
             transition: color 0.4s ease, text-shadow 0.4s ease; 
         }
 
-        /* --- BACKGROUND FX (Restored V17) --- */
         .scan-line { position: fixed; left: 0; width: 100%; background: var(--term-color); opacity: 0.25; z-index: 600; pointer-events: none; box-shadow: 0 0 11px var(--term-color); }
         @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.35; } 100% { top: 110%; opacity: 0; } }
 
@@ -78,7 +74,6 @@
             animation: pulse-breath-erratic 4s infinite; 
         }
 
-        /* --- UI CONTAINER (Restored V17 Layout) --- */
         .terminal-window {
             width: 100%; max-width: 1000px; height: 100%; max-height: 95vh;
             border: 2px solid var(--term-color); 
@@ -103,7 +98,7 @@
             display: inline-block; font-weight: normal;
         }
 
-        /* --- V18 DASHBOARD INTEGRATION (The one you liked) --- */
+        /* --- DASHBOARD (New Layout + Old FX) --- */
         .sys-dashboard {
             display: grid; grid-template-columns: 2fr 1fr 2fr; /* Integrity | Stats | Temp */
             gap: 20px; align-items: end; margin-top: 5px;
@@ -112,43 +107,58 @@
         .dash-module { display: flex; flex-direction: column; gap: 4px; }
         .dash-label { font-size: 0.9rem; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; display: flex; justify-content: space-between; }
         
-        /* CHUNKY GAUGE STYLES */
+        /* GAUGE CONTAINER */
         .gauge-container {
-            width: 100%; height: 30px; /* Nice and chunky */
+            width: 100%; height: 30px;
             border: 2px solid var(--term-color); background: #000;
             position: relative; padding: 2px;
             box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            transition: border-color 0.2s;
         }
-        .gauge-container::after { /* Ruler Lines */
+        /* RULER LINES */
+        .gauge-container::after {
             content: " "; position: absolute; top:0; left:0; width: 100%; height: 100%; pointer-events: none;
             background: repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.1) 20px); z-index: 5;
         }
-        .gauge-fill {
-            height: 100%; background: var(--term-color); width: 100%;
+
+        /* INTEGRITY BAR (RESTORED FX) */
+        .integrity-fill {
+            height: 100%; width: 100%;
+            /* STRIPES RESTORED */
+            background: repeating-linear-gradient(90deg, var(--term-color), var(--term-color) 8px, transparent 8px, transparent 10px);
             box-shadow: 0 0 15px var(--term-color); position: relative; z-index: 2;
             transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            animation: health-pulse 1s infinite alternate;
         }
         
-        /* Temp Bar Specifics */
-        #temp-bar { width: 0%; transition: width 1s linear; /* Smooth creep */ }
-        
-        /* --- CENTER CLUSTER --- */
-        .ctrl-cluster { 
-            text-align: center; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; 
-            border-left: 1px solid var(--term-dim); border-right: 1px solid var(--term-dim);
+        /* DAMAGE FX RESTORED */
+        .integrity-critical .integrity-fill {
+             animation: crit-pulse 0.2s infinite !important;
+             background: repeating-linear-gradient(90deg, #ff0000, #ff0000 8px, transparent 8px, transparent 10px) !important;
+             box-shadow: 0 0 25px #ff0000 !important;
         }
-        .score-display { font-size: 1.8rem; font-weight: bold; line-height: 1; margin-bottom: 2px; }
+        .integrity-critical { border-color: #ff0000; }
 
-        /* --- STROBE FX --- */
+        .dmg-shock { animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
+        @keyframes damage-flash { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.05); filter: brightness(5) hue-rotate(180deg); } 100% { transform: scale(1); filter: brightness(1); } }
+        @keyframes health-pulse { 0% { opacity: 1; filter: brightness(1); } 100% { opacity: 0.8; filter: brightness(1.2); } }
+        @keyframes crit-pulse { 0% { filter: brightness(1); opacity: 1; box-shadow: 0 0 25px #ff0000; } 50% { filter: brightness(5); opacity: 0.8; box-shadow: 0 0 50px #ff0000; } 100% { filter: brightness(1); opacity: 1; box-shadow: 0 0 25px #ff0000; } }
+
+        /* TEMP BAR */
+        #temp-bar { 
+            width: 0%; height: 100%; background: var(--term-color);
+            transition: width 1s linear; /* Smooth creep */ 
+        }
+
+        /* STROBE FX */
         @keyframes temp-strobe {
             0% { background-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
             50% { background-color: #ffffff; box-shadow: 0 0 40px #ffffff; }
             100% { background-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
         }
         .strobe-active { animation: temp-strobe 0.15s infinite !important; }
-        .integrity-critical { animation: temp-strobe 0.5s infinite !important; }
 
-        /* --- DONATION BUTTONS (Restored + Added Coffee) --- */
+        /* --- BUTTONS --- */
         .donate-group { display: flex; gap: 6px; }
         .sys-btn {
             background: rgba(0, 0, 0, 0.8);
@@ -161,12 +171,18 @@
         
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
         .kofi-btn:hover { background: #ffd700; color: #000; box-shadow: 0 0 15px #ffd700; }
-        .bmc-btn { color: #FF813F; border-color: #FF813F; } /* NEW BUTTON */
+        .bmc-btn { color: #FF813F; border-color: #FF813F; }
         .bmc-btn:hover { background: #FF813F; color: #000; box-shadow: 0 0 15px #FF813F; }
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
         .kas-btn:hover { background: #70c7ba; color: #000; box-shadow: 0 0 15px #70c7ba; }
 
-        /* --- MENU & QUIZ STYLES (Restored V17) --- */
+        .ctrl-cluster { 
+            text-align: center; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; 
+            border-left: 1px solid var(--term-dim); border-right: 1px solid var(--term-dim);
+        }
+        .score-display { font-size: 1.8rem; font-weight: bold; line-height: 1; margin-bottom: 2px; }
+
+        /* --- MENU & LAYOUT --- */
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 5px; overflow-y: auto; padding-right: 5px; padding-bottom: 20px; }
         .btn { 
             background: rgba(0,0,0,0.5); border: 2px solid var(--term-color); color: var(--term-color); 
@@ -186,7 +202,8 @@
             display:flex; justify-content:space-between; align-items:center; 
             border-bottom: 1px solid var(--term-color); padding-bottom: 10px; margin-bottom: 20px; font-size: 1.3rem; flex-shrink: 0;
         }
-        
+
+        /* === RESTORED ORIGINAL QUESTION UI === */
         .question-box { 
             font-size: 1.8rem; line-height: 1.3; margin-bottom: 20px; min-height: 80px; 
             background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
@@ -195,16 +212,22 @@
             box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
         }
         
+        .options-list { display: flex; flex-direction: column; gap: 15px; }
+
         .option-btn { 
-            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); color: #ffffff !important; 
-            padding: 15px; font-family: 'VT323', monospace; font-size: 1.5rem; text-align: left; 
-            cursor: pointer; transition: 0.1s; position: relative; box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); 
+            color: #ffffff !important; padding: 15px; font-family: 'VT323', monospace; font-size: 1.5rem; text-align: left; 
+            cursor: pointer; transition: 0.1s; position: relative; overflow: hidden;
+            text-shadow: 0 0 2px rgba(255,255,255,0.5); backdrop-filter: blur(8px); 
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
         }
         .option-btn:hover { background: #fff !important; color: #000 !important; border-color: #fff; box-shadow: 0 0 40px #fff; transform: translate(-2px, -2px); }
         .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; box-shadow: 0 0 80px var(--term-color) !important; }
         .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 80px red !important; animation: answer-shake 0.4s; }
 
-        /* --- FOOTER & FLUFF --- */
+        .abort-btn { cursor:pointer; text-decoration:underline; font-weight: bold; color: #fff; transition: 0.2s; }
+        .abort-btn:hover { color: #ff0000; text-shadow: 0 0 15px #ff0000; }
+
         .hacker-footer {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 25px;
             background: rgba(0, 0, 0, 0.0); backdrop-filter: blur(2px);
@@ -213,7 +236,7 @@
         .ticker-content { white-space: nowrap; font-size: 0.8rem; color: var(--term-dim); animation: ticker-scroll 360s linear infinite; padding-left: 100%; }
         @keyframes ticker-scroll { 100% { transform: translateX(-100%); } }
 
-        /* --- ANIMATIONS (Restored) --- */
+        /* ANIMATIONS */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(2px, 1px); } }
         @keyframes answer-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
@@ -226,7 +249,6 @@
         .hex-dump { position: absolute; font-family: monospace; font-size: 14px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--glow-color); }
         .float-text { position: absolute; font-weight: bold; font-size: 2rem; pointer-events: none; animation: floatUp 2s forwards; z-index: 2000; }
         @keyframes floatUp { 100% { opacity: 0; transform: translateY(-50px) scale(1.2); } }
-        
         .hidden { display: none !important; }
         #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
     </style>
@@ -271,7 +293,7 @@
                     <span id="integrity-pct">100%</span>
                 </div>
                 <div class="gauge-container" id="integrity-cont">
-                    <div class="gauge-fill" id="integrity-bar" style="width: 100%;"></div>
+                    <div class="integrity-fill" id="integrity-bar" style="width: 100%;"></div>
                 </div>
             </div>
 
@@ -286,7 +308,7 @@
                     <span id="temp-val">0°C</span>
                 </div>
                 <div class="gauge-container" style="border-color: #fff;">
-                    <div class="gauge-fill" id="temp-bar"></div>
+                    <div class="gauge-fill" id="temp-bar" style="background:var(--term-color);"></div>
                 </div>
             </div>
         </div>
@@ -353,7 +375,7 @@
     <div id="quiz-ui" class="hidden quiz-container">
         <div class="quiz-header-bar">
             <div style="display:flex; gap: 20px;">
-                <span onclick="shutdownSystem()" onmouseenter="AudioEngine.playOptionHover()" style="cursor:pointer; text-decoration:underline; font-weight:bold; color:#fff;" class="abort-btn">< ABORT</span>
+                <span onclick="shutdownSystem()" onmouseenter="AudioEngine.playOptionHover()" class="abort-btn">< ABORT</span>
                 <span style="color:var(--term-color);">[COUNTDOWN]: <span id="session-timer" style="color:#fff; font-weight:bold;">90:00</span></span>
                 <span style="color:var(--term-color);">[PKT]: <span id="packet-counter" style="color:#fff; font-weight:bold;">00</span></span>
             </div>
@@ -383,7 +405,7 @@
 
 <div class="hacker-footer">
     <div class="ticker-content">
-        >> SYS_LOG_START [0x1A4F] >> INITIATING_CORE_DUMP... COMPTIA_SIMULATOR_HYBRID_V19... LOADING_MODULES... ALL_SYSTEMS_NOMINAL... 
+        >> SYS_LOG_START [0x1A4F] >> INITIATING_CORE_DUMP... COMPTIA_SIMULATOR_HYBRID_V20... LOADING_MODULES... ALL_SYSTEMS_NOMINAL... 
     </div>
 </div>
 
@@ -401,9 +423,9 @@
     let hudInterval = null; let sessionTime = 5400; 
     let questionsAttempted = 0; let questionsCorrect = 0; let currentStreak = 0;
 
-    /* ============================ AUDIO ENGINE (V17 Restored) ============================ */
+    /* ============================ AUDIO ENGINE (FIXED) ============================ */
     const AudioEngine = {
-        ctx: null, masterGain: null, isMuted: false, delayNode: null,
+        ctx: null, masterGain: null, isMuted: false, delayNode: null, isPlaying: false,
         init: function() {
             try {
                 const AC = window.AudioContext || window.webkitAudioContext;
@@ -415,7 +437,25 @@
                 this.delayNode.connect(fb); fb.connect(this.delayNode); this.delayNode.connect(this.masterGain);
                 if(this.ctx.state === 'suspended') this.ctx.resume();
                 this.playBoot();
+                this.startMusic(); // RESTORED
             } catch(e) {}
+        },
+        startMusic: function() { if(this.isPlaying) return; this.isPlaying = true; this.musicLoop(); },
+        musicLoop: function() {
+            if (!this.isPlaying || this.isMuted) return;
+            const now = this.ctx.currentTime;
+            const drone = this.ctx.createOscillator(); const droneGain = this.ctx.createGain();
+            drone.type = 'sine'; drone.frequency.value = 55; 
+            droneGain.gain.setValueAtTime(0.05, now); droneGain.gain.linearRampToValueAtTime(0, now + 6);
+            drone.connect(droneGain); droneGain.connect(this.masterGain); drone.start(now); drone.stop(now + 6);
+            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            osc.type = 'triangle'; const notes = [43.65, 55, 65.41, 73.42, 36.71]; 
+            osc.frequency.value = notes[Math.floor(Math.random() * notes.length)];
+            osc.detune.value = Math.random() * 20 - 10;
+            g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.2, now + 2); g.gain.linearRampToValueAtTime(0, now + 7); 
+            osc.connect(g); g.connect(this.masterGain); g.connect(this.delayNode);
+            osc.start(now); osc.stop(now + 7);
+            setTimeout(() => this.musicLoop(), 4500); 
         },
         playSFX: function(type) {
             if(!this.ctx || this.isMuted) return;
@@ -449,7 +489,7 @@
         }
     };
 
-    /* ============================ VISUAL FX (V17 Restored) ============================ */
+    /* ============================ VISUAL FX ============================ */
     function spawnScanline() {
         if(isDead) return;
         const line = document.createElement('div'); line.className = 'scan-line';
@@ -501,7 +541,6 @@
         update();
     }
 
-    // MATRIX RAIN (Restored V17)
     const canvas = document.getElementById('matrix-canvas'); const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     const drops = Array(Math.floor(canvas.width / 14)).fill(1);
@@ -519,7 +558,7 @@
     }
     drawRain();
 
-    /* ============================ CURSOR LOGIC (V17) ============================ */
+    /* ============================ CURSOR LOGIC ============================ */
     const cursor = document.getElementById('custom-cursor');
     document.addEventListener('mousemove', (e) => {
         cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
@@ -532,7 +571,7 @@
         }
     });
 
-    /* ============================ GAME LOGIC (Merged) ============================ */
+    /* ============================ GAME LOGIC ============================ */
     function bootSystem() {
         document.getElementById('start-overlay').style.display = 'none';
         AudioEngine.init(); 
@@ -558,7 +597,6 @@
             let mins = Math.floor(sessionTime / 60); let secs = sessionTime % 60;
             document.getElementById('session-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
-            // TEMP GAUGE LOGIC (From V18: Smooth Creep)
             if (document.getElementById('next-btn').classList.contains('hidden')) {
                 if (tempLevel < TEMP_MAX) tempLevel++;
                 updateTempVisuals();
@@ -572,7 +610,6 @@
         const val = document.getElementById('temp-val');
         const pct = tempLevel / TEMP_MAX;
         
-        // CSS Transition handles smooth width
         bar.style.width = `${pct * 100}%`;
         val.innerText = `${tempLevel * 2}°C`; 
         
@@ -640,7 +677,6 @@
         const qEl = document.getElementById('q-text'); 
         scrambleText(qEl, window.currentQ.question, 600);
 
-        // Simple render logic (expanded in full version but simplified here for space)
         document.getElementById('opts-list').style.display = 'flex'; 
         renderMCQ(window.currentQ);
     }
@@ -665,6 +701,9 @@
         } else {
             btn.classList.add('wrong'); integrity -= 15; currentStreak = 0;
             AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
+            // DAMAGE FLASH
+            const cont = document.getElementById('integrity-cont');
+            cont.classList.remove('dmg-shock'); void cont.offsetWidth; cont.classList.add('dmg-shock');
         }
         
         document.getElementById('explanation-box').style.display = 'block';
@@ -699,7 +738,7 @@
     const MASTER_DATABASE = [
         { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
         { tags: ["CORE1", "Networking"], question: "Which port does SSH use?", options: ["21", "22", "23", "80"], answer: 1, explanation: "SSH uses port 22." }
-    ]; // (Truncated for space, assume full DB)
+    ];
 
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
     
