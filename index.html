@@ -318,6 +318,42 @@
         .fail-restart-btn { background: rgba(255, 0, 0, 0.3) !important; border-color: red !important; color: #fff !important; position: relative; margin-top:20px; animation: stress-shake 0.8s infinite !important; }
         .hidden { display: none !important; }
 
+        /* --- HACKER FOOTER (ADSENSE TICKER) --- */
+.hacker-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    background: #000;
+    border-top: 2px solid var(--term-color); /* Ties to your game color */
+    overflow: hidden;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.8);
+}
+
+.ticker-content {
+    display: inline-block;
+    white-space: nowrap;
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    color: var(--term-color); /* Ties to game color */
+    text-shadow: 0 0 5px var(--glow-color); /* Ties to game glow/integrity */
+    animation: ticker-scroll 40s linear infinite;
+    padding-left: 100%; /* Starts off-screen */
+}
+
+/* Hover pauses the scroll so humans can read it */
+.hacker-footer:hover .ticker-content {
+    animation-play-state: paused;
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
     </style>
 </head>
 <body class="glitch-active">
@@ -458,6 +494,23 @@
         <h1 class="fail-text">CORRUPTION</h1>
         <p style="font-size: 2rem; color: #ccffff;"> _ALL_IS_LOST_</p>
         <button class="nav-btn fail-restart-btn" onclick="AudioEngine.playMenuHover(); location.reload()">>> PURGE_SYSTEM</button>
+    </div>
+                <div class="donate-group">
+    <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[SUPPORT]</button>
+    <button class="sys-btn bmc-btn" onclick="AudioEngine.playMenuHover(); window.open('https://buymeacoffee.com/comptia_simulator', '_blank')">[COFFEE]</button>
+    <button class="sys-btn kas-btn" onclick="AudioEngine.playMenuHover(); showCrypto()">[KAS]</button>
+</div>
+       <div class="hacker-footer">
+    <div class="ticker-content">
+        >> SYS_LOG_START [0x1A4F] >> INITIATING_CORE_DUMP... 
+        [ MODULE_01: OVERVIEW ] This browser-based terminal simulator serves as a comprehensive training environment for Information Technology professionals preparing for industry-standard certifications including CompTIA A+ Core 1 (220-1101), Core 2 (220-1102), Network+ (N10-008), and Security+ (SY0-601). Unlike static flashcards, this utility simulates a live operating system under stress to test candidate recall on critical concepts. 
+        [ MODULE_02: HARDWARE_ARCHITECTURE ] System validates knowledge of physical components including RAID array configurations (RAID 0, 1, 5, 10), RAM form factors (SODIMM vs DIMM), and storage interface protocols (NVMe, SATA, M.2). Peripheral management logic covers laser printer maintenance (fusers, rollers, calibration) and cable standards (Cat5e vs Cat6a, HDMI, DisplayPort, USB-C throughput). 
+        [ MODULE_03: NETWORKING_STACK ] Network infrastructure analysis is a primary function. Users must demonstrate proficiency in TCP/IP addressing, subnet masking, and common protocol ports (HTTP 80, HTTPS 443, SSH 22, DNS 53, RDP 3389). Wireless standards (802.11ax/ac/n) and security encryption (WPA2 vs WPA3-Personal/Enterprise) are rigorously simulated. Command line utilities such as ipconfig, ping, tracert, and netstat are integrated into the Performance Based Question (PBQ) engine. 
+        [ MODULE_04: SECURITY_VECTORS ] The security module simulates threat vectors including social engineering, malware analysis (Ransomware, Trojans, Rootkits, Keyloggers), and physical security controls (Biometrics, Smart Cards). Governance concepts like Least Privilege, Separation of Duties, and MDM (Mobile Device Management) policies are enforced through scenario-based logic gates. 
+        [ MODULE_05: OPERATIONAL_PROCEDURES ] Change management, disaster recovery, incident response documentation, and safety procedures (ESD protection, MSDS handling) are queried to ensure holistic technician readiness. 
+        [ MODULE_06: VIRTUALIZATION_CLOUD ] Cloud computing concepts including IaaS, SaaS, PaaS, and client-side virtualization (Hypervisors Type 1 & 2) are emulated to modern standards. 
+        >> DISCLAIMER: THIS_PROJECT_IS_AN_INDEPENDENT_STUDY_TOOL_AND_IS_NOT_AFFILIATED_WITH_COMPTIA. COMPTIA_IS_A_REGISTERED_TRADEMARK_OF_THE_COMPUTING_TECHNOLOGY_INDUSTRY_ASSOCIATION. 
+        >> END_LOG [0xFF] >> COPYRIGHT_2025_WORLDEATER888 >> WAITING_FOR_INPUT...
     </div>
 </div>
 
@@ -2980,6 +3033,7 @@
 </script>
 </body>
 </html>
+
 
 
 
