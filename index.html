@@ -530,9 +530,6 @@
     let questionsAttempted = 0; let isDead = false;
     let hudInterval = null; let sessionTime = 5400; let tempLevel = 0;
     const TEMP_MAX = 60;
-    let matchState = { selected: null, pairsFound: 0 };
-let tagStats = {};   // <--- PASTE THIS NEW LINE HERE
-let qQueue = []; let currentScore = 0; window.integrity = 100;
     
     /* === MASTER TAG REFERENCE ===
        Ensure your MASTER_DATABASE questions use these exact tag combinations.
@@ -2711,7 +2708,6 @@ let qQueue = []; let currentScore = 0; window.integrity = 100;
     
     function resetGame() {
         currentScore = 0; integrity = 100; tempLevel = 0; isDead = false; questionsCorrect = 0; questionsAttempted = 0;
-        tagStats = {};
         document.getElementById('fail-ui').classList.remove('fail-visible'); 
         updateSystemState();
     }
@@ -2870,17 +2866,6 @@ let qQueue = []; let currentScore = 0; window.integrity = 100;
     }
 
     function processResult(isCorrect, btn) {
-        // --- START TRACKING CODE ---
-        const qTags = window.currentQ.tags;
-        qTags.forEach(tag => {
-            // Filter out the main exam names so we only see topics (like "Hardware")
-            if(tag === 'CORE1' || tag === 'CORE2' || tag === 'NET' || tag === 'SEC') return;
-
-            if(!tagStats[tag]) tagStats[tag] = { correct: 0, total: 0 };
-            tagStats[tag].total++;
-            if(isCorrect) tagStats[tag].correct++;
-        });
-        // --- END TRACKING CODE ---
         questionsAttempted++;
         document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
         document.getElementById('pbq-submit-btn').style.display = 'none';
@@ -2939,48 +2924,11 @@ let qQueue = []; let currentScore = 0; window.integrity = 100;
     function finish() {
         document.getElementById('quiz-ui').classList.add('hidden');
         document.getElementById('results-ui').classList.remove('hidden');
-        
-        // 1. Calculate Overall Percentage
-        let pct = 0; 
-        if(questionsAttempted > 0) pct = Math.floor((questionsCorrect/questionsAttempted)*100);
-        
-        // 2. Animate the Big Number
-        let i = 0; 
-        const interval = setInterval(() => {
+        let pct = 0; if(questionsAttempted > 0) pct = Math.floor((questionsCorrect/questionsAttempted)*100);
+        let i = 0; const interval = setInterval(() => {
             document.getElementById('final-percent').innerText = `${i}%`;
-            if (i >= pct) clearInterval(interval); 
-            i++;
+            if (i >= pct) clearInterval(interval); i++;
         }, 20);
-
-        // 3. Generate the Breakdown
-        const container = document.getElementById('breakdown-container');
-        container.innerHTML = '<h3 style="border-bottom:1px dashed #0affba; padding-bottom:5px;">> MODULE_ANALYSIS:</h3>';
-        
-        if (Object.keys(tagStats).length === 0) {
-            container.innerHTML += '<p>[NO_DATA_GENERATED]</p>';
-        } else {
-            for (const [tag, stat] of Object.entries(tagStats)) {
-                const tagPct = Math.floor((stat.correct / stat.total) * 100);
-                
-                // Color logic: Green = Good, Yellow = Okay, Red = Bad
-                let color = '#ff0000'; 
-                if (tagPct >= 70) color = '#ffff00'; 
-                if (tagPct >= 90) color = '#0affba'; 
-
-                const html = `
-                    <div style="margin-bottom: 15px; font-family: 'VT323', monospace; font-size: 1.2rem;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom: 2px;">
-                            <span>${tag.toUpperCase()}</span>
-                            <span style="color:${color}">${tagPct}% (${stat.correct}/${stat.total})</span>
-                        </div>
-                        <div style="width: 100%; background: #222; height: 12px; border: 1px solid #555;">
-                            <div style="width: ${tagPct}%; background: ${color}; height: 100%; box-shadow: 0 0 5px ${color};"></div>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-            }
-        }
     }
     
     function shutdownSystem() { location.reload(); }
@@ -2992,7 +2940,5 @@ let qQueue = []; let currentScore = 0; window.integrity = 100;
 </script>
 </body>
 </html>
-
-
 
 
