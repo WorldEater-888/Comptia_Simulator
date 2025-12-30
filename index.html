@@ -7,9 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
-        /* ================================================================================== */
-        /* ============================   CSS: THEME & GLOBALS   ============================ */
-        /* ================================================================================== */
         :root {
             /* COLORS */
             --term-color: #0affba;       /* Neon Mint */
@@ -54,9 +51,7 @@
             transition: color 0.5s ease;
         }
 
-        /* ================================================================================== */
-        /* ============================   CSS: CRT & BACKGROUND  ============================ */
-        /* ================================================================================== */
+        /* --- CRT EFFECTS --- */
         .scan-line {
             position: fixed;
             left: 0; width: 100%;
@@ -100,9 +95,7 @@
             animation: pulse-breath-erratic 2s infinite; 
         }
 
-        /* ================================================================================== */
-        /* ============================   CSS: TERMINAL WINDOW   ============================ */
-        /* ================================================================================== */
+        /* --- TERMINAL WINDOW --- */
         .terminal-window {
             width: 100%; height: 100%;
             border: none;
@@ -142,11 +135,10 @@
         }
         @keyframes blink-cursor { 0% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* --- RARE STATIC JITTER (FIXED) --- */
-        /* mostly stable, rare glitch */
+        /* --- RARE STATIC JITTER --- */
         @keyframes rare-static {
             0%, 96% { opacity: 1; transform: translate(0,0); text-shadow: 0 0 5px currentColor; }
-            97% { opacity: 0.9; transform: translate(1px, 0); text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff; } /* Quick chromatic aberration */
+            97% { opacity: 0.9; transform: translate(1px, 0); text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff; }
             98% { transform: translate(-1px, 1px); }
             99% { transform: translate(0,0); opacity: 1; }
             100% { transform: translate(0,0); }
@@ -160,7 +152,7 @@
             cursor: pointer; padding: 4px 8px; border: 1px solid;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.5); transition: all 0.2s ease;
             text-transform: uppercase;
-            animation: rare-static 4s infinite; /* Long cycle for rareness */
+            animation: rare-static 4s infinite; 
         }
         .sys-btn:active { transform: translate(1px, 1px); box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
         .kofi-btn { color: #ffd700; border-color: #ffd700; }
@@ -178,31 +170,20 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         
-        /* --- PURPLE PHOSPHORUS TRAIL (The "Ghost") --- */
         .integrity-ghost {
             position: absolute; top: 1px; left: 1px; bottom: 1px;
-            background: #bc13fe; /* Purple Phosphorus */
+            background: #bc13fe; 
             box-shadow: 0 0 10px #bc13fe;
-            width: 100%; 
-            pointer-events: none; z-index: 1; /* Behind the main bar */
-            
-            /* SLOW FADE: This creates the "After Image" effect */
-            /* Width changes slowly (1.5s), Opacity changes slowly */
+            width: 100%; pointer-events: none; z-index: 1; 
             transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.5s ease-out; 
         }
 
-        /* --- MAIN BAR (Neon Mint) --- */
         .integrity-fill {
-            position: relative; z-index: 2; /* On top */
-            height: 100%; background: var(--term-color);
-            box-shadow: 0 0 5px var(--term-color);
-            width: 100%;
-            
-            /* INSTANT DROP: Moves faster than the ghost to reveal the trail */
+            position: relative; z-index: 2; height: 100%; background: var(--term-color);
+            box-shadow: 0 0 5px var(--term-color); width: 100%;
             transition: width 0.1s linear; 
         }
         
-        /* Only pulse the BORDER on critical, not the fill */
         .integrity-critical { 
             animation: crit-border-pulse 0.2s infinite !important; background: rgba(0,0,0,0.8) !important;
         }
@@ -225,23 +206,16 @@
             border: 1px solid var(--term-color); color: inherit; padding: 2px 5px; cursor: pointer; position: relative; overflow: hidden; transition: 0.2s;
         }
 
-        /* ================================================================================== */
-        /* ============================   CSS: MENU & BUTTONS    ============================ */
-        /* ================================================================================== */
+        /* --- MENUS --- */
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
 
         .btn { 
             background: rgba(0,0,0,0.6); border: 1px solid var(--term-color); color: var(--term-color); 
             font-family: 'VT323', monospace; font-size: 1.4rem; padding: 12px 15px; cursor: pointer; text-align: left; 
             transition: 0.2s; position: relative; overflow: hidden; opacity: 0; transform: translateY(10px); 
-            
-            /* Enhanced Edge Glow */
             box-shadow: 0 0 8px var(--term-color), inset 0 0 8px rgba(10, 255, 186, 0.2);
             text-shadow: 0 0 5px var(--glow-color);
-            
-            /* RARE STATIC */
-            animation: rare-static 5s infinite;
-            animation-delay: 0.5s; /* Offset */
+            animation: rare-static 5s infinite; animation-delay: 0.5s;
         }
 
         .btn.visible { opacity: 0.8 !important; transform: translateY(0); }
@@ -251,40 +225,22 @@
         }
         .btn:active { background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; transform: translate(-1px, -1px) !important; }
         
-        /* EXAM BUTTON SPECIFIC - BRIGHTER NEON RED */
         .btn.exam-mode { 
-            border-color: #ff0000; 
-            background-color: #ff0000 !important; /* CHANGED from #cc0000 to #ff0000 */
-            color: #ffffff !important; 
-            text-shadow: 0 0 10px #fff; /* Increased text glow */
-            
-            /* Increased box-shadow glow for brightness */
-            box-shadow: 0 0 25px #ff0000, inset 0 0 15px rgba(255, 255, 255, 0.4);
+            border-color: #ff0000; background-color: #ff0000 !important; color: #ffffff !important; 
+            text-shadow: 0 0 10px #fff; box-shadow: 0 0 25px #ff0000, inset 0 0 15px rgba(255, 255, 255, 0.4);
         }
-        
-        .btn.exam-mode:hover {
-            background-color: #ff3333 !important; /* Even lighter on hover */
-            box-shadow: 0 0 40px #ff0000, inset 0 0 25px rgba(255, 255, 255, 0.6);
-        }
-        
-        .btn.exam-mode:active { 
-            background: #fff !important; 
-            color: #ff0000 !important; 
-            box-shadow: 0 0 80px #ff0000; 
-        }
+        .btn.exam-mode:hover { background-color: #ff3333 !important; box-shadow: 0 0 40px #ff0000, inset 0 0 25px rgba(255, 255, 255, 0.6); }
+        .btn.exam-mode:active { background: #fff !important; color: #ff0000 !important; box-shadow: 0 0 80px #ff0000; }
 
         .nav-btn { 
             position: fixed; bottom: 15px; left: 10px; width: calc(100% - 20px); font-weight: bold; text-align: center; 
             background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500; text-transform: uppercase;
-            
-            animation: rare-static 7s infinite; /* Even rarer */
+            animation: rare-static 7s infinite;
         }
         .nav-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 40px var(--term-color); }
 
-        /* ================================================================================== */
-        /* ============================   CSS: QUIZ ELEMENTS     ============================ */
-        /* ================================================================================== */
+        /* --- QUIZ --- */
         .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; }
         .quiz-header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem; }
         .question-box { 
@@ -299,7 +255,6 @@
             background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); color: #ffffff !important; padding: 12px; 
             font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; cursor: pointer; position: relative;
             box-shadow: 0 0 8px var(--term-color), inset 0 0 5px rgba(255,255,255,0.1);
-            
             animation: rare-static 6s infinite;
         }
         .option-btn:active { background: #fff !important; padding-left: 15px; color: #000 !important; border-color: #fff; box-shadow: 0 0 40px #fff; }
@@ -317,9 +272,7 @@
         .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
 
-        /* ================================================================================== */
-        /* ============================   CSS: ANIMATIONS        ============================ */
-        /* ================================================================================== */
+        /* --- ANIMATIONS --- */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         @keyframes stress-shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } }
         @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
@@ -403,7 +356,7 @@
             </div>
             <div style="text-align: right;">
                  <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">SYNC: 0</div>
-                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO: ON]</button>
+                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO SCRUB: ON]</button>
             </div>
         </div>
     </div>
@@ -426,7 +379,6 @@
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Hardware')">[C] HARDWARE</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Cloud')">[D] VIRT_CLOUD</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Troubleshoot')">[E] TROUBLESHOOTING</button>
-            
             <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE1')"><span>[X] EXAM_SIMULATION</span></button>
             <button class="btn" style="border-color: #fff; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3);" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
         </div>
@@ -437,9 +389,8 @@
         <div class="menu-grid">
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'OS')">[A] OS_CONCEPTS</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Security')">[B] SECURITY</button>
-            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Software')">[C] SOFTWARE_TRBL</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Software')">[C] SOFTWARE</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Ops')">[D] OPS_PROCEDURES</button>
-            
             <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE2')"><span>[X] EXAM_SIMULATION</span></button>
             <button class="btn" style="border-color: #fff; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3);" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
         </div>
@@ -452,8 +403,7 @@
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Implement')">[B] IMPLEMENTATION</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Ops')">[C] OPERATIONS</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Security')">[D] SECURITY</button>
-             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Troubleshoot')">[E] TROUBLESHOOTING</button>
-            
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Troubleshoot')">[E] TROUBLESHOOTING</button>
             <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('NET')"><span>[X] EXAM_SIMULATION</span></button>
             <button class="btn" style="border-color: #fff; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3);" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
         </div>
@@ -467,7 +417,6 @@
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Arch')">[C] ARCHITECTURE</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Ops')">[D] SECURITY_OPS</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Mgmt')">[E] MGMT_GOVERNANCE</button>
-            
             <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('SEC')"><span>[X] EXAM_SIMULATION</span></button>
             <button class="btn" style="border-color: #fff; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3);" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
         </div>
@@ -495,16 +444,14 @@
     </div>
 
     <div id="fail-ui">
-        <h1 class="fail-text">CORRUPTION</h1>
-        <p style="font-size: 2rem; color: #ccffff;"> _ALL_IS_LOST_</p>
+        <h1 class="fail-text">SYSTEM_CORRUPTED</h1>
+        <p style="font-size: 1.3rem; color: #ccffff;"> _ALL_IS_LOST_</p>
         <button class="nav-btn fail-restart-btn" onclick="AudioEngine.playMenuHover(); location.reload()">>> PURGE_SYSTEM</button>
     </div>
 </div>
 
 <script>
-    /* ================================================================================== */
-    /* ============================   JS: AUDIO ENGINE       ============================ */
-    /* ================================================================================== */
+    /* AUDIO ENGINE */
     const AudioEngine = {
         ctx: null, masterGain: null, delayNode: null, isPlaying: false, isMuted: false, 
         init: function() {
@@ -559,9 +506,7 @@
         }
     };
 
-    /* ================================================================================== */
-    /* ============================   JS: DATABASE & GLOBALS ============================ */
-    /* ================================================================================== */
+    /* VARS */
     let matchState = { selected: null, pairsFound: 0 };
     let qQueue = []; let currentScore = 0; window.integrity = 100;
     let explainTimer = null; let questionsCorrect = 0;
@@ -569,18 +514,38 @@
     let hudInterval = null; let sessionTime = 5400; let tempLevel = 0;
     const TEMP_MAX = 60;
     
-    /* PASTE YOUR QUESTIONS HERE 
-       FORMAT: { id:1, tags:['CORE1', 'Mobile'], type:'mcq', question:'...', options:[...], answer:0, explanation:'...' }
-    */
+    /* DATABASE */
     const MASTER_DATABASE = [
-        
-    ]; 
+        { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses)." },
+        { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity." },
+        { tags: ["CORE1", "Hardware"], question: "A projector's image is flickering. What is the most likely cause?", options: ["Bulb life ending", "Loose cable", "Keystone setting", "Incompatible resolution"], answer: 1, explanation: "Flickering is often caused by a loose VGA or HDMI cable connection. A dying bulb usually dims." },
+        { tags: ["CORE1", "Hardware"], type: "match", question: "Match the cable standard to its maximum transfer speed.", pairs: [ { left: "Cat 5e", right: "1 Gbps" }, { left: "Cat 6a", right: "10 Gbps" }, { left: "USB 2.0", right: "480 Mbps" }, { left: "Thunderbolt 3", right: "40 Gbps" } ], explanation: "Cat5e is limited to 1Gbps. Cat6a supports 10Gbps up to 100m. USB 2.0 is 480Mbps. Thunderbolt 3 creates a massive 40Gbps pipe." },
+        { tags: ["CORE1", "Hardware"], question: "A technician is applying thermal paste to a CPU during a new build. Which of the following describes the primary function of this material?", options: ["To glue the heatsink to the processor permanently", "To fill microscopic air gaps between the CPU lid and the heatsink", "To provide electrical insulation to the CPU pins", "To cool the CPU using active airflow"], answer: 1, explanation: "The purpose of thermal paste is to fill microscopic air gaps between the CPU lid and the heatsink base. Air is a thermal insulator, while the paste is a thermal conductor, ensuring efficient heat transfer." },
+        { tags: ["CORE1", "Hardware"], question: "Which specific DC voltage rail is primarily used to power high-load components such as motors in hard drives, fans, and the CPU?", options: ["3.3 Volts", "5 Volts", "12 Volts", "115 Volts"], answer: 2, explanation: "The 12 Volt (12V) rail is used for high-power components like motors (fans/drives) and the CPU/GPU." },
+        { tags: ["CORE1", "Networking"], question: "A user can print to a local printer but cannot access the internet. What is the likely issue?", options: ["DNS Server", "Gateway Address", "DHCP Scope", "Loopback"], answer: 1, explanation: "The Gateway address directs traffic outside the local network. Without it, local traffic works, but internet fails." },
+        { tags: ["CORE1", "Networking"], question: "Which port does SSH use by default?", options: ["21", "22", "23", "80"], answer: 1, explanation: "SSH (Secure Shell) uses port 22. Telnet uses 23, FTP uses 21." },
+        { tags: ["CORE1", "Networking"], question: "Which 802.11 standard operates strictly at 5GHz?", options: ["802.11a", "802.11b", "802.11g", "802.11n"], answer: 0, explanation: "Legacy 802.11a operates only on 5GHz. 802.11ac also is 5GHz, but 'n' and 'ax' can do both." },
+        { tags: ["CORE1", "Networking"], type: "terminal", question: " A user cannot access the internet. You suspect a DNS issue. Enter the command to clear the local DNS resolver cache.", validCommands: ["ipconfig /flushdns", "ipconfig/flushdns"], hint: "The command starts with 'ipconfig' followed by a switch to 'flush' the data.", explanation: "The 'ipconfig /flushdns' command purges the local DNS resolver cache, forcing the computer to request new records from the DNS server." },
+        { tags: ["CORE1", "Mobile"], question: "What is the most secure screen lock method?", options: ["Biometric/Passcode", "Pattern", "Swipe", "None"], answer: 0, explanation: "Biometrics backed by a complex alphanumeric passcode provides the highest consumer-level security." },
+        { tags: ["CORE1", "Mobile"], question: "Which component in a mobile device is responsible for changing screen orientation?", options: ["Gyroscope/Accelerometer", "Digitizer", "Inverter", "Magnetometer"], answer: 0, explanation: "The gyroscope and accelerometer detect physical movement and orientation changes." },
+        { tags: ["CORE1", "Mobile"], question: "A laptop battery is swollen. What should the technician do?", options: ["Puncture it", "Freeze it", "Replace immediately", "Compress it"], answer: 2, explanation: "Swollen batteries are a fire hazard (lithium-ion). They must be replaced and disposed of properly immediately." },
+        { tags: ["CORE1", "Cloud"], question: "Which hypervisor runs directly on hardware (Bare Metal)?", options: ["Type 1", "Type 2", "VDI", "Container"], answer: 0, explanation: "Type 1 hypervisors (like ESXi or Hyper-V) run directly on the hardware without an underlying OS." },
+        { tags: ["CORE1", "Cloud"], question: "A company rents software hosted by a vendor (e.g., Salesforce). What model is this?", options: ["IaaS", "PaaS", "SaaS", "DaaS"], answer: 2, explanation: "SaaS (Software as a Service) provides fully hosted applications to end users." },
+        { tags: ["CORE2", "OS"], question: "Which Windows command line tool is used to manage disk partitions?", options: ["Diskpart", "Format", "Chkdsk", "Defrag"], answer: 0, explanation: "Diskpart is the command-line utility for managing drives, partitions, and volumes." },
+        { tags: ["CORE2", "OS"], question: "A user needs to run a program as Administrator. Which option should they use?", options: ["Run as Service", "Run as Administrator", "Compatibility Mode", "Safe Mode"], answer: 1, explanation: "Right-clicking and selecting 'Run as Administrator' elevates privileges for that specific session." },
+        { tags: ["CORE2", "Security"], question: "What is the principle of granting only the permissions needed to do a job?", options: ["Least Privilege", "Separation of Duties", "Job Rotation", "Implicit Deny"], answer: 0, explanation: "Least Privilege ensures users have only the bare minimum access rights required for their role." },
+        { tags: ["CORE2", "Security"], question: "Which type of malware demands payment to unlock files?", options: ["Worm", "Trojan", "Ransomware", "Spyware"], answer: 2, explanation: "Ransomware encrypts user data and demands payment (crypto) for the decryption key." },
+        { tags: ["NET", "Ops"], type: "terminal", question: " You need to trace the route packets take to google.com to identify a failed hop. Enter the command.", validCommands: ["tracert google.com", "traceroute google.com"], hint: "In Windows, the command is 'tracert'. In Linux, it's 'traceroute'.", explanation: "Tracert (Windows) or Traceroute (Linux/Mac) maps the hops packets take to a destination." },
+        { tags: ["NET", "Fundamentals"], question: "Which layer of the OSI model handles routing (IP addresses)?", options: ["Layer 2", "Layer 3", "Layer 4", "Layer 7"], answer: 1, explanation: "Layer 3 is the Network Layer, where routers and IP addressing operate." },
+        { tags: ["NET", "Fundamentals"], question: "What is the decimal equivalent of the binary number 1010?", options: ["8", "10", "12", "16"], answer: 1, explanation: "8 (1) + 0 + 2 (1) + 0 = 10." },
+        { tags: ["SEC", "Attacks"], question: "What type of attack embeds malicious script into a trusted website?", options: ["SQL Injection", "XSS (Cross-Site Scripting)", "Buffer Overflow", "Bluejacking"], answer: 1, explanation: "XSS involves injecting malicious scripts that execute in the victim's browser." },
+        { tags: ["SEC", "Attacks"], question: "Which attack relies on guessing passwords using a predefined list of words?", options: ["Brute Force", "Dictionary Attack", "Rainbow Table", "Spraying"], answer: 1, explanation: "A Dictionary Attack uses a list of common words. Brute force tries every combination." },
+        { tags: ["CORE1", "Hardware"], question: "Which component of a liquid cooling system is responsible for exchanging heat from the hot liquid to the air using fans?", options: ["Water Block", "Reservoir", "Radiator", "Pump"], answer: 2, explanation: "The Radiator acts as the heat exchanger where fans blow air through fins to cool the liquid down before it returns to the components." },
+    ];
 
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
 
-    /* ================================================================================== */
-    /* ============================   JS: VISUAL FX          ============================ */
-    /* ================================================================================== */
+    /* --- VISUALS --- */
     function spawnScanline() {
         if(isDead) return;
         const line = document.createElement('div'); line.className = 'scan-line';
@@ -691,7 +656,7 @@
         type();
     }
 
-    /* HEADER JACKPOT */
+    /* --- HEADER JACKPOT (FIXED) --- */
     let typeWriterTimeouts = [];
     
     function clearTypewriter() {
@@ -734,9 +699,7 @@
         addChar();
     }
 
-    /* ================================================================================== */
-    /* ============================   JS: GAME STATE         ============================ */
-    /* ================================================================================== */
+    /* HUD */
     function startHUD() {
         if (hudInterval) clearInterval(hudInterval);
         hudInterval = setInterval(() => {
@@ -745,7 +708,7 @@
             let mins = Math.floor(sessionTime / 60); let secs = sessionTime % 60;
             document.getElementById('session-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
             
-            // FIXED TEMP LOGIC
+            // FIXED TEMP LOGIC: 1 SECOND UPDATES (60s total to max)
             if (document.getElementById('next-btn').classList.contains('hidden')) {
                 if (tempLevel < TEMP_MAX) tempLevel++;
                 updateTempVisuals();
@@ -774,6 +737,7 @@
         }
     }
 
+    /* SYSTEM LOGIC */
     function bootSystem() {
         document.getElementById('start-overlay').style.display = 'none';
         AudioEngine.init(); 
@@ -893,62 +857,38 @@
         document.getElementById('pbq-submit-btn').style.display = 'none';
         if (q.type === 'terminal' || q.type === 'match') renderPBQ(q); else renderMCQ(q);
     }
-/* ========================================= */
-    /* JS: HINT SYSTEM                    */
-    /* ========================================= */
-    function renderHint(q, targetContainer) {
-        // If the question has no hint, do nothing
-        if (!q.hint) return;
 
+    /* --- HINT SYSTEM (NEW) --- */
+    function renderHint(q, targetContainer) {
+        if (!q.hint) return;
         const hintWrap = document.createElement('div');
-        hintWrap.style.marginTop = "20px"; 
-        hintWrap.style.borderTop = "1px dashed #555"; 
-        hintWrap.style.paddingTop = "10px";
-        hintWrap.style.width = "100%";
+        hintWrap.style.marginTop = "20px"; hintWrap.style.borderTop = "1px dashed #555"; hintWrap.style.paddingTop = "10px"; hintWrap.style.width = "100%";
 
         const hintBtn = document.createElement('button');
-        hintBtn.className = 'sys-btn';
-        hintBtn.innerText = '[ DECRYPT_HINT ]';
-        // Yellow styling for "Data" feel
-        hintBtn.style.color = "#ffff00"; 
-        hintBtn.style.borderColor = "#ffff00"; 
-        hintBtn.style.width = "100%";
+        hintBtn.className = 'sys-btn'; hintBtn.innerText = '[ DECRYPT_HINT ]';
+        hintBtn.style.color = "#ffff00"; hintBtn.style.borderColor = "#ffff00"; hintBtn.style.width = "100%";
         
         const hintMsg = document.createElement('div');
         hintMsg.innerText = ">> DATA_MINED: " + q.hint;
-        hintMsg.style.display = "none"; 
-        hintMsg.style.color = "#ffff00";
-        hintMsg.style.fontFamily = "'Press Start 2P', cursive"; 
-        hintMsg.style.fontSize = "0.7rem"; 
-        hintMsg.style.lineHeight = "1.5"; 
-        hintMsg.style.marginTop = "10px";
+        hintMsg.style.display = "none"; hintMsg.style.color = "#ffff00";
+        hintMsg.style.fontFamily = "'Press Start 2P', cursive"; hintMsg.style.fontSize = "0.7rem"; hintMsg.style.lineHeight = "1.5"; hintMsg.style.marginTop = "10px";
         hintMsg.style.animation = "text-pulse-glow 3s infinite alternate"; 
         
         hintBtn.onclick = () => {
-            AudioEngine.playSFX('click'); 
-            hintBtn.style.display = 'none'; 
-            hintMsg.style.display = 'block';
+            AudioEngine.playSFX('click'); hintBtn.style.display = 'none'; hintMsg.style.display = 'block';
         };
-
-        hintWrap.appendChild(hintBtn);
-        hintWrap.appendChild(hintMsg);
-        targetContainer.appendChild(hintWrap);
+        hintWrap.appendChild(hintBtn); hintWrap.appendChild(hintMsg); targetContainer.appendChild(hintWrap);
     }
+
     function renderMCQ(q) {
         const optsList = document.getElementById('opts-list');
-        optsList.innerHTML = ''; // Clear previous options
-        
         q.options.forEach((o, i) => {
-            const b = document.createElement('button'); 
-            b.className = 'option-btn erratic-target'; 
-            b.innerText = `> ${o}`;
+            const b = document.createElement('button'); b.className = 'option-btn erratic-target'; b.innerText = `> ${o}`;
             b.style.animationDelay = `${Math.random() * 2}s`;
             b.onclick = () => processResult(i === q.answer, b);
             optsList.appendChild(b);
         });
-
-        // INJECT HINT HERE
-        renderHint(q, optsList);
+        renderHint(q, optsList); // Add Hint
     }
 
     function renderPBQ(q) {
@@ -968,28 +908,18 @@
                 const r = document.createElement('div'); r.className='match-item erratic-target'; r.innerText=p.right; r.dataset.id=i; r.dataset.side='r'; r.onclick=e=>handleMatch(e.target);
                 document.getElementById('col-right').appendChild(r);
            });
+            
+            // FIXED SHUFFLE LOGIC
             const rCol = document.getElementById('col-right');
-            for (let i = rCol.children.length; i >= 0; i--) rCol.appendChild(rCol.children[Math.random() * i | 0]);
+            const elements = Array.from(rCol.children);
+            // Fisher-Yates Shuffle
+            for (let i = elements.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [elements[i], elements[j]] = [elements[j], elements[i]];
+            }
+            elements.forEach(el => rCol.appendChild(el));
         }
-
-        // INJECT HINT HERE
-        renderHint(q, area);
-    }
-
-        if (q.hint) {
-            const hintContainer = document.createElement('div');
-            hintContainer.style.marginTop = "15px"; hintContainer.style.borderTop = "1px dashed #555"; hintContainer.style.paddingTop = "10px";
-            const hintBtn = document.createElement('button'); hintBtn.className = 'sys-btn'; hintBtn.innerText = '[ DECRYPT_HINT ]';
-            hintBtn.style.color = "#ffff00"; hintBtn.style.borderColor = "#ffff00"; hintBtn.style.width = "100%";
-            const hintMsg = document.createElement('div'); hintMsg.innerText = ">> DATA_MINED: " + q.hint;
-            hintMsg.style.display = "none"; hintMsg.style.color = "#ffff00";
-            hintMsg.style.fontFamily = "'Press Start 2P', cursive"; hintMsg.style.fontSize = "0.7rem"; hintMsg.style.lineHeight = "1.5"; hintMsg.style.marginTop = "10px";
-            hintMsg.style.animation = "text-pulse-glow 3s infinite alternate"; 
-            hintBtn.onclick = () => {
-                AudioEngine.playSFX('click'); hintBtn.style.display = 'none'; hintMsg.style.display = 'block';
-            };
-            hintContainer.appendChild(hintBtn); hintContainer.appendChild(hintMsg); area.appendChild(hintContainer);
-        }
+        renderHint(q, area); // Add Hint
     }
 
     function handleMatch(el) {
