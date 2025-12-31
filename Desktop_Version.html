@@ -827,8 +827,8 @@
 
             <div class="integrity-wrapper" id="temp-wrap" style="margin-top: 5px;">
                 <div class="integrity-label" id="temp-label" style="font-size: 0.7rem; color: #66ffd4; opacity: 1;">
-                    <span id="temp-text">SYSTEM TEMP</span>
-                    <span id="temp-num">100°C</span>
+                    <span id="temp-text">SYSTEM STABLE</span>
+                    <span id="temp-num">0%</span>
                 </div>
                 <div class="integrity-container" style="height: 12px; border: 1px solid var(--term-color);">
                     <div class="integrity-fill" id="temp-bar" style="width: 0%; background: #0affba; transition: width 1s linear, background-color 0.2s ease;"></div>
@@ -1034,7 +1034,7 @@
     let currentStreak = 0; let isExam = false; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
     let quizHistory = []; 
     let hudInterval = null; let sessionTime = 5400; 
-    let tempLevel = 100; const TEMP_MAX = 160;
+    let tempLevel = 0; const TEMP_MAX = 60;
     
     let tagLedger = {}; 
 
@@ -1369,7 +1369,7 @@
         const color = `hsl(${hue}, 100%, 50%)`;
 
         // 3. Update Text & Bar
-        labelNum.innerText = `${tempLevel}°C`;
+        labelNum.innerText = `${tempLevel}%`;
         labelNum.style.color = color;
         labelText.style.color = color;
         
@@ -1379,12 +1379,12 @@
 
         // 4. Update Message based on Range
         let msg = "";
-        if (tempLevel < 20) msg = "SYSTEM TEMP";
-        else if (tempLevel < 35) msg = "CAUTION";
-        else if (tempLevel < 45) msg = "> WARNING <";
-        else if (tempLevel < 53) msg = ">> DANGER <<";
-        else if (tempLevel < 57) msg = "CRITICAL!!";
-        else msg = "!! OVERHEAT !!";
+        if (tempLevel < 20) msg = "SYSTEM STABLE";
+        else if (tempLevel < 35) msg = "CAUTION: SYSTEM UNSTABLE";
+        else if (tempLevel < 45) msg = "> WARNING: DE-SYNCING <";
+        else if (tempLevel < 53) msg = ">> DANGER: CONNECTION LOST! <<";
+        else if (tempLevel < 57) msg = "CRITICAL: RESTORE CONNECTION!!";
+        else msg = "!! SYSTEM PURGING !!";
 
         labelText.innerText = msg;
 
