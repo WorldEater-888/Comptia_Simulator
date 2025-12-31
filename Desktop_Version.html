@@ -4289,54 +4289,40 @@
         }
     }
 
-    function renderMCQ(q) {
-        const optsList = document.getElementById('opts-list');
-        optsList.innerHTML = '';
-        let opts = q.options.map((t, i) => ({ t, isC: i === q.answer }));
-        // Shuffle options
-        for (let k = opts.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1));
-        [opts[k], opts[j]] = [opts[j], opts[k]]; }
-        
-        opts.forEach(o => {
-            const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o.t}`;
-            b.onmouseenter = () => AudioEngine.playOptionHover();
-            b.style.animationDelay = (Math.random() * -5) + 's';
-            b.onclick = () => processResult(o.isC, b, opts); 
-            optsList.appendChild(b);
-        });
-    }
-
     function renderPBQ(q) {
         const container = document.getElementById('pbq-area');
         container.innerHTML = '';
         container.style.display = 'flex';
         document.getElementById('pbq-submit-btn').style.display = 'block';
 
+        // --- 1. GENERATE HINT HTML (HOISTED TO TOP) ---
+        // We generate this first so it can be used by BOTH Terminal and Match types
+        let hintHTML = '';
+        if (q.hint) {
+            hintHTML = `
+                <div style="margin-top:10px; width: 100%;">
+                    <button class="hint-btn" onclick="toggleHint()">[ >> ACCESS_HINT << ]</button>
+                    <div id="pbq-hint-text" class="hint-text">>> DECRYPTING: ${q.hint}</div>
+                </div>
+            `;
+        }
+
+        // --- 2. RENDER TERMINAL TYPE ---
         if (q.type === 'terminal') {
-            
-            // --- HINT BUTTON INJECTION ---
-            let hintHTML = '';
-            if (q.hint) {
-                hintHTML = `
-                    <div style="margin-top:10px;">
-                        <button class="hint-btn" onclick="toggleHint()">[ >> ACCESS_HINT << ]</button>
-                        <div id="pbq-hint-text" class="hint-text">>> DECRYPTING: ${q.hint}</div>
-                    </div>
-                `;
-            }
             
             container.innerHTML = `
                 <div class="cmd-input-line">
                     <span class="cmd-prompt">C:\\ADMIN></span>
                     <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
                 </div>
-                ${hintHTML}
-            `;
+                ${hintHTML} `;
             setTimeout(() => document.getElementById('cmd-input').focus(), 100);
             document.getElementById('cmd-input').addEventListener("keypress", function(event) {
                 if (event.key === "Enter") submitPBQ();
             });
-        } else if (q.type === 'match') {
+        } 
+        // --- 3. RENDER MATCH TYPE ---
+        else if (q.type === 'match') {
             matchState = { selected: null, pairsFound: 0 };
             
             let lefts = [];
@@ -4345,14 +4331,18 @@
                 lefts.push({ txt: p.left, id: i });
                 rights.push({ txt: p.right, id: i });
             });
+            
             // Shuffle right side only
             for (let k = rights.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1));
             [rights[k], rights[j]] = [rights[j], rights[k]]; }
 
+            // Added ${hintHTML} to the end of this string
             let html = `<div class="match-container">
                 <div class="match-col" id="col-left"></div>
                 <div class="match-col" id="col-right"></div>
-            </div>`;
+            </div>
+            ${hintHTML}`; 
+
             container.innerHTML = html;
 
             const lCol = document.getElementById('col-left');
