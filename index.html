@@ -3217,7 +3217,7 @@ position: relative; /* Required for float/jitter */
     function drawRain() {
         // 2. EXTREME SLOW DOWN
         // Changed to 0.96. The higher this number (max 0.99), the slower it falls.
-        if(Math.random() > 0.8) { requestAnimationFrame(drawRain); return; } 
+        if(Math.random() > 0.5) { requestAnimationFrame(drawRain); return; } 
         
         // Clear background (standard fade to keep text crisp, not ghostly)
         ctx.fillStyle = 'rgba(10, 0, 0, 0.1)'; 
@@ -3243,7 +3243,7 @@ position: relative; /* Required for float/jitter */
             // When it hits the bottom, send it WAY back up.
             // Resetting to between -100 and -600 creates massive gaps between drops.
             if(drops[i]*fontSize > canvas.height && Math.random() > 0.95) {
-                 drops[i] = Math.floor(Math.random() * -3000) - 100; 
+                 drops[i] = Math.floor(Math.random() * -2000) - 100; 
             }
         }
         requestAnimationFrame(drawRain);
@@ -3783,6 +3783,7 @@ position: relative; /* Required for float/jitter */
 </script>
 </body>
 </html>
+
 
 
 
