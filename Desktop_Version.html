@@ -1381,15 +1381,15 @@
         let msg = "";
         if (tempLevel < 20) msg = "SYSTEM STABLE";
         else if (tempLevel < 25) msg = "CAUTION: SYSTEM UNSTABLE";
-        else if (tempLevel < 50) msg = "WARNING: SCRAPCODE DETECTED ";
-        else if (tempLevel < 75) msg = "DANGER: >> CONTAINMENT FAILURE <<";
+        else if (tempLevel < 50) msg = ">> WARNING: SYSTEM UNDER HEAVY LOAD ";
+        else if (tempLevel < 75) msg = ">> DANGER: CONTAINMENT FAILURE <<";
         else if (tempLevel < 80) msg = "CRITICAL: OVERHEAT!!";
         else msg = "!! SYSTEM PURGING !!";
 
         labelText.innerText = msg;
 
         // 5. White Flash Logic (Only at max critical)
-        if(tempLevel >= 85) { 
+        if(tempLevel >= 75) { 
             bar.classList.add('temp-flash-white');
             labelNum.classList.add('label-crit');
             labelText.classList.add('label-crit');
@@ -3863,6 +3863,7 @@
 { tags: ["CORE1", "Hardware"], question: "Why is 'Binary Translation' considered a disadvantage in virtualization configurations lacking Hardware Extensions (VT-x)?", options: ["It uses too much Hard Drive space", "It forces the Hypervisor to translate Guest OS instructions via software, causing significant latency", "It creates binary code viruses", "It prevents the VM from booting"], answer: 1, explanation: "Without hardware extensions, the hypervisor must use software (Binary Translation) to trap and translate privileged instructions, which is much slower than direct execution.", hint: "Software translation is slow." },
 { tags: ["CORE1", "Hardware"], question: "What is the recommended ratio of vCPUs to Physical Cores for general/light workloads?", options: ["10 to 1", "4 to 1", "1 to 1", "1 to 4"], answer: 1, explanation: "A common rule of thumb for light/general workloads is assigning up to 4 Virtual CPUs (vCPUs) for every 1 Physical Core.", hint: "Four virtuals per physical." },
 { tags: ["CORE1", "Hardware"], question: "A VM administrator notices high fragmentation on the physical storage array. Which disk provisioning type is most likely contributing to this?", options: ["Thick Provisioning", "Thin Provisioning", "Static Provisioning", "RAID 10"], answer: 1, explanation: "Thin Provisioning grows the disk file in chunks as data is added, which can scatter the data across the physical drive (fragmentation) more than a pre-allocated Thick disk.", hint: "Growing in chunks." },
+{ tags: ["CORE1", "Networking"], question: "If a VM is configured in 'Bridged Mode', does the Host Operating System act as a router for the VM's traffic?", options: ["Yes, always", "No, the VM bypasses the Host's network stack and talks directly to the physical LAN", "Only if the firewall is off", "Only for IPv6 traffic"], answer: 1, explanation: "In Bridged Mode, the VM effectively bypasses the Host's routing functions and connects directly to the switch/router on the LAN, acting as an independent device.", hint: "Direct connection." },
 { tags: ["CORE1", "Troubleshoot"], question: "A technician creates a VM with 'Thin Provisioning' set to a max size of 1TB on a physical drive with only 500GB of free space. What happens immediately upon creation?", options: ["The creation fails", "The VM is created successfully because it uses almost zero space initially", "The physical drive crashes", "The VM is automatically resized to 500GB"], answer: 1, explanation: "Thin Provisioning allows over-allocation. The VM creates successfully because the file size starts small (MBs). The risk is the physical drive filling up later as the VM grows.", hint: "It fits... for now." },
 { tags: ["CORE1", "Hardware"], question: "In a virtualized environment utilizing hardware extensions (VT-x/AMD-V), which protection ring does the Hypervisor operate in to maintain control over the Host hardware?", options: ["Ring 0", "Ring 1", "Ring 3", "Ring -1 (Root Mode)"], answer: 3, explanation: "With hardware extensions enabled, the CPU creates a new 'Root Mode' (Ring -1) for the Hypervisor, allowing the Guest OS to safely run in Ring 0 without interfering with the Host.", hint: "Below zero." },
 { tags: ["CORE1", "Hardware"], question: "What is the primary performance risk of 'Overcommitting' vCPUs (assigning more virtual cores than physical cores exist)?", options: ["The CPU will overheat immediately", "CPU Contention, causing system freezes when all VMs calculate simultaneously", "The hard drive will fill up", "The RAM will be erased"], answer: 1, explanation: "Overcommitment works for light loads, but if multiple VMs demand processing power at the exact same instant, CPU Contention occurs, freezing the system.", hint: "Traffic jam in the processor." },
@@ -4288,40 +4289,54 @@
         }
     }
 
+    function renderMCQ(q) {
+        const optsList = document.getElementById('opts-list');
+        optsList.innerHTML = '';
+        let opts = q.options.map((t, i) => ({ t, isC: i === q.answer }));
+        // Shuffle options
+        for (let k = opts.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1));
+        [opts[k], opts[j]] = [opts[j], opts[k]]; }
+        
+        opts.forEach(o => {
+            const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o.t}`;
+            b.onmouseenter = () => AudioEngine.playOptionHover();
+            b.style.animationDelay = (Math.random() * -5) + 's';
+            b.onclick = () => processResult(o.isC, b, opts); 
+            optsList.appendChild(b);
+        });
+    }
+
     function renderPBQ(q) {
         const container = document.getElementById('pbq-area');
         container.innerHTML = '';
         container.style.display = 'flex';
         document.getElementById('pbq-submit-btn').style.display = 'block';
 
-        // --- 1. GENERATE HINT HTML (HOISTED TO TOP) ---
-        // We generate this first so it can be used by BOTH Terminal and Match types
-        let hintHTML = '';
-        if (q.hint) {
-            hintHTML = `
-                <div style="margin-top:10px; width: 100%;">
-                    <button class="hint-btn" onclick="toggleHint()">[ >> ACCESS_HINT << ]</button>
-                    <div id="pbq-hint-text" class="hint-text">>> DECRYPTING: ${q.hint}</div>
-                </div>
-            `;
-        }
-
-        // --- 2. RENDER TERMINAL TYPE ---
         if (q.type === 'terminal') {
+            
+            // --- HINT BUTTON INJECTION ---
+            let hintHTML = '';
+            if (q.hint) {
+                hintHTML = `
+                    <div style="margin-top:10px;">
+                        <button class="hint-btn" onclick="toggleHint()">[ >> ACCESS_HINT << ]</button>
+                        <div id="pbq-hint-text" class="hint-text">>> DECRYPTING: ${q.hint}</div>
+                    </div>
+                `;
+            }
             
             container.innerHTML = `
                 <div class="cmd-input-line">
                     <span class="cmd-prompt">C:\\ADMIN></span>
                     <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
                 </div>
-                ${hintHTML} `;
+                ${hintHTML}
+            `;
             setTimeout(() => document.getElementById('cmd-input').focus(), 100);
             document.getElementById('cmd-input').addEventListener("keypress", function(event) {
                 if (event.key === "Enter") submitPBQ();
             });
-        } 
-        // --- 3. RENDER MATCH TYPE ---
-        else if (q.type === 'match') {
+        } else if (q.type === 'match') {
             matchState = { selected: null, pairsFound: 0 };
             
             let lefts = [];
@@ -4330,18 +4345,14 @@
                 lefts.push({ txt: p.left, id: i });
                 rights.push({ txt: p.right, id: i });
             });
-            
             // Shuffle right side only
             for (let k = rights.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1));
             [rights[k], rights[j]] = [rights[j], rights[k]]; }
 
-            // Added ${hintHTML} to the end of this string
             let html = `<div class="match-container">
                 <div class="match-col" id="col-left"></div>
                 <div class="match-col" id="col-right"></div>
-            </div>
-            ${hintHTML}`; 
-
+            </div>`;
             container.innerHTML = html;
 
             const lCol = document.getElementById('col-left');
