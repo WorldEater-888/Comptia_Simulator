@@ -1034,7 +1034,7 @@
     let currentStreak = 0; let isExam = false; let questionsCorrect = 0; let questionsAttempted = 0; let isDead = false;
     let quizHistory = []; 
     let hudInterval = null; let sessionTime = 5400; 
-    let tempLevel = 0; const TEMP_MAX = 60;
+    let tempLevel = 0; const TEMP_MAX = 100;
     
     let tagLedger = {}; 
 
@@ -1380,10 +1380,10 @@
         // 4. Update Message based on Range
         let msg = "";
         if (tempLevel < 20) msg = "SYSTEM STABLE";
-        else if (tempLevel < 35) msg = "CAUTION: SYSTEM UNSTABLE";
-        else if (tempLevel < 45) msg = "> WARNING: DE-SYNCING <";
-        else if (tempLevel < 53) msg = ">> DANGER: CONNECTION LOST! <<";
-        else if (tempLevel < 57) msg = "CRITICAL: RESTORE CONNECTION!!";
+        else if (tempLevel < 15) msg = "CAUTION: SYSTEM UNSTABLE";
+        else if (tempLevel < 30) msg = "> WARNING: CAPACITY FULL <";
+        else if (tempLevel < 45) msg = ">> DANGER: BREACH <<";
+        else if (tempLevel < 55) msg = "CRITICAL: OVERHEAT!!";
         else msg = "!! SYSTEM PURGING !!";
 
         labelText.innerText = msg;
@@ -1420,7 +1420,7 @@
         bar.style.backgroundColor = "#0affba";
         bar.style.boxShadow = "none";
         bar.style.width = "0%";
-        txt.innerText = "SYSTEM TEMP";
+        txt.innerText = "SYSTEM STABLE";
         
         // Re-add pulse after a tiny delay so it restarts cleanly
         setTimeout(() => {
