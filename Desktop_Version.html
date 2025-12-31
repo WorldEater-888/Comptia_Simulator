@@ -1380,10 +1380,10 @@
         // 4. Update Message based on Range
         let msg = "";
         if (tempLevel < 20) msg = "SYSTEM STABLE";
-        else if (tempLevel < 35) msg = "CAUTION";
-        else if (tempLevel < 50) msg = ">> WARNING";
-        else if (tempLevel < 75) msg = ">> DANGER <<";
-        else if (tempLevel < 85) msg = " >>>CRITICAL<<<";
+        else if (tempLevel < 35) msg = "CAUTION: SYSTEM DESTABILIZING";
+        else if (tempLevel < 55) msg = ">> WARNING: SYSTEM BREACHED";
+        else if (tempLevel < 75) msg = ">> DANGER: FIREWALL FAILURE <<";
+        else if (tempLevel < 85) msg = " >>> CRITICAL: MAUNAL OVERIRDE <<<";
         else msg = "!! SYSTEM OVERLOAD !!";
 
         labelText.innerText = msg;
