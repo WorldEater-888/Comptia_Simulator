@@ -305,7 +305,7 @@
             background: repeating-linear-gradient(90deg, #ff0000, #ff0000 8px, transparent 8px, transparent 10px) !important;
             box-shadow: 0 0 25px #ff0000 !important;
         }
-        .dmg-shock { animation: damage-flash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
+        .dmg-shock { animation: damage-flash 0.6s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
         @keyframes damage-flash { 
             0% { transform: scale(1); filter: brightness(1); } 
             50% { transform: scale(1.15); filter: brightness(5) hue-rotate(180deg); } 
@@ -1389,7 +1389,7 @@
         labelText.innerText = msg;
 
         // 5. White Flash Logic (Only at max critical)
-        if(tempLevel >= 56) { 
+        if(tempLevel >= 75) { 
             bar.classList.add('temp-flash-white');
             labelNum.classList.add('label-crit');
             labelText.classList.add('label-crit');
