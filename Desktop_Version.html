@@ -1381,15 +1381,15 @@
         let msg = "";
         if (tempLevel < 20) msg = "SYSTEM STABLE";
         else if (tempLevel < 25) msg = "CAUTION: SYSTEM UNSTABLE";
-        else if (tempLevel < 50) msg = ">> WARNING: SYSTEM UNDER HEAVY LOAD ";
-        else if (tempLevel < 75) msg = ">> DANGER: CONTAINMENT FAILURE <<";
+        else if (tempLevel < 50) msg = "WARNING: SCRAPCODE DETECTED ";
+        else if (tempLevel < 75) msg = "DANGER: >> CONTAINMENT FAILURE <<";
         else if (tempLevel < 80) msg = "CRITICAL: OVERHEAT!!";
         else msg = "!! SYSTEM PURGING !!";
 
         labelText.innerText = msg;
 
         // 5. White Flash Logic (Only at max critical)
-        if(tempLevel >= 75) { 
+        if(tempLevel >= 85) { 
             bar.classList.add('temp-flash-white');
             labelNum.classList.add('label-crit');
             labelText.classList.add('label-crit');
