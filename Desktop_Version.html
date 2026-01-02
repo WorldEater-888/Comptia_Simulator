@@ -5187,10 +5187,10 @@
             // 3. THE SIMPLE "COGITATOR" MESSAGE
             const msg = document.createElement('div');
             // Inline styles to center it and make it look cool
-            msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
+            msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 0px #ff0a0a; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
             
             // Uses qQueue.length to dynamically show "25" (or fewer if the DB is small)
-            msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#0affba">${qQueue.length} PACKETS SYNTHESIZED</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+            msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#ff0a0a">${qQueue.length} PACKETS SYNTHESIZED</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
             
             document.body.appendChild(msg);
 
