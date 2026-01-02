@@ -4468,9 +4468,21 @@ position: relative; /* Required for float/jitter */
     }
     
     function transitionToQuiz(certTag, moduleTag) {
+        // 1. Fetch all matching questions
         qQueue = fetchQuestions([certTag, moduleTag]);
+        
         if(qQueue.length === 0) { alert("NO DATA IN DATABASE. PLEASE ADD QUESTIONS."); return; }
-        for (let i = qQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; }
+        
+        // 2. Shuffle them (so you don't get the same 25 every time)
+        for (let i = qQueue.length - 1; i > 0; i--) { 
+            const j = Math.floor(Math.random() * (i + 1)); 
+            [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
+        }
+        
+        // 3. NEW: Limit the queue to 25 questions
+        // If the pool has fewer than 25, it just takes them all.
+        qQueue = qQueue.slice(0, 25);
+
         startQuiz();
     }
     
@@ -4838,6 +4850,7 @@ position: relative; /* Required for float/jitter */
 </script>
 </body>
 </html>
+
 
 
 
