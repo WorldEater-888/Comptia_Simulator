@@ -4468,20 +4468,30 @@ position: relative; /* Required for float/jitter */
     }
     
     function transitionToQuiz(certTag, moduleTag) {
-        // 1. Fetch all matching questions
+        // 1. Fetch & Shuffle
         qQueue = fetchQuestions([certTag, moduleTag]);
-        
         if(qQueue.length === 0) { alert("NO DATA IN DATABASE. PLEASE ADD QUESTIONS."); return; }
-        
-        // 2. Shuffle them (so you don't get the same 25 every time)
+
         for (let i = qQueue.length - 1; i > 0; i--) { 
             const j = Math.floor(Math.random() * (i + 1)); 
             [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
         }
         
-        // 3. NEW: Limit the queue to 25 questions
-        // If the pool has fewer than 25, it just takes them all.
-        qQueue = qQueue.slice(0, 25);
+        // 2. Limit to 25
+        if(qQueue.length > 25) qQueue = qQueue.slice(0, 25);
+        window.sessionTotal = qQueue.length; // Save for the counter
+
+        // 3. THE SIMPLE "COGITATOR" MESSAGE (No extra CSS needed)
+        const msg = document.createElement('div');
+        // Inline styles to center it and make it look cool
+        msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out;";
+        msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#0affba">${window.sessionTotal} PACKETS SYNTHESIZED</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+        
+        document.body.appendChild(msg);
+
+        // Fade out and remove
+        setTimeout(() => { msg.style.opacity = '0'; }, 2000); // Start fade at 2s
+        setTimeout(() => { msg.remove(); }, 3000);          // Delete at 3s
 
         startQuiz();
     }
@@ -4850,6 +4860,7 @@ position: relative; /* Required for float/jitter */
 </script>
 </body>
 </html>
+
 
 
 
