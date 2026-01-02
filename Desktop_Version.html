@@ -5153,10 +5153,37 @@
     
     function transitionToQuiz(certTag, moduleTag) {
         qQueue = fetchQuestions([certTag, moduleTag]);
+        
+        // 1. Shuffle the full pool first
         for (let i = qQueue.length - 1; i > 0; i--) { 
             const j = Math.floor(Math.random() * (i + 1));
             [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
         }
+
+        if(qQueue.length === 0) { 
+            alert(`NO DATA FOUND FOR TAGS: [${certTag}, ${moduleTag}]`);
+            return; 
+        }
+
+        // 2. NEW: Limit the queue to 25 questions maximum
+        // This prevents fatigue while ensuring variety due to the shuffle above
+        qQueue = qQueue.slice(0, 25);
+
+        isExam = false; 
+        resetGame();
+        sessionTime = 5400; 
+        
+        let fromMenu = 'root-menu';
+        if(certTag === 'CORE1') fromMenu = 'core1-menu';
+        if(certTag === 'CORE2') fromMenu = 'core2-menu';
+        if(certTag === 'NET') fromMenu = 'net-menu';
+        if(certTag === 'SEC') fromMenu = 'sec-menu';
+        
+        switchScreen(fromMenu, 'quiz-ui', () => {
+             startHUD();
+             loadSeq();
+        });
+    }
 
         if(qQueue.length === 0) { 
             alert(`NO DATA FOUND FOR TAGS: [${certTag}, ${moduleTag}]`);
