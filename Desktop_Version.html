@@ -5180,11 +5180,19 @@
         if(certTag === 'NET') fromMenu = 'net-menu';
         if(certTag === 'SEC') fromMenu = 'sec-menu';
         
-        switchScreen(fromMenu, 'quiz-ui', () => {
-             startHUD();
-             loadSeq();
-             // NEW: Thematic message in white
-             showFloatText(">> COGITATOR ONLINE: 25 PACKETS SYNTHESIZED.  <<", null, "#FFFFFF");
+        // 3. THE SIMPLE "COGITATOR" MESSAGE (No extra CSS needed)
+        const msg = document.createElement('div');
+        // Inline styles to center it and make it look cool
+        msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out;";
+        msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#0affba">${window.sessionTotal} PACKETS SYNTHESIZED</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+        
+        document.body.appendChild(msg);
+
+        // Fade out and remove
+        setTimeout(() => { msg.style.opacity = '0'; }, 2000); // Start fade at 2s
+        setTimeout(() => { msg.remove(); }, 3000);          // Delete at 3s
+
+            
         });
     }
     
