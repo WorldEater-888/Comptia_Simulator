@@ -5154,13 +5154,13 @@
     function transitionToQuiz(certTag, moduleTag) {
         qQueue = fetchQuestions([certTag, moduleTag]);
         
-        // 1. Shuffle ALL questions first (so you get a random set, not just the first 25)
+        // 1. Shuffle ALL questions first
         for (let i = qQueue.length - 1; i > 0; i--) { 
             const j = Math.floor(Math.random() * (i + 1));
             [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
         }
 
-        // 2. NEW: Slice the array to keep only the first 25
+        // 2. Limit to 25
         if (qQueue.length > 25) {
             qQueue = qQueue.slice(0, 25);
         }
@@ -5183,6 +5183,8 @@
         switchScreen(fromMenu, 'quiz-ui', () => {
              startHUD();
              loadSeq();
+             // NEW: Thematic message in white
+             showFloatText(">> COGITATOR ONLINE: 25 PACKETS SYNTHESIZED.  <<", null, "#FFFFFF");
         });
     }
     
