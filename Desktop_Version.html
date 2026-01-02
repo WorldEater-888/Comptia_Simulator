@@ -5219,7 +5219,8 @@ function transitionToQuiz(certTag, moduleTag) {
             msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
             
             // Uses qQueue.length to dynamically show "25" (or fewer if the DB is small)
-            msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#ff0a0a">${qQueue.length} PACKETS SYNTHESIZED</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+            // Color set to #0affba (Mint) to match your theme. Change to #ff0a0a if you want Red.
+            msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#0affba">${qQueue.length} PACKETS SYNTHESIZED</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
             
             document.body.appendChild(msg);
 
@@ -5227,9 +5228,7 @@ function transitionToQuiz(certTag, moduleTag) {
             setTimeout(() => { msg.style.opacity = '0'; }, 2000); // Start fade at 2s
             setTimeout(() => { msg.remove(); }, 3000);          // Delete at 3s
         });
-    }    
-
-    
+    }
     function startExam(certTag) {
         // BLUEPRINT ALGORITHM: Weighted shuffling
         const blueprint = EXAM_BLUEPRINTS[certTag];
