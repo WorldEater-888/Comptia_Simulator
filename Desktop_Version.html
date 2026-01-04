@@ -5815,8 +5815,8 @@
         }
 
         // 2. Limit to 25
-        if (qQueue.length > 25) {
-            qQueue = qQueue.slice(0, 25);
+        if (qQueue.length > 26) {
+            qQueue = qQueue.slice(0, 26);
         }
 
         if(qQueue.length === 0) { 
@@ -5863,8 +5863,8 @@ function transitionToQuiz(certTag, moduleTag) {
         }
 
         // 2. Limit to 25
-        if (qQueue.length > 25) {
-            qQueue = qQueue.slice(0, 25);
+        if (qQueue.length > 26) {
+            qQueue = qQueue.slice(0, 26);
         }
 
         if(qQueue.length === 0) { 
@@ -5893,7 +5893,7 @@ function transitionToQuiz(certTag, moduleTag) {
             
             // Uses qQueue.length to dynamically show "25" (or fewer if the DB is small)
             // Color set to #0affba (Mint) to match your theme. Change to #ff0a0a if you want Red.
-            msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#0affba">${qQueue.length} PACKETS SYNTHESIZED</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+            msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#0affba">${qQueue.length} PACKETS REMAIN</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
             
             document.body.appendChild(msg);
 
