@@ -5356,7 +5356,7 @@ position: relative; /* Required for float/jitter */
                 AudioEngine.playSFX('click'); matchState.pairsFound++; matchState.selected = null;
             } else {
                 prev.classList.remove('selected'); el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'), 400);
-                AudioEngine.playSFX('error'); matchState.selected = null; integrity-=1; updateSystemState(); 
+                AudioEngine.playSFX('error'); matchState.selected = null; integrity-=3; updateSystemState(); 
                 
                 // FLASH DAMAGE
                 const wrap = document.getElementById('integrity-cont'); 
@@ -5514,6 +5514,7 @@ position: relative; /* Required for float/jitter */
 </script>
 </body>
 </html>
+
 
 
 
