@@ -431,11 +431,6 @@ position: relative; /* Required for float/jitter */
 <div id="panic-pulse"></div> 
 <div id="scan-container"></div> 
 
-<div id="start-overlay" onclick="bootSystem()">
-    <div id="intro-title" class="black-scan" style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 0 0 10px var(--term-color); font-family: 'VT323'; font-weight: bold;"></div>
-    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink-cursor 1s infinite;">>> TAP_TO_INITIALIZE <<</div>
-    <div style="margin-top: 100px; font-size: 0.6rem; opacity: 0.5; font-family: 'Press Start 2P', cursive; line-height: 1.5;">MOBILE_CORE_V2.0 // SOUL_RESTORED</div>
-</div>
 
 <div class="terminal-window" id="term-win">
     
@@ -5075,7 +5070,7 @@ position: relative; /* Required for float/jitter */
     }
 
     function bootSystem() {
-        document.getElementById('start-overlay').style.display = 'none';
+        // REMOVED: document.getElementById('start-overlay').style.display = 'none';
         AudioEngine.init(); 
         const term = document.getElementById('term-win');
         term.style.display = 'flex'; term.classList.add('power-on');
@@ -5083,21 +5078,14 @@ position: relative; /* Required for float/jitter */
         setTimeout(() => {
             typewriterJackpot('main-header', 'COMPTIA_SIM');
         }, 800);
-
+        
         const btns = document.querySelectorAll('.btn, .nav-btn, .option-btn, .sys-btn');
         
         btns.forEach((b, i) => { 
             b.classList.add('erratic-target');
-            
-            // Initial entrance delay
             b.style.setProperty('--anim-delay', `${Math.random() * 2}s`);
-            
-            // Drunken Float Speed: 5 to 9 seconds (Slow and lazy)
             b.style.setProperty('--float-speed', `${5 + Math.random() * 4}s`);
-            
-            // Random start point so they aren't all in the same spot of the "circle"
             b.style.setProperty('--float-delay', `-${Math.random() * 10}s`);
-            
             setTimeout(() => { b.classList.add('visible'); }, 1500 + (i * 150)); 
         });
         
@@ -5507,13 +5495,14 @@ position: relative; /* Required for float/jitter */
     
     function shutdownSystem() { location.reload(); }
     
-    // ON LOAD INIT
+   // ON LOAD INIT
     window.onload = function() {
-        typewriterJackpot('intro-title', '[ CORE ONLINE ]');
+        bootSystem();
     };
 </script>
 </body>
 </html>
+
 
 
 
