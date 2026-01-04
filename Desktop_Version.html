@@ -6202,7 +6202,7 @@ function transitionToQuiz(certTag, moduleTag) {
                 second.classList.add('wrong'); 
                 setTimeout(()=> second.classList.remove('wrong'), 400);
                 AudioEngine.playSFX('error');
-                integrity -= 1;
+                integrity -= 3;
                 updateSystemState();
                 showFloatText("-1 INTEGRITY", null, '#ff0000');
                 matchState.selected = null;
