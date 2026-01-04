@@ -792,13 +792,6 @@
 
 <div id="panic-pulse"></div> 
 <div id="scan-container"></div> 
-
-<div id="start-overlay" onclick="bootSystem()">
-    <div id="intro-title" class="black-scan" style="margin-bottom: 50px; font-size: 3rem; color: #fff; letter-spacing: 5px; text-shadow: 0 0 10px var(--term-color); font-family: 'VT323'; font-weight: bold;"></div>
-    <div style="font-size: 1.2rem; color: var(--term-color); text-transform: uppercase; letter-spacing: 3px; animation: blink-cursor 1s infinite;">>> TAP_TO_INITIALIZE <<</div>
-    <div style="margin-top: 100px; font-size: 0.6rem; opacity: 0.5; font-family: 'Press Start 2P', cursive; line-height: 1.5;">MOBILE_CORE_V2.0 // SOUL_RESTORED</div>
-</div>
-
 <div class="terminal-window" id="term-win">
     
     <div class="header">
@@ -1432,35 +1425,31 @@
     /* SECTION: NAVIGATION LOGIC                                                 */
     /* ========================================================================= */
     function bootSystem() {
-        // CRT COLLAPSE EFFECT
-        const overlayContent = document.querySelector('#start-overlay');
-        overlayContent.innerHTML = ""; 
-        overlayContent.classList.add('power-off');
+        // Initialize Audio (Note: Browsers may block auto-play until you click a button)
+        AudioEngine.init(); 
 
+        const term = document.getElementById('term-win');
+        term.classList.remove('power-off'); 
+        term.classList.add('power-on');
+
+        // Wait 850ms (TurnOn is 800ms) then apply breathing
         setTimeout(() => {
-            document.getElementById('start-overlay').style.display = 'none';
-            AudioEngine.init(); 
-            const term = document.getElementById('term-win');
-            term.classList.remove('power-off'); 
-            term.classList.add('power-on');
-
-            // NEW: Wait 850ms (TurnOn is 800ms) then apply breathing
+            term.classList.add('breath-active');
+        }, 850);
+        
+        const btns = document.querySelectorAll('#root-menu .btn');
+        btns.forEach((b, i) => { 
+            b.style.animationDelay = (Math.random() * -5) + 's';
             setTimeout(() => {
-                term.classList.add('breath-active');
-            }, 850);
-            
-            const btns = document.querySelectorAll('#root-menu .btn');
-            btns.forEach((b, i) => { 
-                b.style.animationDelay = (Math.random() * -5) + 's';
-                setTimeout(() => {
-                    b.classList.add('visible');
-                    setTimeout(() => b.classList.add('drift-active'), 500); 
-                }, 500 + (i * 150)); 
-            });
-            spawnHexDump(); 
-            cycleStatus(); 
-            triggerRandomGlitch(); glitchLogo();
-        }, 400);
+                b.classList.add('visible');
+                setTimeout(() => b.classList.add('drift-active'), 500); 
+            }, 500 + (i * 150)); 
+        });
+
+        spawnHexDump(); 
+        cycleStatus(); 
+        triggerRandomGlitch(); 
+        glitchLogo();
     }
 
     function shutdownSystem() {
@@ -6366,11 +6355,8 @@ function transitionToQuiz(certTag, moduleTag) {
         });
     }
     
-    // TYPEWRITER EFFECT FOR NEW START SCREEN
-    window.onload = function() {
-        // Scramble type the new title using existing engine
-        const titleEl = document.getElementById('intro-title');
-        scrambleText(titleEl, '[ CORE ONLINE ]', 1000);
+window.onload = function() {
+        bootSystem();
     };
 </script>
 </body>
