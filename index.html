@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<script type="text/javascript">
+  // Check if the screen width is large (typical for laptops/desktops)
+  if (screen.width >= 1024 || window.innerWidth >= 1024) {
+    // Redirect to the desktop version
+    window.location.href = "https://comptiasimulator.com/Desktop_Version.html";
+  }
+</script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>COMPTIA SIMULATOR</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ================================================================================== */
+        /* ============================    CSS: THEME & GLOBALS    ============================ */
+        /* ================================================================================== */
+        :root {
+            /* COLORS */
+            --term-color: #0affba;       /* Neon Mint */
+            --term-dim: rgba(10, 255, 186, 0.4); 
+            
+            /* GLOWS */
+            --glow-color: rgba(10, 255, 186, 0.6); 
+            
+            /* VARIABLES */
+            --edge-opacity: 0; 
+            --shake-amp: 0px; 
+            --sway-speed: 5s;
+        }
+
+        /* --- GLOBAL RESETS --- */
+        * { 
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; 
+            cursor: auto !important; 
+        }
+
+        /* ============================    NO SCROLLBARS    ============================ */
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        *::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        * {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        body {
+            background-color: #050505; 
+            margin: 0; padding: 0;
+            font-family: 'VT323', monospace;
+            color: var(--term-color);
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            
+            /* Base glow */
+            text-shadow: 0 0 8px var(--glow-color);
+            
+            /* Sway maintained */
+            animation: ghost-sway var(--sway-speed) ease-in-out infinite alternate;
+            transition: color 0.5s ease;
+        }
+
+        /* ================================================================================== */
+        /* ============================    CSS: CRT & BACKGROUND   ============================ */
+        /* ================================================================================== */
+        .scan-line {
+            position: fixed;
+            left: 0; width: 100%;
+            background: var(--term-color); opacity: 0.15; z-index: 600; 
+            pointer-events: none;
+        }
+        
+        .dark-scan-line {
+            position: fixed; left: 0; width: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 850; pointer-events: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        @keyframes scan-drop { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.2; } 100% { top: 110%; opacity: 0; } }
+        @keyframes dark-scan-drop { 0% { top: -20%; opacity: 0; } 5% { opacity: 0.8; } 100% { top: 120%; opacity: 0.8; } }
+
+        .pixel-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; z-index: 900; 
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+        }
+        
+        #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.25; }
+        
+        
+
+        #panic-pulse {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; z-index: 850;
+            box-shadow: inset 0 0 150px #ff0000; 
+            opacity: var(--edge-opacity);
+            mix-blend-mode: overlay;
+            animation: pulse-breath-erratic 2s infinite; 
+        }
+
+        /* ================================================================================== */
+        /* ============================    CSS: TERMINAL WINDOW    ============================ */
+        /* ================================================================================== */
+        .terminal-window {
+            width: 100%; height: 100%;
+            border: none;
+            background: rgba(0, 5, 5, 0.25); 
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(2px);
+            padding: 20px;
+            display: none; flex-direction: column; position: relative;
+            z-index: 100; overflow: hidden;
+            transition: border-color 0.2s ease, filter 0.2s ease; 
+        }
+        .power-on { 
+            display: flex !important;
+            animation: turnOn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; 
+        }
+
+        /* --- HEADER --- */
+        .header { 
+            border-bottom: 2px solid var(--term-color);
+            padding-bottom: 5px; margin-bottom: 10px; 
+            display: flex; flex-direction: column; gap: 5px;
+            flex-shrink: 0; position: relative;
+            transition: border-color 0.2s ease;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
+        .h-left { display: flex; align-items: center; }
+
+        .h-left h1 { 
+            margin: 0; font-family: 'VT323', monospace; font-size: 2.0rem; letter-spacing: 2px; line-height: 1; font-weight: bold;
+            color: var(--term-color); padding-top: 0px; 
+        }
+        
+        .cursor-block {
+            display: inline-block; width: 0.6em; height: 1em; background-color: var(--term-color);
+            vertical-align: bottom; margin-left: 5px; margin-bottom: 5px; 
+            animation: blink-cursor 0.8s steps(2) infinite; box-shadow: 0 0 8px var(--term-color);
+        }
+        @keyframes blink-cursor { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+        /* --- RARE STATIC JITTER (FIXED) --- */
+        @keyframes rare-static {
+            0%, 96% { opacity: 1; transform: translate(0,0); text-shadow: 0 0 5px currentColor; }
+            97% { opacity: 0.9; transform: translate(1px, 0); text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff; }
+            98% { transform: translate(-1px, 1px); }
+            99% { transform: translate(0,0); opacity: 1; }
+            100% { transform: translate(0,0); }
+        }
+
+        /* Donation Buttons */
+        .donate-group { display: flex; gap: 6px; }
+        .sys-btn {
+            background: rgba(0, 0, 0, 0.8);
+            font-family: 'VT323', monospace; font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; padding: 4px 8px; border: 1px solid;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.5); transition: all 0.2s ease;
+            text-transform: uppercase;
+            animation: rare-static 4s infinite; 
+        }
+        .sys-btn:active { transform: translate(1px, 1px); box-shadow: 0 0 10px var(--term-color); background: var(--term-color); color: #000; }
+        .kofi-btn { color: #ffd700; border-color: #ffd700; }
+        .kas-btn { color: #70c7ba; border-color: #70c7ba; }
+        .bmc-btn { color: #FF813F; border-color: #FF813F; }
+
+/* ============================    GLOSSARY / STUDY GUIDE    ============================ */
+        /* Wrapper for the floating button */
+        #ref-widget {
+            position: fixed; 
+            bottom: 85px; /* Positioned above the footer and NAV button */
+            right: 15px; 
+            z-index: 5000;
+            opacity: 0.9;
+        }
+
+        /* The floating button itself */
+        .study-btn {
+            background: #000;
+            color: var(--term-color); 
+            border: 1px solid var(--term-color); 
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem; 
+            padding: 8px 12px;
+            text-shadow: 0 0 5px var(--term-color);
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            cursor: pointer;
+            text-transform: uppercase;
+            animation: rare-static 4s infinite; /* Matches existing theme */
+        }
+        .study-btn:active {
+            background: var(--term-color);
+            color: #000;
+        }
+
+        /* The Modal Background */
+        #glossary-ui {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+       /* ============================    GLOSSARY MODAL    ============================ */
+        #glossary-ui {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .glossary-window {
+            width: 95%; height: 85vh;
+            border: 2px solid var(--term-color);
+            background: rgba(0, 10, 10, 0.95);
+            box-shadow: 0 0 20px var(--term-color), inset 0 0 20px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            animation: turnOn 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        .gloss-view { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+        .gloss-view.hidden { display: none; }
+
+        .glossary-header {
+            background: var(--term-color); color: #000;
+            padding: 10px; font-weight: bold; font-size: 1.2rem;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .close-btn {
+            background: transparent; border: none; font-weight: bold; cursor: pointer;
+            font-family: 'VT323', monospace; font-size: 1.5rem; color: #000;
+        }
+
+        /* Selection Menu */
+        .exam-select-grid {
+            display: grid; grid-template-columns: 1fr; gap: 15px; padding: 20px; overflow-y: auto;
+        }
+        .exam-select-btn {
+            background: rgba(0,0,0,0.6); border: 1px solid var(--term-color); color: var(--term-color);
+            padding: 20px; cursor: pointer; transition: 0.2s; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            box-shadow: 0 0 5px var(--term-color);
+        }
+        .exam-select-btn:active { background: var(--term-color); color: #000; }
+        .ex-title { font-family: 'VT323', monospace; font-size: 2.0rem; font-weight: bold; }
+        .ex-sub { font-family: 'VT323', monospace; font-size: 1rem; letter-spacing: 2px; margin-top: 5px; opacity: 0.8; }
+
+        /* Content Tabs */
+        .glossary-tabs {
+            display: flex; overflow-x: auto; border-bottom: 1px solid var(--term-color); 
+            background: rgba(0,0,0,0.5); flex-shrink: 0;
+        }
+        .tab-btn {
+            flex: 0 0 auto; padding: 12px 15px; background: transparent; border: none; 
+            border-right: 1px solid #333; color: #888; font-family: 'VT323', monospace; font-size: 1.2rem;
+            cursor: pointer; transition: 0.2s;
+        }
+        .tab-btn.active { background: var(--term-color); color: #000; }
+
+        /* Content Grid */
+        .glossary-grid {
+            flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px;
+        }
+        .gloss-item { border: 1px solid #444; padding: 10px; background: rgba(0, 0, 0, 0.6); }
+        .gloss-key { 
+            color: var(--term-color); font-family: 'VT323', monospace; 
+            font-size: 1.4rem; font-weight: bold; display: block; 
+            border-bottom: 1px dashed #333; margin-bottom: 5px;
+        }
+        .gloss-val { color: #ccc; font-family: monospace; font-size: 0.9rem; line-height: 1.4; }
+      
+        /* Integrity Bars */
+        .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
+        .bars-group { display: flex; flex-direction: column; gap: 4px; width: 65%; }
+        .integrity-wrapper { width: 100%; display: flex; align-items: center; gap: 5px; }
+        .integrity-label { font-size: 0.8rem; letter-spacing: 1px; font-weight:bold; min-width: 65px; }
+        
+        .integrity-container { 
+            flex-grow: 1; height: 10px; border: 1px solid var(--term-color); 
+            background: rgba(0,0,0,0.8); padding: 1px; position: relative;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        /* --- PURPLE PHOSPHORUS TRAIL --- */
+        .integrity-ghost {
+            position: absolute; top: 1px; left: 1px; bottom: 1px;
+            background: #bc13fe; 
+            box-shadow: 0 0 10px #bc13fe;
+            width: 100%; pointer-events: none; z-index: 1; 
+            transition: width 2s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.5s ease-out; 
+        }
+
+        /* --- MAIN BAR --- */
+        .integrity-fill {
+            position: relative; z-index: 2; height: 100%; background: var(--term-color);
+            box-shadow: 0 0 5px var(--term-color); width: 100%;
+            transition: width 0.1s linear; 
+        }
+        
+        .integrity-critical { 
+            animation: crit-border-pulse 0.2s infinite !important; background: rgba(0,0,0,0.8) !important;
+        }
+        @keyframes crit-border-pulse {
+            0% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+            50% { border-color: #fff; box-shadow: 0 0 20px #ff0000; }
+            100% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        }
+
+/* Slow, wandering movement */
+@keyframes drunken-float {
+    0%   { transform: translate(0px, 0px); }
+    33%  { transform: translate(2px, -3px); }
+    66%  { transform: translate(-2px, -1px); }
+    100% { transform: translate(0px, 0px); }
+}
+
+.btn { 
+    /* ... keep your existing styles ... */
+    position: relative;
+    
+    /* Apply the drunken float */
+    /* We use 'both' to combine it with your entrance translateY(10px) smoothly */
+    animation: 
+        rare-static 5s infinite, 
+        drunken-float var(--float-speed, 3s) ease-in-out infinite;
+    
+    /* Randomize the start so they don't move in sync */
+    animation-delay: var(--anim-delay, 0s), var(--float-delay, 0s);
+}
+
+        /* Temp Bar */
+        @keyframes temp-strobe {
+            0% { background-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+            50% { background-color: #ffffff; box-shadow: 0 0 25px #ffffff; }
+            100% { background-color: #ff0000; box-shadow: 0 0 15px #ff0000; }
+        }
+        .strobe-active { animation: temp-strobe 0.2s infinite !important; }
+
+        .audio-btn { 
+            font-family: 'VT323', monospace; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; background: transparent; 
+            border: 1px solid var(--term-color); color: inherit; padding: 2px 5px; cursor: pointer; position: relative; overflow: hidden; transition: 0.2s;
+        }
+
+        /* ================================================================================== */
+        /* ============================    CSS: MENU & BUTTONS     ============================ */
+        /* ================================================================================== */
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 5px; overflow-y: auto; padding-bottom: 20px; }
+
+        .btn { 
+            background: rgba(0,0,0,0.6); border: 1px solid var(--term-color); color: var(--term-color); 
+            font-family: 'VT323', monospace; font-size: 1.4rem; padding: 12px 15px; cursor: pointer; text-align: left; 
+            transition: 0.2s; position: relative; overflow: hidden; opacity: 0; transform: translateY(10px); 
+            box-shadow: 0 0 8px var(--term-color), inset 0 0 8px rgba(10, 255, 186, 0.2);
+            text-shadow: 0 0 5px var(--glow-color);
+position: relative; /* Required for float/jitter */
+    
+    /* We chain 3 animations: 
+       1. rare-static (your existing glitch)
+       2. float-y (the bobbing)
+       3. jitter-x (the shaking) 
+    */
+    animation: 
+        rare-static 5s infinite, 
+        float-y var(--f-dur, 4s) ease-in-out infinite,
+        jitter-x var(--j-dur, 0.2s) linear infinite;
+        
+    /* Use variables for delays so they don't sync up */
+    animation-delay: 
+        var(--anim-delay, 0s), 
+        var(--f-delay, 0s), 
+        0s;
+}
+          
+
+        .btn.visible { opacity: 0.8 !important; transform: translateY(0); }
+        .btn:hover {
+            transform: translateX(10px) !important; background: rgba(10, 255, 186, 0.1); border-color: #fff; text-shadow: 0 0 15px #fff;
+            box-shadow: 0 0 15px var(--term-color), inset 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        .btn:active { background: #fff; color: #000; box-shadow: 0 0 30px #fff; border-color: #fff; transform: translate(-1px, -1px) !important; }
+        
+        /* EXAM BUTTON SPECIFIC */
+        .btn.exam-mode { 
+            border-color: #ff0000; background-color: #ff0000 !important; color: #ffffff !important; 
+            text-shadow: 0 0 10px #fff; 
+            box-shadow: 0 0 25px #ff0000, inset 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+        .btn.exam-mode:hover { background-color: #ff3333 !important; box-shadow: 0 0 40px #ff0000, inset 0 0 25px rgba(255, 255, 255, 0.6); }
+        .btn.exam-mode:active { background: #fff !important; color: #ff0000 !important; box-shadow: 0 0 80px #ff0000; }
+
+        .nav-btn { 
+            position: fixed; bottom: 45px; left: 20px; width: calc(100% - 40px); font-weight: bold; text-align: center; 
+            background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.8rem; padding: 15px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.8); z-index: 500; text-transform: uppercase;
+            animation: rare-static 7s infinite; 
+        }
+        .nav-btn:active { background: var(--term-color); color: #000; box-shadow: 0 0 40px var(--term-color); }
+
+        /* ================================================================================== */
+        /* ============================    CSS: QUIZ ELEMENTS      ============================ */
+        /* ================================================================================== */
+        .quiz-container { display: flex; flex-direction: column; flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 90px; }
+        .quiz-header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--term-color); padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem; }
+        .question-box { 
+            font-size: 1.6rem; line-height: 1.2; margin-bottom: 15px; background: linear-gradient(90deg, rgba(255,255,255,0.05), transparent);
+            border-left: 6px solid var(--term-color); padding: 10px; color: #ffffff !important; text-shadow: none;
+            animation: random-drift 7s ease-in-out infinite alternate;
+        }
+        #explanation-box { margin-bottom: 15px; padding: 10px; border: 2px dashed var(--term-color); background: rgba(0,10,0,0.6); font-size: 1.4rem; color: #ffffff; display: none; text-shadow: 0 0 5px var(--glow-color); }
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn { 
+            background: rgba(0, 0, 0, 0.7); border: 2px solid var(--term-color); color: #ffffff !important; padding: 12px; 
+            font-family: 'VT323', monospace; font-size: 1.4rem; text-align: left; cursor: pointer; position: relative;
+            box-shadow: 0 0 8px var(--term-color), inset 0 0 5px rgba(255,255,255,0.1);
+            animation: rare-static 6s infinite;
+        }
+        .option-btn:active { background: #fff !important; padding-left: 15px; color: #000 !important; border-color: #fff; box-shadow: 0 0 40px #fff; }
+        .option-btn.correct { background: var(--term-color) !important; color: black !important; border-color: white; box-shadow: 0 0 50px var(--term-color) !important; animation: answer-thump 0.3s ease-out forwards !important; }
+        .option-btn.wrong { background: #a00 !important; color: white !important; border-color: red; box-shadow: 0 0 50px red !important; animation: answer-shake 0.4s ease-in-out forwards !important; }
+
+        /* --- PBQ --- */
+        .pbq-wrapper { display: none; width: 100%; flex-direction: column; gap: 15px; }
+        .cmd-input-line { display: flex; align-items: center; background: rgba(0,0,0,0.8); border: 1px solid var(--term-color); padding: 10px; font-size: 1.3rem; }
+        #cmd-input { flex-grow: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
+        .match-container { display: flex; justify-content: space-between; gap: 10px; }
+        .match-col { display: flex; flex-direction: column; gap: 10px; width: 48%; }
+        .match-item { border: 1px solid var(--term-color); background: rgba(0, 20, 20, 0.6); padding: 10px; text-align: center; font-size: 1.1rem; color: #fff; transition: 0.2s; animation: rare-static 5.5s infinite; }
+        .match-item.selected { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); }
+        .match-item.matched { opacity: 0.5; text-decoration: line-through; pointer-events: none; }
+        .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
+
+        /* ================================================================================== */
+        /* ============================    CSS: ANIMATIONS       ============================ */
+        /* ================================================================================== */
+        @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
+        @keyframes stress-shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } }
+        @keyframes ghost-sway { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-0.4px, 0.8px) rotate(-0.02deg); } 100% { transform: translate(-0.8px, 0) rotate(-0.02deg); } }
+        @keyframes scan-pass-vertical { 0% { left: -100%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 200%; opacity: 0; } }
+        
+        .black-scan { position: relative; overflow: hidden; display: inline-block; }
+        .black-scan::after { content: ''; position: absolute; top: 0; left: -50%; width: 25px; height: 100%; background: #000; opacity: 0.8; animation: scan-pass-vertical 2.5s infinite ease-in-out; pointer-events: none; }
+        
+        @keyframes random-drift { 0% { transform: translate(0, 0); } 100% { transform: translate(1.5px, 1px); } }
+        @keyframes grid-move { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        @keyframes intense-pulse { 0% { opacity: 0.7; box-shadow: 0 0 5px currentColor; filter: brightness(1); } 100% { opacity: 1; box-shadow: 0 0 25px currentColor; filter: brightness(3); } }
+        @keyframes label-flash { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #fff; text-shadow: 0 0 2px #fff; } }
+        @keyframes fail-entry { 0% { transform: scale(1.1); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes vertical-rgb-split { 0% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } 50% { text-shadow: -2px 0 #ff0000, 2px 0 #00ffff; } 100% { text-shadow: 0 -2px #ff0000, 0 2px #00ffff; } }
+        @keyframes pulse-breath-erratic { 0% { opacity: var(--edge-opacity); } 50% { opacity: calc(var(--edge-opacity) * 0.4); } 100% { opacity: var(--edge-opacity); } }
+        @keyframes answer-thump { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 100px #fff; } 100% { transform: scale(1); } }
+        @keyframes answer-shake { 0% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } 100% { transform: translateX(0); } }
+
+        .stress-active { animation: stress-shake 0.4s infinite !important; }
+        .temp-pulse-active { animation: intense-pulse 0.5s infinite alternate !important; }
+        .label-crit { animation: label-flash 0.3s infinite; }
+
+        .hex-dump { position: absolute; font-family: monospace; font-size: 12px; color: var(--term-color); opacity: 0.4; z-index: -1; white-space: pre; pointer-events: none; text-shadow: 0 0 2px var(--glow-color); }
+        .float-text { position: absolute; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 2s forwards; text-shadow: 0 0 10px currentColor; z-index: 2000; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+
+        /* --- SCREENS --- */
+        #start-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background-color: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        
+        #fail-ui { display: none; text-align: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 2000; background: rgba(5, 0, 0, 0.95); flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; padding: 20px; overflow: hidden; }
+        .fail-visible { display: flex !important; opacity: 1 !important; pointer-events: auto !important; animation: fail-entry 0.3s ease-out forwards; color: #ccffff; }
+        .fail-text { font-size: 1.5rem; font-family: 'Press Start 2P', cursive; word-break: break-word; color:#fff; animation: vertical-rgb-split 0.1s infinite; text-shadow: 3px 0 red, -3px 0 blue; margin-bottom: 20px; }
+        .fail-restart-btn { background: rgba(255, 0, 0, 0.3) !important; border-color: red !important; color: #fff !important; position: relative; margin-top:20px; animation: stress-shake 0.8s infinite !important; }
+        .hidden { display: none !important; }
+
+        /* --- HACKER FOOTER (ADSENSE TICKER) --- */
+        .hacker-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    
+    /* CHANGE: Transparent background */
+    background: rgba(0, 0, 0, 0.0); 
+    backdrop-filter: blur(2px); /* Optional: slight blur for readability */
+    
+    border-top: 0px solid var(--term-dim); 
+    overflow: hidden;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+}
+
+        .ticker-content {
+            display: inline-block;
+            white-space: nowrap;
+            font-family: 'VT323', monospace;
+            font-size: 0.8rem;
+            
+            /* CHANGE: Dimmer color and subtle glow */
+            color: var(--term-dim); 
+            text-shadow: 0 0 2px var(--term-dim); 
+            
+            /* CHANGE: Slower speed (80s) */
+            animation: ticker-scroll 360s linear infinite;
+            
+            padding-left: 100%; 
+        }
+
+        /* Hover pauses the scroll so humans can read it */
+        .hacker-footer:hover .ticker-content {
+            animation-play-state: paused;
+        }
+
+        @keyframes ticker-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body class="glitch-active">
+
+<div class="pixel-overlay"></div>
+<canvas id="matrix-canvas"></canvas>
+<div class="retro-grid"></div>
+<div id="panic-pulse"></div> 
+<div id="scan-container"></div> 
+
+
+<div id="glossary-ui" class="hidden">
+    <div class="glossary-window">
+        <div class="glossary-header">
+            <span id="gloss-title">>> SELECT_DATABASE</span>
+            <div>
+                <button id="gloss-back-btn" class="close-btn hidden" style="margin-right: 15px;" onclick="showExamSelection()">[<]</button>
+                <button class="close-btn" onclick="toggleGlossary()">[X]</button>
+            </div>
+        </div>
+        
+        <div id="gloss-select-view" class="gloss-view">
+            <div class="exam-select-grid">
+                <button class="exam-select-btn" onclick="loadGlossaryExam('CORE1')">
+                    <span class="ex-title">CORE 1</span>
+                    <span class="ex-sub">HARDWARE / NETWORKING</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('CORE2')">
+                    <span class="ex-title">CORE 2</span>
+                    <span class="ex-sub">SOFTWARE / SECURITY</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('NET')">
+                    <span class="ex-title">NET+</span>
+                    <span class="ex-sub">INFRASTRUCTURE</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('SEC')">
+                    <span class="ex-title">SEC+</span>
+                    <span class="ex-sub">CYBERSECURITY</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="gloss-content-view" class="gloss-view hidden">
+            <div id="gloss-tabs" class="glossary-tabs">
+                </div>
+            <div id="glossary-content" class="glossary-grid">
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="terminal-window" id="term-win">
+    
+    <div class="header">
+        <div class="header-top">
+          <div class="h-left">
+                <h1 id="main-header"></h1>
+                <div id="header-cursor" class="cursor-block"></div>
+            </div>
+            <div class="donate-group">
+    <button class="sys-btn kofi-btn" onclick="AudioEngine.playMenuHover(); window.open('https://ko-fi.com/worldeater888', '_blank')">[SUPPORT]</button>
+    <button class="sys-btn bmc-btn" onclick="AudioEngine.playMenuHover(); window.open('https://buymeacoffee.com/comptia_simulator', '_blank')">[COFFEE]</button>
+    <button class="sys-btn kas-btn" onclick="AudioEngine.playMenuHover(); showCrypto()">[KAS]</button>
+</div>
+        </div>
+        
+        <div class="header-stats-row">
+            <div class="bars-group">
+                <div class="integrity-wrapper" id="integrity-wrap">
+                    <div class="integrity-label">INTEGRITY</div>
+                    <div class="integrity-container" id="integrity-cont">
+                        <div class="integrity-ghost" id="integrity-ghost"></div>
+                        <div class="integrity-fill" id="integrity-bar"></div>
+                    </div>
+                </div>
+                <div class="integrity-wrapper" id="temp-wrap">
+                    <div class="integrity-label" id="temp-label" style="color: #fff;">SYS_TEMP</div>
+                    <div class="integrity-container" style="border: 1px solid #ffffff;">
+                        <div class="integrity-fill" id="temp-bar" style="width: 0%; background: #0affba; transition: width 1s linear;"></div>
+                    </div>
+                </div>
+            </div>
+           <div style="text-align: right;">
+                 <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 5px;">
+                     <div id="score-ui" style="font-weight: bold; font-size: 1.2rem;">SYNC: 0</div>
+                     <button class="audio-btn" onclick="toggleGlossary()" 
+                         style="color: #ff0000; border-color: #ff0000; box-shadow: 0 0 8px #ff0000; text-shadow: 0 0 5px #ff0000;">
+                         [GUIDE]
+                     </button>
+                 </div>
+                 
+                 <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO: ON]</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="root-menu">
+        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color); padding-bottom: 5px;">> SELECT_CERTIFICATION:</p>
+        <div class="menu-grid">
+            <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('core1', 'A+ CORE 1')">[1] COMPTIA A+ CORE 1</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('core2', 'A+ CORE 2')">[2] COMPTIA A+ CORE 2 (empty)</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('net', 'NETWORK+')">[3] NETWORK+ (empty)</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('sec', 'SECURITY+')">[4] SECURITY+ (empty)</button>
+        </div>
+    </div>
+
+    <div id="core1-menu" class="hidden">
+        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color);">> CORE_1 // MODULES:</p>
+        <div class="menu-grid">
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Mobile')">[A] MOBILE_DEVICES</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Networking')">[B] NETWORKING</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Hardware')">[C] HARDWARE</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Cloud')">[D] VIRTUALIZATION_CLOUD</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE1', 'Troubleshoot')">[E] TROUBLESHOOTING</button>
+            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE1')"><span>[X] EXAM_SIMULATION</span></button>
+            <button class="btn" style="border-color: #fff; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3);" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+    
+    <div id="core2-menu" class="hidden">
+        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color);">> CORE_2 // MODULES:</p>
+        <div class="menu-grid">
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'OS')">[A] OS_CONCEPTS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Security')">[B] SECURITY</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Software')">[C] SOFTWARE_TRBL</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('CORE2', 'Ops')">[D] OPS_PROCEDURES</button>
+            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('CORE2')"><span>[X] EXAM_SIMULATION</span></button>
+            <button class="btn" style="border-color: #fff; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3);" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+
+    <div id="net-menu" class="hidden">
+        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color);">> NET+ // MODULES:</p>
+        <div class="menu-grid">
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Fundamentals')">[A] FUNDAMENTALS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Implement')">[B] IMPLEMENTATION</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Ops')">[C] OPERATIONS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Security')">[D] SECURITY</button>
+             <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('NET', 'Troubleshoot')">[E] TROUBLESHOOTING</button>
+            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('NET')"><span>[X] EXAM_SIMULATION</span></button>
+            <button class="btn" style="border-color: #fff; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3);" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+
+    <div id="sec-menu" class="hidden">
+        <p style="font-size: 1.1rem; border-bottom: 1px dashed var(--term-color);">> SEC+ // MODULES:</p>
+        <div class="menu-grid">
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Concepts')">[A] GEN_CONCEPTS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Threats')">[B] THREATS_VULNS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Arch')">[C] ARCHITECTURE</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Ops')">[D] SECURITY_OPS</button>
+            <button class="btn" onclick="AudioEngine.playMenuHover(); transitionToQuiz('SEC', 'Mgmt')">[E] MGMT_GOVERNANCE</button>
+            <button class="btn exam-mode" onclick="AudioEngine.playMenuHover(); startExam('SEC')"><span>[X] EXAM_SIMULATION</span></button>
+            <button class="btn" style="border-color: #fff; color: #fff; text-shadow: 0 0 10px #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3);" onclick="AudioEngine.playMenuHover(); goToRoot()"> < BACK TO ROOT </button>
+        </div>
+    </div>
+
+    <div id="quiz-ui" class="hidden quiz-container">
+        <div class="quiz-header-bar">
+            <span onclick="shutdownSystem()" style="color:#fff; text-decoration:underline; font-weight:bold;">< ABORT</span>
+            <span style="opacity:0.8;">[COUNTDOWN]: <span id="session-timer" style="color:#fff;">90:00</span></span>
+            <span style="opacity:0.8;">[GENERATED PKTS]: <span id="packet-counter" style="color:#fff;">00</span></span>
+        </div>
+        <div class="question-box"><span id="q-text"></span></div>
+        <div id="explanation-box"></div>
+        <div class="options-list" id="opts-list"></div>
+        <div id="pbq-area" class="pbq-wrapper"></div>
+        <button id="pbq-submit-btn" class="btn" onclick="submitPBQ()" style="display:none; margin-top:10px;">[ EXECUTE_COMMAND ]</button>
+        <button class="nav-btn hidden" id="next-btn" onclick="nextSeq()">>> NEXT_PACKET >></button>
+    </div>
+
+    <div id="results-ui" class="hidden" style="text-align: center; padding-top: 10px; overflow-y: auto; height: 100%;">
+        <h1 style="font-size: 5rem; margin-bottom: 0px;" id="final-percent">0%</h1>
+        <p style="font-size: 2rem; margin-bottom: 10px;">> DIAGNOSTIC COMPLETE</p>
+        <div id="breakdown-container" style="text-align:left; margin:20px;"></div>
+        <button class="nav-btn" style="position:relative; margin-top:30px;" onclick="AudioEngine.playMenuHover(); location.reload()"> >> EXCOMMUNICATE << </button>
+    </div>
+
+    <div id="fail-ui">
+        <h1 class="fail-text">CORRUPTION</h1>
+        <p style="font-size: 2rem; color: #ccffff;"> _ALL_IS_LOST_</p>
+        <button class="nav-btn fail-restart-btn" onclick="AudioEngine.playMenuHover(); location.reload()">>> PURGE_SYSTEM</button>
+    </div>
+                
+      <div class="hacker-footer">
+    <div class="ticker-content">
+        >> SYS_LOG_START [0x1A4F] >> IDENTITY: OPEN_SOURCE_COMPTIA_TRAINING_SIMULATOR_V2.9 >> STATUS: ONLINE...
+        
+        [ ABOUT_SYSTEM ] This is an open-source interactive study tool for CompTIA A+ students. I recommend textbooks to help users clarify difficult concepts. This browser-based terminal simulator serves as a comprehensive training environment for Information Technology professionals preparing for industry-standard certifications including CompTIA A+ Core 1 (220-1101), Core 2 (220-1102), Network+ (N10-008), and Security+ (SY0-601). Unlike static flashcards, this utility simulates a live operating system under stress to test candidate recall on critical concepts. 
+        
+        [ MODULE_01: HARDWARE_ARCHITECTURE ] System validates knowledge of physical components including RAID array configurations (RAID 0, 1, 5, 10), RAM form factors (SODIMM vs DIMM), and storage interface protocols (NVMe, SATA, M.2). Peripheral management logic covers laser printer maintenance and cable standards (Cat5e vs Cat6a, HDMI, DisplayPort, USB-C). 
+        
+        [ MODULE_02: NETWORKING_STACK ] Network infrastructure analysis is a primary function. Users must demonstrate proficiency in TCP/IP addressing, subnet masking, and common protocol ports (HTTP 80, HTTPS 443, SSH 22, DNS 53, RDP 3389). Wireless standards (802.11ax/ac/n) and security encryption (WPA2 vs WPA3) are rigorously simulated. 
+        
+        [ MODULE_03: SECURITY_VECTORS ] The security module simulates threat vectors including social engineering, malware analysis (Ransomware, Trojans, Rootkits, Keyloggers), and physical security controls (Biometrics, Smart Cards). Governance concepts like Least Privilege and MDM policies are enforced. 
+        
+        [ CAREER_DATALINK ] RELEVANT_PATHWAYS: ENTRY_LEVEL_IT_HELP_DESK_JOBS // JUNIOR_SYSTEM_ADMINISTRATOR_SALARY // ONLINE_CYBERSECURITY_DEGREE_PROGRAMS // ACCREDITED_INFORMATION_TECHNOLOGY_SCHOOLS // NETWORK_OPERATIONS_CENTER_TECHNICIAN // SOC_ANALYST_REMOTE_CAREERS...
+        
+        >> DISCLAIMER: THIS_PROJECT_IS_AN_INDEPENDENT_STUDY_TOOL_AND_IS_NOT_AFFILIATED_WITH_COMPTIA. COMPTIA_IS_A_REGISTERED_TRADEMARK_OF_THE_COMPUTING_TECHNOLOGY_INDUSTRY_ASSOCIATION. 
+        >> END_LOG [0xFFFF] >> WAITING_FOR_INPUT...
+    </div>
+</div>
+
+<script>
+    /* ============================    JS: AUDIO ENGINE        ============================ */
+    const AudioEngine = {
+        ctx: null, masterGain: null, delayNode: null, isPlaying: false, isMuted: false, 
+        init: function() {
+             try {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AC();
+                this.masterGain = this.ctx.createGain();
+                this.masterGain.gain.value = 0.3;
+                this.masterGain.connect(this.ctx.destination);
+                this.delayNode = this.ctx.createDelay(); this.delayNode.delayTime.value = 0.35; 
+                const feedback = this.ctx.createGain(); feedback.gain.value = 0.4;
+                this.delayNode.connect(feedback); feedback.connect(this.delayNode); this.delayNode.connect(this.masterGain);
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                this.startMusic();
+            } catch(e) {}
+        },
+        startMusic: function() { if(this.isPlaying) return; this.isPlaying = true; this.musicLoop(); },
+        musicLoop: function() {
+            if (!this.isPlaying) return;
+            const now = this.ctx.currentTime;
+            const drone = this.ctx.createOscillator(); const droneGain = this.ctx.createGain();
+            drone.type = 'sine'; drone.frequency.value = 55; 
+            droneGain.gain.setValueAtTime(0.05, now); droneGain.gain.linearRampToValueAtTime(0, now + 6);
+            drone.connect(droneGain); droneGain.connect(this.masterGain); drone.start(now); drone.stop(now + 6);
+            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            osc.type = 'triangle'; osc.frequency.value = [43.65, 55, 65.41][Math.floor(Math.random()*3)];
+            g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.1, now + 2); g.gain.linearRampToValueAtTime(0, now + 7); 
+            osc.connect(g); g.connect(this.masterGain); g.connect(this.delayNode); osc.start(now); osc.stop(now + 7);
+            setTimeout(() => this.musicLoop(), 4500); 
+        },
+        playSFX: function(type) {
+            if (!this.ctx || this.isMuted) return;
+            const t = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            osc.connect(g); g.connect(this.masterGain);
+            if (type === 'type') { osc.type = 'square'; osc.frequency.setValueAtTime(2000+Math.random()*1000, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.03); osc.start(t); osc.stop(t+0.03); }
+            else if (type === 'click') { osc.type = 'square'; osc.frequency.setValueAtTime(800, t); g.gain.setValueAtTime(0.01, t); g.gain.exponentialRampToValueAtTime(0.001, t+0.05); osc.start(t); osc.stop(t+0.05); } 
+            else if (type === 'success') { osc.type = 'sine'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.1); g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.2); g.connect(this.delayNode); osc.start(t); osc.stop(t+0.2); } 
+            else if (type === 'error') { osc.type = 'triangle'; osc.frequency.setValueAtTime(150+Math.random()*50, t); osc.frequency.linearRampToValueAtTime(50, t+0.4); g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4); osc.start(t); osc.stop(t+0.4); } 
+        },
+        playMenuHover: function() {
+            if (!this.ctx || this.isMuted) return;
+            const t = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            osc.type = 'square'; osc.frequency.setValueAtTime(600 + Math.random() * 800, t); g.gain.setValueAtTime(0.02, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15); 
+            osc.connect(g); g.connect(this.masterGain); osc.start(t); osc.stop(t + 0.15);
+        },
+        toggleMute: function() {
+            this.isMuted = !this.isMuted;
+            if(this.masterGain) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : 0.3, this.ctx.currentTime, 0.1);
+            document.getElementById('sound-toggle').innerText = this.isMuted ? "[AUDIO:OFF]" : "[AUDIO:ON]";
+        }
+    };
+
+    /* ============================    JS: DATABASE & GLOBALS ============================ */
+    let matchState = { selected: null, pairsFound: 0 };
+    let tagStats = {}; // <--- ADDED TAG TRACKING VAR
+    let qQueue = []; let currentScore = 0; window.integrity = 100;
+    let explainTimer = null; let questionsCorrect = 0;
+    let questionsAttempted = 0; let isDead = false;
+    let hudInterval = null; let sessionTime = 5400; let tempLevel = 0;
+    const TEMP_MAX = 60;
+    
+    /* === MASTER TAG REFERENCE ===
+       Ensure your MASTER_DATABASE questions use these exact tag combinations.
+       CORE1: ['Mobile', 'Networking', 'Hardware', 'Cloud', 'Troubleshoot']
+       CORE2: ['OS', 'Security', 'Software', 'Ops']
+       NET:   ['Fundamentals', 'Implement', 'Ops', 'Security', 'Troubleshoot']
+       SEC:   ['Concepts', 'Threats', 'Arch', 'Ops', 'Mgmt']
+    */
+    const EXAM_WEIGHTS = {
+        'CORE1': [
+            { tag: 'Mobile', pct: 0.14 },       // 14%
+            { tag: 'Networking', pct: 0.20 },   // 20%
+            { tag: 'Hardware', pct: 0.27 },     // 27%
+            { tag: 'Cloud', pct: 0.11 },        // 11%
+            { tag: 'Troubleshoot', pct: 0.28 }  // 28%
+        ],
+        'CORE2': [
+            { tag: 'OS', pct: 0.27 },
+            { tag: 'Security', pct: 0.24 },
+            { tag: 'Software', pct: 0.26 },
+            { tag: 'Ops', pct: 0.23 }
+        ],
+        'NET': [
+            { tag: 'Fundamentals', pct: 0.23 },
+            { tag: 'Implement', pct: 0.18 },
+            { tag: 'Ops', pct: 0.16 },
+            { tag: 'Security', pct: 0.20 },
+            { tag: 'Troubleshoot', pct: 0.23 }
+        ],
+        'SEC': [
+            { tag: 'Concepts', pct: 0.12 },
+            { tag: 'Threats', pct: 0.22 },
+            { tag: 'Arch', pct: 0.18 },
+            { tag: 'Ops', pct: 0.28 },
+            { tag: 'Mgmt', pct: 0.20 }
+        ]
+    };
+
+// ==================  QUESTIONS DATABASE  ==================
+    // (Questions are now loaded from external files like questions_core1.js)
+
+
+    function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
+
+    /* ============================    JS: VISUAL FX           ============================ */
+    function spawnScanline() {
+        if(isDead) return;
+        const line = document.createElement('div'); line.className = 'scan-line';
+        line.style.height = (Math.random() * 3 + 1) + 'px';
+        line.style.animation = `scan-drop ${Math.random() * 5 + 4}s linear forwards`;
+        document.getElementById('scan-container').appendChild(line);
+        setTimeout(() => line.remove(), 10000);
+        setTimeout(spawnScanline, Math.random() * 8000 + 6000); 
+    }
+    spawnScanline();
+    
+    function spawnDarkScanline() {
+        if(isDead) return;
+        if(Math.random() > 0.7) { 
+            const line = document.createElement('div'); line.className = 'dark-scan-line';
+            line.style.height = (Math.random() * 10 + 5) + 'px'; 
+            line.style.animation = `dark-scan-drop 0.5s linear forwards`; 
+            document.getElementById('scan-container').appendChild(line);
+            setTimeout(() => line.remove(), 600);
+        }
+        setTimeout(spawnDarkScanline, Math.random() * 15000 + 10000); 
+    }
+    spawnDarkScanline();
+
+    function triggerRandomGlitch() {
+        if(isDead) return;
+        const chaos = 1 - (integrity / 100);
+        if(Math.random() < 0.05 + (chaos * 0.5)) {
+            const targets = document.querySelectorAll('.btn, .question-box, h1');
+            if(targets.length > 0) {
+                const target = targets[Math.floor(Math.random()*targets.length)];
+                target.classList.add('random-glitch-active');
+                setTimeout(() => target.classList.remove('random-glitch-active'), 200);
+            }
+        }
+        setTimeout(triggerRandomGlitch, 200 + (integrity * 5));
+    }
+    
+    function spawnHexDump() {
+        if(isDead) return;
+        const chars = "0123456789ABCDEF"; let str = "";
+        for(let r=0; r<6; r++) { str += "0x";
+            for(let i=0; i<4; i++) str += chars[Math.floor(Math.random()*16)]; str += "\n";
+        }
+        const el = document.createElement('div'); el.className = "hex-dump";
+        el.style[Math.random() > 0.5 ? 'left' : 'right'] = Math.random() * 15 + "%"; el.style.top = Math.random() * 90 + "%";
+        document.body.appendChild(el);
+        setTimeout(()=>el.remove(), 8000);
+        setTimeout(spawnHexDump, Math.random() * 3000 + 2000);
+    }
+    
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+
+    /* ============================    ZALGO MATRIX RAIN    ============================ */
+    const fontSize = 17; 
+    const columns = Math.floor(canvas.width / fontSize);
+    
+    // 1. INITIALIZE VERY SPARSE
+    // We start drops at random positions between -500 and 0.
+    // This ensures the screen isn't full when the page loads.
+    const drops = [];
+    for(let x = 0; x < columns; x++) {
+        drops[x] = Math.floor(Math.random() * -300); 
+    }
+    
+    const baseSource = "01010x<>!@#{}[]ZEUS"; 
+    const zalgoPool = [];
+
+    function initZalgo() {
+        const marks = [];
+        for (let i = 0x0300; i <= 0x036F; i++) {
+            marks.push(String.fromCharCode(i));
+        }
+        for (let i = 0; i < 150; i++) {
+            let char = baseSource[Math.floor(Math.random() * baseSource.length)];
+            const numMarks = Math.floor(Math.random() * 5) + 2; 
+            for (let j = 0; j < numMarks; j++) {
+                char += marks[Math.floor(Math.random() * marks.length)];
+            }
+            zalgoPool.push(char);
+        }
+    }
+    initZalgo(); 
+
+    function drawRain() {
+        // 2. EXTREME SLOW DOWN
+        // Changed to 0.96. The higher this number (max 0.99), the slower it falls.
+        if(Math.random() > 0.5) { requestAnimationFrame(drawRain); return; } 
+        
+        // Clear background (standard fade to keep text crisp, not ghostly)
+        ctx.fillStyle = 'rgba(10, 0, 0, 0.1)'; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Bright Neon Color
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--term-color'); 
+        ctx.font = fontSize + 'px monospace';
+        
+        for(let i=0; i<drops.length; i++) {
+            // Only draw if the drop is visible (positive number)
+            if(drops[i] > 0) {
+                const char = zalgoPool.length > 0 
+                    ? zalgoPool[Math.floor(Math.random() * zalgoPool.length)] 
+                    : "0";
+                ctx.fillText(char, i*fontSize, drops[i]*fontSize);
+            }
+            
+            // Always move the drop down (even if it's invisible off-screen)
+            drops[i]++;
+            
+            // 3. SPARSITY LOGIC (The "Waiting Room")
+            // When it hits the bottom, send it WAY back up.
+            // Resetting to between -100 and -600 creates massive gaps between drops.
+            if(drops[i]*fontSize > canvas.height && Math.random() > 0.95) {
+                 drops[i] = Math.floor(Math.random() * -2000) - 100; 
+            }
+        }
+        requestAnimationFrame(drawRain);
+    }
+    drawRain();
+
+    function scrambleText(element, finalString, duration=500) {
+        const alphabet = "0101010101XYZ<>";
+        let start = Date.now();
+        let charCount = 0;
+        function update() {
+            let prog = (Date.now() - start) / duration;
+            if(prog >= 1) { element.innerText = finalString; return; }
+            let txt = "";
+            for(let i=0; i<finalString.length; i++) {
+                if(i < finalString.length * prog) txt += finalString[i];
+                else txt += alphabet[Math.floor(Math.random()*alphabet.length)];
+            }
+            element.innerText = txt;
+            charCount++;
+            if(charCount % 2 === 0) AudioEngine.playSFX('type'); 
+            requestAnimationFrame(update);
+        }
+        update();
+    }
+
+    function typeExplain(element, text) {
+        if (explainTimer) { clearTimeout(explainTimer); explainTimer = null; }
+        element.style.display = 'block'; element.innerHTML = "";
+        let i = 0;
+        function type() {
+            if (i < text.length) { 
+                element.innerHTML += text.charAt(i); i++; 
+                if(i % 2 === 0) AudioEngine.playSFX('type');
+                explainTimer = setTimeout(type, 20);
+            }
+        }
+        type();
+    }
+
+    /* HEADER JACKPOT */
+    let typeWriterTimeouts = [];
+    
+    function clearTypewriter() {
+        typeWriterTimeouts.forEach(id => clearTimeout(id));
+        typeWriterTimeouts = [];
+    }
+
+    function typewriterJackpot(targetId, text) {
+        clearTypewriter();
+        const el = document.getElementById(targetId);
+        if(!el) return;
+        el.innerHTML = "";
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_[]<>";
+        let i = 0;
+        
+        function addChar() {
+            if (i >= text.length) return;
+            const targetChar = text[i];
+            let cycles = 0;
+            const maxCycles = 3; 
+            
+            const span = document.createElement('span');
+            span.style.fontFamily = "'VT323', monospace";
+            el.appendChild(span);
+            
+            function cycle() {
+                if (cycles < maxCycles) {
+                    span.innerText = chars[Math.floor(Math.random() * chars.length)];
+                    cycles++;
+                    typeWriterTimeouts.push(setTimeout(cycle, 50));
+                } else {
+                    span.innerText = targetChar;
+                    AudioEngine.playSFX('type');
+                    i++;
+                    typeWriterTimeouts.push(setTimeout(addChar, 50));
+                }
+            }
+            cycle();
+        }
+        addChar();
+    }
+
+    /* ============================    JS: GAME STATE          ============================ */
+    function startHUD() {
+        if (hudInterval) clearInterval(hudInterval);
+        hudInterval = setInterval(() => {
+            if(isDead) return;
+            if (sessionTime > 0) sessionTime--;
+            let mins = Math.floor(sessionTime / 60); let secs = sessionTime % 60;
+            document.getElementById('session-timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+            
+            // FIXED TEMP LOGIC
+            if (document.getElementById('next-btn').classList.contains('hidden')) {
+                if (tempLevel < TEMP_MAX) tempLevel++;
+                updateTempVisuals();
+            }
+        }, 1000);
+    }
+
+    function updateTempVisuals() {
+        const bar = document.getElementById('temp-bar');
+        const label = document.getElementById('temp-label');
+        const pct = tempLevel / TEMP_MAX;
+        
+        bar.style.width = `${pct * 100}%`;
+        bar.classList.remove('strobe-active'); 
+
+        if (tempLevel >= 55) { 
+            label.innerText = "!! CRITICAL !!"; label.style.color = "#ff0000"; label.classList.add('label-crit'); bar.classList.add('strobe-active'); 
+        } else if (tempLevel >= 45) { 
+            label.innerText = "DANGER"; label.style.color = "#ff0000"; label.classList.add('label-crit'); bar.style.backgroundColor = "#ff0000";
+        } else if (tempLevel >= 30) { 
+            label.innerText = "WARNING"; label.style.color = "#ffaa00"; bar.style.backgroundColor = "#ffaa00";
+        } else if (tempLevel >= 15) { 
+            label.innerText = "CAUTION"; label.style.color = "#ffff00"; bar.style.backgroundColor = "#ffff00";
+        } else { 
+            label.innerText = "TEMP"; label.style.color = "#ffffff"; label.classList.remove('label-crit'); bar.style.backgroundColor = "#0affba";
+        }
+    }
+
+    function bootSystem() {
+        // REMOVED: document.getElementById('start-overlay').style.display = 'none';
+        AudioEngine.init(); 
+        const term = document.getElementById('term-win');
+        term.style.display = 'flex'; term.classList.add('power-on');
+        
+        setTimeout(() => {
+            typewriterJackpot('main-header', 'COMPTIA_SIM');
+        }, 800);
+        
+        const btns = document.querySelectorAll('.btn, .nav-btn, .option-btn, .sys-btn');
+        
+        btns.forEach((b, i) => { 
+            b.classList.add('erratic-target');
+            b.style.setProperty('--anim-delay', `${Math.random() * 2}s`);
+            b.style.setProperty('--float-speed', `${5 + Math.random() * 4}s`);
+            b.style.setProperty('--float-delay', `-${Math.random() * 10}s`);
+            setTimeout(() => { b.classList.add('visible'); }, 1500 + (i * 150)); 
+        });
+        
+        spawnHexDump(); triggerRandomGlitch();
+    }
+
+    function goToSubMenu(type, titleName) {
+        typewriterJackpot('main-header', titleName || 'SIM');
+        
+        document.getElementById('root-menu').classList.add('hidden');
+        document.getElementById(type + '-menu').classList.remove('hidden');
+        const target = document.getElementById(type + '-menu');
+        const btns = target.querySelectorAll('.btn');
+        btns.forEach((b, i) => { b.classList.remove('visible'); setTimeout(() => { b.classList.add('visible'); }, 100 + (i * 100)); });
+    }
+
+    function goToRoot() {
+        typewriterJackpot('main-header', 'ROOT_ACCESS');
+        
+        document.querySelectorAll('[id$="-menu"]').forEach(m => m.classList.add('hidden'));
+        document.getElementById('root-menu').classList.remove('hidden');
+    }
+    
+    function transitionToQuiz(certTag, moduleTag) {
+        // 1. Fetch & Shuffle
+        qQueue = fetchQuestions([certTag, moduleTag]);
+        if(qQueue.length === 0) { alert("NO DATA IN DATABASE. PLEASE ADD QUESTIONS."); return; }
+
+        for (let i = qQueue.length - 1; i > 0; i--) { 
+            const j = Math.floor(Math.random() * (i + 1)); 
+            [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
+        }
+        
+        // 2. Limit to 25
+        if(qQueue.length > 25) qQueue = qQueue.slice(0, 25);
+        window.sessionTotal = qQueue.length; // Save for the counter
+
+        // 3. THE SIMPLE "COGITATOR" MESSAGE (No extra CSS needed)
+        const msg = document.createElement('div');
+        // Inline styles to center it and make it look cool
+        msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out;";
+        msg.innerHTML = `COGITATOR ONLINE:<br><span style="color:#ff0a0a">${window.sessionTotal} PACKETS SYNTHESIZED</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+        
+        document.body.appendChild(msg);
+
+        // Fade out and remove
+        setTimeout(() => { msg.style.opacity = '0'; }, 2000); // Start fade at 2s
+        setTimeout(() => { msg.remove(); }, 3000);          // Delete at 3s
+
+        startQuiz();
+    }
+    
+    // NEW WEIGHTED EXAM ALGORITHM
+    function startExam(certTag) {
+        const targetTotal = 90; // Standard CompTIA exam length
+        let examQueue = [];
+        let usedIds = new Set(); // Track added questions to avoid duplicates
+        
+        const weights = EXAM_WEIGHTS[certTag];
+        if (!weights) { alert("CONFIG ERROR: No weights found for " + certTag); return; }
+
+        weights.forEach(domain => {
+            const countNeeded = Math.floor(targetTotal * domain.pct);
+            let pool = fetchQuestions([certTag, domain.tag]);
+            
+            // Shuffle pool
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            
+            let added = 0;
+            for(let q of pool) {
+                if(added >= countNeeded) break;
+                if(!usedIds.has(q)) { examQueue.push(q); usedIds.add(q); added++; }
+            }
+        });
+
+        // Backfill
+        if (examQueue.length < targetTotal) {
+            let allCertQs = fetchQuestions([certTag]);
+            for (let i = allCertQs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allCertQs[i], allCertQs[j]] = [allCertQs[j], allCertQs[i]];
+            }
+            for (let q of allCertQs) {
+                if (examQueue.length >= targetTotal) break;
+                if (!usedIds.has(q)) { examQueue.push(q); usedIds.add(q); }
+            }
+        }
+
+        // Final Shuffle
+        for (let i = examQueue.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [examQueue[i], examQueue[j]] = [examQueue[j], examQueue[i]];
+        }
+
+        if(examQueue.length === 0) { alert("NO DATA IN DATABASE. PLEASE ADD QUESTIONS FOR " + certTag); return; }
+        qQueue = examQueue;
+        startQuiz();
+    }
+
+    function startQuiz() {
+        document.querySelectorAll('[id$="-menu"], #root-menu').forEach(m => m.classList.add('hidden'));
+        document.getElementById('quiz-ui').classList.remove('hidden');
+        resetGame(); startHUD(); loadSeq();
+    }
+    
+    function resetGame() {
+        currentScore = 0; integrity = 100; tempLevel = 0; isDead = false; questionsCorrect = 0; questionsAttempted = 0;
+        tagStats = {}; // <--- RESET BREAKDOWN
+        document.getElementById('fail-ui').classList.remove('fail-visible'); 
+        updateSystemState();
+    }
+
+    function updateSystemState() {
+        if (integrity > 100) integrity = 100; if (integrity < 0) integrity = 0;
+        
+        // Handle Main Bar
+        const bar = document.getElementById('integrity-bar');
+        const ghost = document.getElementById('integrity-ghost');
+        
+        bar.style.width = `${integrity}%`;
+        ghost.style.width = `${integrity}%`;
+        
+        document.getElementById('score-ui').innerText = `SYNC: ${currentScore}`;
+        const root = document.documentElement; 
+        
+        // --- COLOR CALCULATION ---
+        let hue;
+        if(integrity > 50) { hue = 140 + ((integrity - 50) * 0.4); } else { hue = integrity * 1.2; }
+        
+        const newColor = `hsl(${hue}, 100%, 50%)`;
+        const glowColor = `hsla(${hue}, 100%, 50%, 0.6)`;
+        
+        // NEW: Calculate dynamic Dim color for the footer
+        const dimColor = `hsla(${hue}, 100%, 50%, 0.4)`;
+        
+        root.style.setProperty('--term-color', newColor);
+        root.style.setProperty('--glow-color', glowColor);
+        
+        // NEW: Apply the dim color to the CSS variable
+        root.style.setProperty('--term-dim', dimColor);
+
+        // --- SHAKE / PANIC EFFECTS ---
+        const panicLevel = (100 - integrity) / 100;
+        root.style.setProperty('--edge-opacity', panicLevel * 0.8);
+        root.style.setProperty('--shake-amp', (panicLevel * 0.5) + 'px');
+
+        const termWindow = document.getElementById('term-win');
+        
+        if(integrity < 30) {
+            termWindow.classList.add('stress-active'); 
+            document.getElementById('integrity-cont').classList.add('integrity-critical');
+            bar.style.backgroundColor = '#ff0000'; 
+            bar.style.boxShadow = '0 0 15px #ff0000';
+        } else {
+            termWindow.classList.remove('stress-active'); 
+            document.getElementById('integrity-cont').classList.remove('integrity-critical');
+            bar.style.backgroundColor = ''; 
+            bar.style.boxShadow = '';
+        }
+        if(integrity <= 0 && !isDead) triggerFailure();
+    }
+
+    function triggerFailure() { 
+        isDead = true; document.getElementById('fail-ui').classList.add('fail-visible'); AudioEngine.playSFX('error');
+    }
+
+    function loadSeq() {
+        if (integrity <= 0 || qQueue.length === 0) { if(qQueue.length === 0) finish(); return; }
+        tempLevel = 0; updateTempVisuals();
+        const q = qQueue.pop(); window.currentQ = q;
+        document.getElementById('packet-counter').innerText = qQueue.length;
+        scrambleText(document.getElementById('q-text'), q.question, 400);
+        document.getElementById('explanation-box').style.display = 'none';
+        document.getElementById('next-btn').classList.add('hidden');
+        document.getElementById('opts-list').innerHTML = '';
+        document.getElementById('pbq-area').style.display = 'none';
+        document.getElementById('pbq-submit-btn').style.display = 'none';
+        if (q.type === 'terminal' || q.type === 'match') renderPBQ(q); else renderMCQ(q);
+    }
+
+    /* --- HINT SYSTEM (NEW) --- */
+    function renderHint(q, targetContainer) {
+        if (!q.hint) return;
+        const hintWrap = document.createElement('div');
+        hintWrap.style.marginTop = "20px"; hintWrap.style.borderTop = "1px dashed #555"; hintWrap.style.paddingTop = "10px"; hintWrap.style.width = "100%";
+
+        const hintBtn = document.createElement('button');
+        hintBtn.className = 'sys-btn'; hintBtn.innerText = '[ DECRYPT_HINT ]';
+        hintBtn.style.color = "#ffff00"; hintBtn.style.borderColor = "#ffff00"; hintBtn.style.width = "100%";
+        
+        const hintMsg = document.createElement('div');
+        hintMsg.innerText = ">> DATA_MINED: " + q.hint;
+        hintMsg.style.display = "none"; hintMsg.style.color = "#ffff00";
+        hintMsg.style.fontFamily = "'Press Start 2P', cursive"; hintMsg.style.fontSize = "0.7rem"; hintMsg.style.lineHeight = "1.5"; hintMsg.style.marginTop = "10px";
+        hintMsg.style.animation = "text-pulse-glow 3s infinite alternate"; 
+        
+        hintBtn.onclick = () => {
+            AudioEngine.playSFX('click'); hintBtn.style.display = 'none'; hintMsg.style.display = 'block';
+        };
+        hintWrap.appendChild(hintBtn); hintWrap.appendChild(hintMsg); targetContainer.appendChild(hintWrap);
+    }
+
+    function renderMCQ(q) {
+        const optsList = document.getElementById('opts-list');
+        q.options.forEach((o, i) => {
+            const b = document.createElement('button'); b.className = 'option-btn erratic-target'; b.innerText = `> ${o}`;
+            b.style.animationDelay = `${Math.random() * 2}s`;
+            b.onclick = () => processResult(i === q.answer, b);
+            optsList.appendChild(b);
+        });
+        renderHint(q, optsList);
+    }
+
+    function renderPBQ(q) {
+        const area = document.getElementById('pbq-area');
+        area.innerHTML = ''; area.style.display = 'flex';
+        document.getElementById('pbq-submit-btn').style.display = 'block';
+        
+        if (q.type === 'terminal') {
+            area.innerHTML = `<div class="cmd-input-line"><span>C:\\></span><input type="text" id="cmd-input" autocomplete="off"></div>`;
+            setTimeout(() => document.getElementById('cmd-input').focus(), 100);
+        } else if (q.type === 'match') {
+            matchState = { selected: null, pairsFound: 0 };
+            area.innerHTML = `<div class="match-container"><div class="match-col" id="col-left"></div><div class="match-col" id="col-right"></div></div>`;
+            q.pairs.forEach((p, i) => {
+                const l = document.createElement('div'); l.className='match-item erratic-target'; l.innerText=p.left; l.dataset.id=i; l.dataset.side='l'; l.onclick=e=>handleMatch(e.target);
+                document.getElementById('col-left').appendChild(l);
+                const r = document.createElement('div'); r.className='match-item erratic-target'; r.innerText=p.right; r.dataset.id=i; r.dataset.side='r'; r.onclick=e=>handleMatch(e.target);
+                document.getElementById('col-right').appendChild(r);
+           });
+           
+           // FIXED SHUFFLE LOGIC
+           const rCol = document.getElementById('col-right');
+           const elements = Array.from(rCol.children);
+           for (let i = elements.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [elements[i], elements[j]] = [elements[j], elements[i]];
+           }
+           elements.forEach(el => rCol.appendChild(el));
+        }
+        renderHint(q, area);
+    }
+
+    function handleMatch(el) {
+        if(el.classList.contains('matched')) return;
+        if(matchState.selected === el) { el.classList.remove('selected'); matchState.selected=null; return; }
+        if(!matchState.selected) { matchState.selected = el; el.classList.add('selected'); }
+        else {
+            const prev = matchState.selected;
+            if(prev.dataset.side === el.dataset.side) { prev.classList.remove('selected'); el.classList.add('selected'); matchState.selected = el; return; }
+            if(prev.dataset.id === el.dataset.id) {
+                prev.classList.remove('selected'); el.classList.remove('selected'); prev.classList.add('matched'); el.classList.add('matched');
+                AudioEngine.playSFX('click'); matchState.pairsFound++; matchState.selected = null;
+            } else {
+                prev.classList.remove('selected'); el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'), 400);
+                AudioEngine.playSFX('error'); matchState.selected = null; integrity-=3; updateSystemState(); 
+                
+                // FLASH DAMAGE
+                const wrap = document.getElementById('integrity-cont'); 
+                wrap.classList.add('damage-flash');
+                setTimeout(() => wrap.classList.remove('damage-flash'), 1000); 
+
+                const errs = ["SEG_FAULT", "NaN", "0x00DEAD", "NULL_REF", "BIT_FLIP"]; showFloatText(errs[Math.floor(Math.random()*errs.length)], el, 'red');
+            }
+        }
+    }
+
+    function submitPBQ() {
+        const q = window.currentQ;
+        let correct = false;
+        if(q.type === 'terminal') { if(q.validCommands.includes(document.getElementById('cmd-input').value.trim().toLowerCase())) correct = true; }
+        else if (q.type === 'match') { if(matchState.pairsFound === q.pairs.length) correct = true; }
+        processResult(correct, document.getElementById('pbq-submit-btn'));
+    }
+
+    function processResult(isCorrect, btn) {
+        // --- START TRACKING CODE ---
+        if(window.currentQ && window.currentQ.tags) {
+            const qTags = window.currentQ.tags;
+            qTags.forEach(tag => {
+                // Filter out main exam tags
+                if(tag === 'CORE1' || tag === 'CORE2' || tag === 'NET' || tag === 'SEC') return;
+
+                if(!tagStats[tag]) tagStats[tag] = { correct: 0, total: 0 };
+                tagStats[tag].total++;
+                if(isCorrect) tagStats[tag].correct++;
+            });
+        }
+        // --- END TRACKING CODE ---
+
+        questionsAttempted++;
+        document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
+        document.getElementById('pbq-submit-btn').style.display = 'none';
+        if (isCorrect) {
+            questionsCorrect++; btn.classList.add('correct'); currentScore++; integrity += 5;
+            AudioEngine.playSFX('success'); showFloatText("ACCEPTED", btn, '#0f0');
+        } else {
+            btn.classList.add('wrong'); integrity -= 15;
+            AudioEngine.playSFX('error'); showFloatText("CORRUPT", btn, '#f00');
+            
+            // FLASH DAMAGE
+            const wrap = document.getElementById('integrity-cont'); 
+            wrap.classList.add('damage-flash');
+            setTimeout(() => wrap.classList.remove('damage-flash'), 1000); 
+        }
+        typeExplain(document.getElementById('explanation-box'), ">> " + window.currentQ.explanation);
+        updateSystemState(); if (integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
+    
+    function showFloatText(text, element, color) {
+    const floatEl = document.createElement('div');
+    floatEl.className = 'float-text';
+    floatEl.innerText = text;
+    floatEl.style.color = color;
+    floatEl.style.textShadow = `0 0 10px ${color}`;
+    floatEl.style.position = 'fixed'; // Use fixed to ignore scroll offsets
+    floatEl.style.zIndex = '5000';
+    floatEl.style.pointerEvents = 'none';
+    
+    document.body.appendChild(floatEl);
+
+    // Get the element position relative to the viewport
+    const rect = element.getBoundingClientRect();
+    
+    // Calculate center of the button
+    const centerX = rect.left + (rect.width / 2);
+    const centerY = rect.top + (rect.height / 2);
+
+    // Position the float text exactly at the center of the clicked element
+    floatEl.style.left = `${centerX}px`;
+    floatEl.style.top = `${centerY}px`;
+    floatEl.style.transform = 'translate(-50%, -50%)'; // Center it over the point
+
+    // Cleanup after animation
+    setTimeout(() => floatEl.remove(), 2000);
+}
+    
+    function showCrypto() {
+        AudioEngine.playSFX('success');
+        const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq"; 
+        const popup = document.createElement('div');
+        // Font explicitly set on container to ensure inheritance, text-shadow removed
+        popup.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:80%; max-width:500px; background:rgba(0,10,10,0.95); border:2px solid #70c7ba; padding:20px; z-index:9000; text-align:center; box-shadow:0 0 50px rgba(112,199,186,0.3); font-family:'VT323';";
+        
+        popup.innerHTML = `
+            <h2 style="color:#70c7ba; margin:0 0 10px 0; text-shadow: none;">>> KASPA WALLET ADDRESS<<</h2>
+            <div style="background:#000; padding:10px; color:#70c7ba; margin-bottom:15px; border:1px dashed #555; word-break:break-all; font-size:1.2rem; text-shadow: none;">${walletAddress}</div>
+            <button id="copy-btn" class="sys-btn" style="margin-right:10px; color:#70c7ba; border-color:#70c7ba;">[ COPY ]</button>
+            <button id="close-crypto" class="sys-btn" style="color:#ff4444; border-color:#ff4444;">[ CLOSE ]</button>
+        `;
+        document.body.appendChild(popup);
+
+        // Uses querySelector to find the button inside the newly created popup
+        popup.querySelector('#copy-btn').onclick = function() {
+            navigator.clipboard.writeText(walletAddress); AudioEngine.playSFX('success'); this.innerText = "[ COPIED ]";
+        };
+        
+        popup.querySelector('#close-crypto').onclick = function() {
+             AudioEngine.playSFX('click'); popup.remove();
+        };
+    }
+
+    function finish() {
+        document.getElementById('quiz-ui').classList.add('hidden');
+        document.getElementById('results-ui').classList.remove('hidden');
+        let pct = 0; if(questionsAttempted > 0) pct = Math.floor((questionsCorrect/questionsAttempted)*100);
+        let i = 0; const interval = setInterval(() => {
+            document.getElementById('final-percent').innerText = `${i}%`;
+            if (i >= pct) clearInterval(interval); i++;
+        }, 20);
+
+        // --- BREAKDOWN GENERATION ---
+        const container = document.getElementById('breakdown-container');
+        if(container) {
+            container.innerHTML = '<h3 style="border-bottom:1px dashed #0affba; padding-bottom:5px;">> MODULE_ANALYSIS:</h3>';
+            
+            if (!tagStats || Object.keys(tagStats).length === 0) {
+                container.innerHTML += '<p>[NO_DATA_GENERATED]</p>';
+            } else {
+                for (const [tag, stat] of Object.entries(tagStats)) {
+                    const tagPct = Math.floor((stat.correct / stat.total) * 100);
+                    let color = '#ff0000'; 
+                    if (tagPct >= 70) color = '#ffff00'; 
+                    if (tagPct >= 90) color = '#0affba'; 
+
+                    const html = `
+                        <div style="margin-bottom: 15px; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom: 2px;">
+                                <span>${tag.toUpperCase()}</span>
+                                <span style="color:${color}">${tagPct}% (${stat.correct}/${stat.total})</span>
+                            </div>
+                            <div style="width: 100%; background: #222; height: 12px; border: 1px solid #555;">
+                                <div style="width: ${tagPct}%; background: ${color}; height: 100%; box-shadow: 0 0 5px ${color};"></div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                }
+            }
+        }
+    }
+    
+    function shutdownSystem() { location.reload(); }
+
+ /* ============================    JS: GLOSSARY LOGIC (EXPANDED) ============================ */
+    const GLOSSARY_DATA = {
+        'CORE1': {
+            'PORTS': [
+                { k: "20/21", v: "FTP (File Transfer). TCP. Unsecured file sending." },
+                { k: "22", v: "SSH (Secure Shell). TCP. Encrypted remote login." },
+                { k: "23", v: "Telnet. TCP. Unencrypted remote login (Deprecated)." },
+                { k: "25", v: "SMTP (Sending Mail). TCP. Server-to-server email." },
+                { k: "53", v: "DNS (Domain Name System). TCP/UDP. Resolves Names to IPs." },
+                { k: "67/68", v: "DHCP (Dynamic Host Config). UDP. Assigns IPs auto." },
+                { k: "80", v: "HTTP (Web). TCP. Unsecured web traffic." },
+                { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes from server." },
+                { k: "137-139", v: "NetBIOS/NetBT. UDP/TCP. LAN naming & file sharing." },
+                { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs mail across devices." },
+                { k: "161/162", v: "SNMP (Network Mgmt). UDP. Monitor network devices." },
+                { k: "389", v: "LDAP (Directory Services). TCP. Network auth (Active Directory)." },
+                { k: "443", v: "HTTPS (Secure Web). TCP. Encrypted web traffic (SSL/TLS)." },
+                { k: "445", v: "SMB/CIFS (File Share). TCP. Windows file/printer sharing." },
+                { k: "3389", v: "RDP (Remote Desktop). TCP/UDP. Windows GUI remote access." }
+            ],
+            'NETWORK': [
+                { k: "IPv4 Class A", v: "1.0.0.0 - 126.x.x.x | Subnet: /8 (255.0.0.0)" },
+                { k: "IPv4 Class B", v: "128.0.0.0 - 191.x.x.x | Subnet: /16 (255.255.0.0)" },
+                { k: "IPv4 Class C", v: "192.0.0.0 - 223.x.x.x | Subnet: /24 (255.255.255.0)" },
+                { k: "Private Range A", v: "10.0.0.0 - 10.255.255.255 (Big Networks)" },
+                { k: "Private Range B", v: "172.16.0.0 - 172.31.255.255 (Mid Networks)" },
+                { k: "Private Range C", v: "192.168.0.0 - 192.168.255.255 (Home Networks)" },
+                { k: "APIPA", v: "169.254.x.x | Auto-assigned when DHCP fails." },
+                { k: "Loopback", v: "127.0.0.1 | Ping self to test NIC stack." },
+                { k: "IPv6 Link Local", v: "fe80::/10 | Works like APIPA (Local LAN only)." },
+                { k: "IPv6 Global", v: "2000::/3 | Routable on the Internet." },
+                { k: "TCP vs UDP", v: "TCP: Connection-oriented (Ack). UDP: Connectionless (Fast)." }
+            ],
+            'HARDWARE': [
+                { k: "ATX", v: "12 x 9.6 in. Standard size. Max expansion." },
+                { k: "Micro-ATX", v: "9.6 x 9.6 in. 4 slots max. Compact towers." },
+                { k: "Mini-ITX", v: "6.7 x 6.7 in. 1 slot. HTPC/Small form factor." },
+                { k: "BIOS/UEFI", v: "UEFI supports >2.2TB drives, Secure Boot, Mouse use." },
+                { k: "CMOS Battery", v: "CR2032. Retains BIOS settings/Clock." },
+                { k: "TPM", v: "Trusted Platform Module. Hardware encryption chip." },
+                { k: "LoJack", v: "Anti-theft BIOS feature. Tracks/locks stolen PCs." },
+                { k: "Power: 24-Pin", v: "Main motherboard power." },
+                { k: "Power: EPS 12V", v: "4 or 8 pin. CPU dedicated power." },
+                { k: "Power: PCIe", v: "6 or 8 pin. GPU extra power." }
+            ],
+            'RAM': [
+                { k: "DDR3", v: "240 Pins (Desktop) | 204 Pins (Laptop/SODIMM)" },
+                { k: "DDR4", v: "288 Pins (Desktop) | 260 Pins (Laptop/SODIMM)" },
+                { k: "DDR5", v: "288 Pins (Desktop) | 262 Pins (Laptop/SODIMM)" },
+                { k: "ECC RAM", v: "Detects AND fixes single-bit errors. For Servers." },
+                { k: "Parity RAM", v: "Detects errors but CANNOT fix them." },
+                { k: "Dual Channel", v: "Doubles bandwidth. Install in matching colored slots." }
+            ],
+            'STORAGE': [
+                { k: "RAID 0", v: "Striping. Fast. 0 Redundancy. Dies if 1 drive fails." },
+                { k: "RAID 1", v: "Mirroring. Safe. Slow Write. Needs 2 drives." },
+                { k: "RAID 5", v: "Striping + Parity. Balanced. Needs 3 drives. 1 fail allowed." },
+                { k: "RAID 10", v: "Stripe of Mirrors. Fast & Safe. Needs 4 drives." },
+                { k: "NVMe", v: "Fastest SSD protocol. Uses PCIe lanes via M.2." },
+                { k: "SATA 3", v: "6 Gbps limit. Standard 2.5 inch SSD/HDD." },
+                { k: "M.2 Key M", v: "Used for NVMe/PCIe x4 SSDs." },
+                { k: "M.2 Key B", v: "Used for SATA SSDs or Cellular cards." }
+            ],
+            'CABLES': [
+                { k: "Cat 5e", v: "1 Gbps | 100m | Reduced crosstalk." },
+                { k: "Cat 6", v: "10 Gbps (55m) / 1 Gbps (100m)." },
+                { k: "Cat 6a", v: "10 Gbps (100m) | Shielded (F/UTP)." },
+                { k: "Plenum", v: "Fire-rated jacket. For HVAC ceilings. Less toxic smoke." },
+                { k: "Fiber: LC", v: "Local Connector. Small, 2-prongs." },
+                { k: "Fiber: ST", v: "Straight Tip. Round, twist-lock (BNC style)." },
+                { k: "Fiber: SC", v: "Subscriber Connector. Square plug." },
+                { k: "USB 2.0", v: "480 Mbps. 5m length." },
+                { k: "USB 3.0", v: "5 Gbps. 3m length. Blue port." },
+                { k: "Thunderbolt 3", v: "40 Gbps. Uses USB-C shape." }
+            ],
+            'WI-FI': [
+                { k: "802.11a", v: "5 GHz | 54 Mbps | Legacy." },
+                { k: "802.11b", v: "2.4 GHz | 11 Mbps | Legacy." },
+                { k: "802.11g", v: "2.4 GHz | 54 Mbps | Legacy." },
+                { k: "802.11n", v: "2.4/5 GHz | 600 Mbps | Wi-Fi 4." },
+                { k: "802.11ac", v: "5 GHz | 6.9 Gbps | Wi-Fi 5 (MU-MIMO)." },
+                { k: "802.11ax", v: "2.4/5/6 GHz | 9.6 Gbps | Wi-Fi 6 (OFDMA)." },
+                { k: "Channels 2.4", v: "1, 6, 11 are the only non-overlapping." },
+                { k: "WPA2", v: "AES Encryption + CCMP." },
+                { k: "WPA3", v: "SAE (Simultaneous Authentication of Equals). 192-bit." }
+            ],
+            'MOBILE': [
+                { k: "OLED", v: "No backlight. Organic pixels. True blacks. Expensive." },
+                { k: "IPS LCD", v: "Better viewing angles/colors than TN." },
+                { k: "Digitizer", v: "Converts touch (analog) into digital signal." },
+                { k: "Inverter", v: "Converts DC (battery) to AC (screen backlight)." },
+                { k: "Tethering", v: "Sharing cellular internet via USB/Wi-Fi." },
+                { k: "NFC", v: "Near Field Comm. Contactless pay/pairing (4cm range)." },
+                { k: "IMSI", v: "Unique ID for the USER (Sim Card)." },
+                { k: "IMEI", v: "Unique ID for the DEVICE (Phone hardware)." }
+            ],
+            'PRINTERS': [
+                { k: "Laser Process", v: "Processing > Charging > Exposing > Developing > Transferring > Fusing > Cleaning." },
+                { k: "Corona Wire", v: "Applies high voltage charge (Laser)." },
+                { k: "Fuser", v: "Heats and presses toner to page (Laser)." },
+                { k: "Thermal", v: "Heat-sensitive paper. Receipts. Quiet. Fades over time." },
+                { k: "Impact", v: "Pins hit ribbon. Multi-part forms (Carbon copies)." },
+                { k: "Inkjet", v: "Liquid ink. Cheap HW, expensive ink. High res." },
+                { k: "3D Printer", v: "Filament. Fused Deposition Modeling (FDM)." }
+            ],
+            'CLOUD': [
+                { k: "IaaS", v: "Infrastructure. AWS EC2. You manage OS + Apps." },
+                { k: "PaaS", v: "Platform. Heroku/SQL. You manage Apps only." },
+                { k: "SaaS", v: "Software. Gmail/Dropbox. Vendor manages ALL." },
+                { k: "Type 1 Hypervisor", v: "Bare Metal (ESXi). OS runs ON hypervisor." },
+                { k: "Type 2 Hypervisor", v: "Hosted (VirtualBox). Hypervisor runs ON OS." },
+                { k: "Rapid Elasticity", v: "Scale resources up/down instantly." },
+                { k: "Resource Pooling", v: "Multiple customers share same physical HW." }
+            ],
+            'TROUBLESHOOT': [
+                { k: "1. Identify", v: "Ask user. Check logs. Duplicate issue. Backup." },
+                { k: "2. Theory", v: "Question the obvious. Research." },
+                { k: "3. Test Theory", v: "Confirm cause. If fails, new theory." },
+                { k: "4. Plan of Action", v: "Create plan to fix. Consider side effects." },
+                { k: "5. Verify", v: "Test full system. Implement preventive measures." },
+                { k: "6. Document", v: "Log findings, actions, and outcomes." },
+                { k: "S.M.A.R.T.", v: "Self-Monitoring Analysis. Disk drive health check." }
+            ]
+        },
+        'CORE2': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
+        'NET': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
+        'SEC': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] }
+    };
+    let currentGlossaryExam = null;
+
+    function toggleGlossary() {
+        const ui = document.getElementById('glossary-ui');
+        if (ui.classList.contains('hidden')) {
+            ui.classList.remove('hidden');
+            showExamSelection(); // Always reset to main menu on open
+            AudioEngine.playSFX('click');
+        } else {
+            ui.classList.add('hidden');
+            AudioEngine.playSFX('error');
+        }
+    }
+
+    function showExamSelection() {
+        document.getElementById('gloss-select-view').classList.remove('hidden');
+        document.getElementById('gloss-content-view').classList.add('hidden');
+        document.getElementById('gloss-back-btn').classList.add('hidden');
+        document.getElementById('gloss-title').innerText = ">> SELECT_DATABASE";
+    }
+
+    function loadGlossaryExam(examKey) {
+        currentGlossaryExam = examKey;
+        
+        // 1. Switch Views
+        document.getElementById('gloss-select-view').classList.add('hidden');
+        document.getElementById('gloss-content-view').classList.remove('hidden');
+        document.getElementById('gloss-back-btn').classList.remove('hidden');
+        document.getElementById('gloss-title').innerText = `>> GUIDE ${examKey} (Scroll sideways for more)`;
+        
+        // 2. Generate Tabs Dynamically
+        const tabContainer = document.getElementById('gloss-tabs');
+        tabContainer.innerHTML = "";
+        
+        const categories = Object.keys(GLOSSARY_DATA[examKey]);
+        categories.forEach((cat, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'tab-btn';
+            btn.innerText = cat;
+            btn.onclick = () => { AudioEngine.playSFX('click'); renderGlossaryCategory(cat); };
+            if(index === 0) { btn.classList.add('active'); }
+            tabContainer.appendChild(btn);
+        });
+
+        // 3. Render first category
+        if(categories.length > 0) renderGlossaryCategory(categories[0]);
+        
+        AudioEngine.playSFX('success');
+    }
+
+    function renderGlossaryCategory(category) {
+        // Highlight Tab
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active');
+            if(b.innerText === category) b.classList.add('active');
+        });
+
+        // Render Grid
+        const container = document.getElementById('glossary-content');
+        container.innerHTML = "";
+        
+        const data = GLOSSARY_DATA[currentGlossaryExam][category];
+        if(data) {
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'gloss-item';
+                div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
+                container.appendChild(div);
+            });
+        }
+    } 
+  
+   // ON LOAD INIT
+    window.onload = function() {
+        bootSystem();
+    };
+</script>
+</body>
+</html>
