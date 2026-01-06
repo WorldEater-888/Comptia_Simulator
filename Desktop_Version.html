@@ -866,6 +866,39 @@ html {
     font-weight: bold;
     letter-spacing: 0.5px;
 }.gloss-val { color: #fff; font-size: 1.1rem; line-height: 1.2; }
+
+/* --- GLOSSARY UPDATE (MULTI-EXAM STYLES) --- */
+.gloss-view { width: 100%; height: 100%; display: flex; flex-direction: column; }
+.gloss-view.hidden { display: none; }
+
+/* Selection Grid Styles */
+.exam-select-grid {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+    padding: 40px;
+    height: 100%;
+}
+.exam-select-btn {
+    background: rgba(0,0,0,0.6);
+    border: 2px solid var(--term-color);
+    color: var(--term-color);
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center;
+}
+.exam-select-btn:hover {
+    background: var(--term-color);
+    color: #000;
+    box-shadow: 0 0 30px var(--term-color);
+}
+.ex-title { font-family: 'VT323', monospace; font-size: 3rem; font-weight: bold; }
+.ex-sub { font-family: 'Courier New', monospace; font-size: 1rem; letter-spacing: 2px; margin-top: 10px; }
+
+/* Ensure content view fills height */
+#gloss-content-view { overflow: hidden; }
         
     </style>
 </head>
