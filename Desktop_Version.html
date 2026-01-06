@@ -40,13 +40,24 @@
     display: flex; justify-content: center; align-items: center;
     backdrop-filter: blur(5px);
 }
+/* UPDATED: Fixes the bottom spill issue */
 .glossary-window {
     width: 90%; max-width: 900px; height: 80vh;
     border: 2px solid var(--term-color);
     background: rgba(0, 10, 10, 0.95);
     box-shadow: 0 0 20px var(--term-color), inset 0 0 20px rgba(0,0,0,0.5);
-    display: flex; flex-direction: column;
+    display: flex; flex-direction: column; /* Stacks Header + Content */
     animation: turnOn 0.3s ease-out;
+    overflow: hidden; /* <--- NEW: Clips anything spilling out */
+}
+
+/* UPDATED: Forces content to fit remaining space */
+.gloss-view { 
+    width: 100%; 
+    flex: 1;        /* <--- NEW: Takes remaining space */
+    min-height: 0;  /* <--- NEW: Critical for scrolling to work */
+    display: flex; 
+    flex-direction: column; 
 }
 .glossary-header {
     background: var(--term-color); color: #000;
