@@ -6447,152 +6447,218 @@ window.onload = function() {
     };
 
 /* ========================================================================= */
-/* SECTION: GLOSSARY LOGIC (EXPANDED)                                        */
+/* SECTION: GLOSSARY LOGIC (MULTI-EXAM)                                      */
 /* ========================================================================= */
+
+// Nested Data Structure: Exam -> Category -> Items
 const GLOSSARY_DATA = {
-    'PORTS': [
-        { k: "20/21", v: "FTP (File Transfer). TCP. Unsecured." },
-        { k: "22", v: "SSH (Secure Shell). TCP. Encrypted Login." },
-        { k: "23", v: "Telnet. TCP. Unencrypted Login." },
-        { k: "25", v: "SMTP (Sending Mail). TCP." },
-        { k: "53", v: "DNS (Domain Name System). UDP/TCP." },
-        { k: "67/68", v: "DHCP (Dynamic Host Config). UDP." },
-        { k: "80", v: "HTTP (Web). TCP. Unsecured." },
-        { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes." },
-        { k: "137-139", v: "NetBIOS/NetBT. UDP/TCP. LAN file sharing." },
-        { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs across devices." },
-        { k: "161/162", v: "SNMP (Network Mgmt). UDP. Monitor devices." },
-        { k: "389", v: "LDAP (Directory Services). TCP. Network auth." },
-        { k: "443", v: "HTTPS (Secure Web). TCP. Encrypted." },
-        { k: "445", v: "SMB (Server Message Block). TCP. File/Printer Share." },
-        { k: "3389", v: "RDP (Remote Desktop). TCP/UDP." }
-    ],
-    'IP': [
-        { k: "IPv4 Class A", v: "1.0.0.0 - 126.x.x.x | Subnet: 255.0.0.0 (/8)" },
-        { k: "IPv4 Class B", v: "128.0.0.0 - 191.x.x.x | Subnet: 255.255.0.0 (/16)" },
-        { k: "IPv4 Class C", v: "192.0.0.0 - 223.x.x.x | Subnet: 255.255.255.0 (/24)" },
-        { k: "Private Range A", v: "10.0.0.0 - 10.255.255.255" },
-        { k: "Private Range B", v: "172.16.0.0 - 172.31.255.255" },
-        { k: "Private Range C", v: "192.168.0.0 - 192.168.255.255" },
-        { k: "APIPA", v: "169.254.x.x | Auto-assigned when DHCP fails." },
-        { k: "Loopback (v4)", v: "127.0.0.1 | Tests NIC functionality." },
-        { k: "IPv6 Link Local", v: "fe80::/10 | Local subnet only (like APIPA)." },
-        { k: "IPv6 Unique Local", v: "fc00::/7 | Private internal (like 192.168.x)." },
-        { k: "IPv6 Global", v: "2000::/3 | Public routable internet address." },
-        { k: "Loopback (v6)", v: "::1" }
-    ],
-    'HARDWARE': [
-        { k: "ATX", v: "12 x 9.6 in. Standard desktop size. 7 expansion slots." },
-        { k: "Micro-ATX", v: "9.6 x 9.6 in. Smaller. 4 expansion slots." },
-        { k: "Mini-ITX", v: "6.7 x 6.7 in. Smallest. 1 expansion slot." },
-        { k: "PCIe x16", v: "High speed slot for GPU. 75W power from slot." },
-        { k: "M.2 Key M", v: "NVMe/PCIe SSDs (Fastest)." },
-        { k: "M.2 Key B", v: "SATA SSDs / Cellular cards." },
-        { k: "BIOS/UEFI", v: "Firmware. UEFI supports mouse, >2.2TB drives, Secure Boot." },
-        { k: "CMOS Battery", v: "CR2032. Keeps time/BIOS settings when unplugged." },
-        { k: "TPM", v: "Trusted Platform Module. Chip for encryption keys (BitLocker)." }
-    ],
-    'WIFI': [
-        { k: "802.11a", v: "5 GHz | 54 Mbps | Legacy" },
-        { k: "802.11b", v: "2.4 GHz | 11 Mbps | Legacy" },
-        { k: "802.11g", v: "2.4 GHz | 54 Mbps | Back-compatible w/ b" },
-        { k: "802.11n", v: "2.4/5 GHz | 600 Mbps | Wi-Fi 4 (MIMO)" },
-        { k: "802.11ac", v: "5 GHz | 6.9 Gbps | Wi-Fi 5 (MU-MIMO)" },
-        { k: "802.11ax", v: "2.4/5/6 GHz | 9.6 Gbps | Wi-Fi 6 (OFDMA)" },
-        { k: "2.4 GHz", v: "Longer range, penetrates walls better, more interference." },
-        { k: "5 GHz", v: "Faster speeds, shorter range, less interference." },
-        { k: "Channels (2.4)", v: "1, 6, 11 (Non-overlapping in US)." }
-    ],
-    'RAM': [
-        { k: "DDR3", v: "240 Pins (Desktop) | 204 Pins (Laptop)" },
-        { k: "DDR4", v: "288 Pins (Desktop) | 260 Pins (Laptop) | Curved Edge" },
-        { k: "DDR5", v: "288 Pins (Desktop) | 262 Pins (Laptop) | On-die ECC" },
-        { k: "ECC", v: "Error Correcting. Detects bit flips. For servers." },
-        { k: "Parity", v: "Detects errors but CANNOT fix them." },
-        { k: "Dual Channel", v: "Doubles bandwidth. Must use matching colored slots." }
-    ],
-    'RAID': [
-        { k: "RAID 0", v: "Striping. Speed++. 0 Redundancy. (Min 2 Drives)" },
-        { k: "RAID 1", v: "Mirroring. Redundancy++. Slow Write. (Min 2 Drives)" },
-        { k: "RAID 5", v: "Striping + Parity. Speed + Safety. (Min 3 Drives)" },
-        { k: "RAID 10", v: "Stripe of Mirrors. Best of both. (Min 4 Drives)" }
-    ],
-    'CABLES': [
-        { k: "RJ-45", v: "8-pin. Standard Ethernet." },
-        { k: "RJ-11", v: "4-pin/6-pin. Telephone/DSL lines." },
-        { k: "Cat 5e", v: "1 Gbps | 100m | Unshielded." },
-        { k: "Cat 6", v: "10 Gbps (55m) | 1 Gbps (100m)." },
-        { k: "Cat 6a", v: "10 Gbps (100m) | Shielded." },
-        { k: "Plenum", v: "Fire-resistant coating. For HVAC spaces (Drop ceilings)." },
-        { k: "USB 2.0", v: "480 Mbps | 5 meters max | Black/White." },
-        { k: "USB 3.0", v: "5 Gbps | 3 meters max | Blue." },
-        { k: "USB-C", v: "Reversible | Data + Power + Video." },
-        { k: "Thunderbolt 3", v: "40 Gbps | Uses USB-C connector." }
-    ],
-    'PRINTERS': [
-        { k: "1. Processing", v: "Printer receives job & rasterizes image." },
-        { k: "2. Charging", v: "Primary Corona/Roller charges drum (-600V)." },
-        { k: "3. Exposing", v: "Laser writes image to drum (neutralizes charge)." },
-        { k: "4. Developing", v: "Toner sticks to exposed areas." },
-        { k: "5. Transferring", v: "Toner moves from drum to paper." },
-        { k: "6. Fusing", v: "Heat & Pressure melt toner to paper." },
-        { k: "7. Cleaning", v: "Scraper removes excess toner." },
-        { k: "Thermal", v: "Heating element + special paper. Receipt printers." },
-        { k: "Impact", v: "Pins strike ribbon. Dot Matrix. Carbon copies." }
-    ],
-    'CLOUD': [
-        { k: "IaaS", v: "Infrastructure (AWS EC2). You manage OS & Apps." },
-        { k: "PaaS", v: "Platform (Heroku). You manage Apps only." },
-        { k: "SaaS", v: "Software (Gmail). Vendor manages everything." },
-        { k: "Private Cloud", v: "Hardware dedicated to one org." },
-        { k: "Public Cloud", v: "Hardware shared by many orgs (AWS)." },
-        { k: "Resource Pooling", v: "Grouping hardware to serve multiple clients." },
-        { k: "Measured Service", v: "Pay-per-use (Utility metering)." }
-    ],
-    'CMDS': [
-        { k: "ipconfig", v: "Win: IP details. /flushdns, /release, /renew" },
-        { k: "ping", v: "Test connectivity (ICMP)." },
-        { k: "tracert", v: "Trace hops to destination (Windows)." },
-        { k: "netstat", v: "Show active ports/connections." },
-        { k: "nslookup", v: "Query DNS records (A, MX, CNAME)." },
-        { k: "chkdsk", v: "Check disk integrity (/f to fix)." },
-        { k: "sfc /scannow", v: "System File Checker. Fixes OS files." },
-        { k: "gpupdate", v: "Force Group Policy update." },
-        { k: "diskpart", v: "Disk partition management CLI." }
-    ],
-    'TSHOOT': [
-        { k: "1. Identify", v: "Question user, backup, check logs." },
-        { k: "2. Theory", v: "Guess the probable cause." },
-        { k: "3. Test", v: "Confirm the theory (Sandbox)." },
-        { k: "4. Plan", v: "Create plan & implement solution." },
-        { k: "5. Verify", v: "Test full system functionality." },
-        { k: "6. Document", v: "Record findings, actions, and lessons." }
-    ]
+    'CORE1': {
+        'PORTS': [
+            { k: "20/21", v: "FTP (File Transfer). TCP. Unsecured." },
+            { k: "22", v: "SSH (Secure Shell). TCP. Encrypted Login." },
+            { k: "23", v: "Telnet. TCP. Unencrypted Login." },
+            { k: "25", v: "SMTP (Sending Mail). TCP." },
+            { k: "53", v: "DNS (Domain Name System). UDP/TCP." },
+            { k: "67/68", v: "DHCP (Dynamic Host Config). UDP." },
+            { k: "80", v: "HTTP (Web). TCP. Unsecured." },
+            { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes." },
+            { k: "137-139", v: "NetBIOS/NetBT. UDP/TCP. LAN file sharing." },
+            { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs across devices." },
+            { k: "161/162", v: "SNMP (Network Mgmt). UDP. Monitor devices." },
+            { k: "389", v: "LDAP (Directory Services). TCP. Network auth." },
+            { k: "443", v: "HTTPS (Secure Web). TCP. Encrypted." },
+            { k: "445", v: "SMB (Server Message Block). TCP. File/Printer Share." },
+            { k: "3389", v: "RDP (Remote Desktop). TCP/UDP." }
+        ],
+        'IP ADDR': [
+            { k: "IPv4 Class A", v: "1.0.0.0 - 126.x.x.x | Subnet: 255.0.0.0 (/8)" },
+            { k: "IPv4 Class B", v: "128.0.0.0 - 191.x.x.x | Subnet: 255.255.0.0 (/16)" },
+            { k: "IPv4 Class C", v: "192.0.0.0 - 223.x.x.x | Subnet: 255.255.255.0 (/24)" },
+            { k: "Private Range A", v: "10.0.0.0 - 10.255.255.255" },
+            { k: "Private Range B", v: "172.16.0.0 - 172.31.255.255" },
+            { k: "Private Range C", v: "192.168.0.0 - 192.168.255.255" },
+            { k: "APIPA", v: "169.254.x.x | Auto-assigned when DHCP fails." },
+            { k: "Loopback (v4)", v: "127.0.0.1 | Tests NIC functionality." },
+            { k: "IPv6 Link Local", v: "fe80::/10 | Local subnet only (like APIPA)." },
+            { k: "IPv6 Global", v: "2000::/3 | Public routable internet address." }
+        ],
+        'HARDWARE': [
+            { k: "ATX", v: "12 x 9.6 in. Standard desktop size. 7 expansion slots." },
+            { k: "Micro-ATX", v: "9.6 x 9.6 in. Smaller. 4 expansion slots." },
+            { k: "Mini-ITX", v: "6.7 x 6.7 in. Smallest. 1 expansion slot." },
+            { k: "PCIe x16", v: "High speed slot for GPU. 75W power from slot." },
+            { k: "M.2 Key M", v: "NVMe/PCIe SSDs (Fastest)." },
+            { k: "M.2 Key B", v: "SATA SSDs / Cellular cards." },
+            { k: "BIOS/UEFI", v: "Firmware. UEFI supports mouse, >2.2TB drives, Secure Boot." },
+            { k: "CMOS Battery", v: "CR2032. Keeps time/BIOS settings when unplugged." },
+            { k: "TPM", v: "Trusted Platform Module. Chip for encryption keys." }
+        ],
+        'WI-FI': [
+            { k: "802.11a", v: "5 GHz | 54 Mbps | Legacy" },
+            { k: "802.11b", v: "2.4 GHz | 11 Mbps | Legacy" },
+            { k: "802.11g", v: "2.4 GHz | 54 Mbps | Back-compatible w/ b" },
+            { k: "802.11n", v: "2.4/5 GHz | 600 Mbps | Wi-Fi 4 (MIMO)" },
+            { k: "802.11ac", v: "5 GHz | 6.9 Gbps | Wi-Fi 5 (MU-MIMO)" },
+            { k: "802.11ax", v: "2.4/5/6 GHz | 9.6 Gbps | Wi-Fi 6 (OFDMA)" },
+            { k: "2.4 GHz", v: "Longer range, penetrates walls better, more interference." },
+            { k: "5 GHz", v: "Faster speeds, shorter range, less interference." },
+            { k: "Channels (2.4)", v: "1, 6, 11 (Non-overlapping in US)." }
+        ],
+        'RAM': [
+            { k: "DDR3", v: "240 Pins (Desktop) | 204 Pins (Laptop)" },
+            { k: "DDR4", v: "288 Pins (Desktop) | 260 Pins (Laptop) | Curved Edge" },
+            { k: "DDR5", v: "288 Pins (Desktop) | 262 Pins (Laptop) | On-die ECC" },
+            { k: "ECC", v: "Error Correcting. Detects bit flips. For servers." },
+            { k: "Parity", v: "Detects errors but CANNOT fix them." },
+            { k: "Dual Channel", v: "Doubles bandwidth. Must use matching colored slots." }
+        ],
+        'RAID': [
+            { k: "RAID 0", v: "Striping. Speed++. 0 Redundancy. (Min 2 Drives)" },
+            { k: "RAID 1", v: "Mirroring. Redundancy++. Slow Write. (Min 2 Drives)" },
+            { k: "RAID 5", v: "Striping + Parity. Speed + Safety. (Min 3 Drives)" },
+            { k: "RAID 10", v: "Stripe of Mirrors. Best of both. (Min 4 Drives)" }
+        ],
+        'CABLES': [
+            { k: "RJ-45", v: "8-pin. Standard Ethernet." },
+            { k: "RJ-11", v: "4-pin/6-pin. Telephone/DSL lines." },
+            { k: "Cat 5e", v: "1 Gbps | 100m | Unshielded." },
+            { k: "Cat 6", v: "10 Gbps (55m) | 1 Gbps (100m)." },
+            { k: "Cat 6a", v: "10 Gbps (100m) | Shielded." },
+            { k: "Plenum", v: "Fire-resistant coating. For HVAC spaces." },
+            { k: "USB 2.0", v: "480 Mbps | 5 meters max | Black/White." },
+            { k: "USB 3.0", v: "5 Gbps | 3 meters max | Blue." },
+            { k: "USB-C", v: "Reversible | Data + Power + Video." },
+            { k: "Thunderbolt 3", v: "40 Gbps | Uses USB-C connector." }
+        ],
+        'PRINTERS': [
+            { k: "1. Processing", v: "Printer receives job & rasterizes image." },
+            { k: "2. Charging", v: "Drum charged to -600V." },
+            { k: "3. Exposing", v: "Laser writes image to drum (-100V)." },
+            { k: "4. Developing", v: "Toner sticks to exposed areas." },
+            { k: "5. Transferring", v: "Toner moves from drum to paper." },
+            { k: "6. Fusing", v: "Heat & Pressure melt toner to paper." },
+            { k: "7. Cleaning", v: "Scraper removes excess toner." },
+            { k: "Thermal", v: "Heating element + special paper (Receipts)." },
+            { k: "Impact", v: "Pins strike ribbon. Dot Matrix. Carbon copies." }
+        ],
+        'CLOUD': [
+            { k: "IaaS", v: "Infrastructure (AWS EC2). You manage OS & Apps." },
+            { k: "PaaS", v: "Platform (Heroku). You manage Apps only." },
+            { k: "SaaS", v: "Software (Gmail). Vendor manages everything." },
+            { k: "Private Cloud", v: "Hardware dedicated to one org." },
+            { k: "Public Cloud", v: "Hardware shared by many orgs (AWS)." },
+            { k: "Hypervisor T1", v: "Bare Metal (ESXi). Runs on hardware." },
+            { k: "Hypervisor T2", v: "Hosted (VirtualBox). Runs on OS." }
+        ],
+        'COMMANDS': [
+            { k: "ipconfig", v: "Win: IP details. /flushdns, /release, /renew" },
+            { k: "ping", v: "Test connectivity (ICMP)." },
+            { k: "tracert", v: "Trace hops to destination (Windows)." },
+            { k: "netstat", v: "Show active ports/connections." },
+            { k: "nslookup", v: "Query DNS records (A, MX, CNAME)." },
+            { k: "chkdsk", v: "Check disk integrity (/f to fix)." },
+            { k: "sfc /scannow", v: "System File Checker. Fixes OS files." },
+            { k: "gpupdate", v: "Force Group Policy update." },
+            { k: "diskpart", v: "Disk partition management CLI." }
+        ],
+        'T-SHOOT': [
+            { k: "1. Identify", v: "Question user, backup, check logs." },
+            { k: "2. Theory", v: "Guess the probable cause." },
+            { k: "3. Test", v: "Confirm the theory (Sandbox)." },
+            { k: "4. Plan", v: "Create plan & implement solution." },
+            { k: "5. Verify", v: "Test full system functionality." },
+            { k: "6. Document", v: "Record findings, actions, and lessons." }
+        ]
+    },
+    'CORE2': {
+        'WINDOWS': [
+             { k: "Pro vs Home", v: "Pro has BitLocker & Domain Join." },
+             { k: "x86 vs x64", v: "x86 = 32-bit (4GB RAM limit)." }
+        ],
+        'CMD_LINE': [
+             { k: "gpupdate", v: "Update Group Policy." },
+             { k: "gpresult", v: "View applied policies." },
+             { k: "shutdown", v: "/s /r /t /a" }
+        ],
+        'SECURITY': [
+             { k: "Social Eng", v: "Phishing, Vishing, Tailgating." },
+             { k: "Malware", v: "Ransomware, Trojan, Worm." }
+        ]
+    },
+    'NET': {
+        'OSI_MODEL': [
+            { k: "L1 Physical", v: "Cables, Hubs." },
+            { k: "L2 Data Link", v: "MAC, Switch, Frames." },
+            { k: "L3 Network", v: "IP, Router, Packets." },
+            { k: "L4 Transport", v: "TCP/UDP, Ports." }
+        ],
+        'ROUTING': [
+            { k: "OSPF", v: "Link State Protocol." },
+            { k: "BGP", v: "Path Vector (Internet Backbone)." }
+        ]
+    },
+    'SEC': {
+        'THREATS': [
+            { k: "Zero Day", v: "Unknown vulnerability." },
+            { k: "DDoS", v: "Distributed Denial of Service." }
+        ],
+        'CRYPTO': [
+            { k: "Symmetric", v: "Same key (AES, DES)." },
+            { k: "Asymmetric", v: "Public/Private pair (RSA, ECC)." }
+        ]
+    }
 };
 
-function toggleGlossary() {
-    const ui = document.getElementById('glossary-ui');
-    if (ui.classList.contains('hidden')) {
-        ui.classList.remove('hidden');
-        renderGlossary('PORTS'); // Load default
-        AudioEngine.playSFX('click');
-    } else {
-        ui.classList.add('hidden');
-        AudioEngine.playSFX('error');
-    }
+function showExamSelection() {
+    document.getElementById('gloss-select-view').classList.remove('hidden');
+    document.getElementById('gloss-content-view').classList.add('hidden');
+    document.getElementById('gloss-back-btn').classList.add('hidden');
+    document.getElementById('gloss-title').innerText = ">> SELECT_DATABASE";
 }
 
-function renderGlossary(category) {
+function loadGlossaryExam(examKey) {
+    currentGlossaryExam = examKey;
+    
+    // 1. Switch Views
+    document.getElementById('gloss-select-view').classList.add('hidden');
+    document.getElementById('gloss-content-view').classList.remove('hidden');
+    document.getElementById('gloss-back-btn').classList.remove('hidden');
+    document.getElementById('gloss-title').innerText = `>> DATABASE: ${examKey}`;
+    
+    // 2. Generate Tabs Dynamically
+    const tabContainer = document.getElementById('gloss-tabs');
+    tabContainer.innerHTML = "";
+    
+    const categories = Object.keys(GLOSSARY_DATA[examKey]);
+    categories.forEach((cat, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn';
+        btn.innerText = cat;
+        btn.onclick = () => renderGlossaryCategory(cat);
+        if(index === 0) btn.classList.add('active'); // Activate first tab
+        tabContainer.appendChild(btn);
+    });
+
+    // 3. Render first category
+    if(categories.length > 0) renderGlossaryCategory(categories[0]);
+    
+    AudioEngine.playSFX('success');
+}
+
+function renderGlossaryCategory(category) {
+    // Highlight Tab
     document.querySelectorAll('.tab-btn').forEach(b => {
         b.classList.remove('active');
         if(b.innerText === category) b.classList.add('active');
     });
 
+    // Render Grid
     const container = document.getElementById('glossary-content');
     container.innerHTML = "";
     
-    if(GLOSSARY_DATA[category]) {
-        GLOSSARY_DATA[category].forEach(item => {
+    const data = GLOSSARY_DATA[currentGlossaryExam][category];
+    if(data) {
+        data.forEach(item => {
             const div = document.createElement('div');
             div.className = 'gloss-item';
             div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
@@ -6614,32 +6680,47 @@ function renderGlossary(category) {
         text-shadow: 0 0 10px #ff0000;
         box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
     " onclick="toggleGlossary()">
-        [ CHEAT_SHEET ]
+        [ STUDY GUIDE ]
     </button>
 </div>
 
 <div id="glossary-ui" class="hidden">
     <div class="glossary-window">
         <div class="glossary-header">
-            <span>>> CORE_1_DATABASE</span>
-            <button class="close-btn" onclick="toggleGlossary()">[X]</button>
+            <span id="gloss-title">>> SELECT_DATABASE</span>
+            <div>
+                <button id="gloss-back-btn" class="close-btn hidden" style="margin-right: 15px;" onclick="showExamSelection()">[ < BACK ]</button>
+                <button class="close-btn" onclick="toggleGlossary()">[ X ]</button>
+            </div>
         </div>
         
-        <div class="glossary-tabs">
-    <button class="tab-btn active" onclick="renderGlossary('PORTS')">PORTS</button>
-    <button class="tab-btn" onclick="renderGlossary('IP')">IP ADDR</button>
-    <button class="tab-btn" onclick="renderGlossary('WIFI')">WI-FI</button>
-    <button class="tab-btn" onclick="renderGlossary('RAM')">RAM</button>
-    <button class="tab-btn" onclick="renderGlossary('HARDWARE')">HARDWARE</button>
-    <button class="tab-btn" onclick="renderGlossary('RAID')">RAID</button>
-    <button class="tab-btn" onclick="renderGlossary('CABLES')">CABLES</button>
-    <button class="tab-btn" onclick="renderGlossary('PRINTERS')">PRINTERS</button>
-    <button class="tab-btn" onclick="renderGlossary('CLOUD')">CLOUD</button>
-    <button class="tab-btn" onclick="renderGlossary('CMDS')">COMMANDS</button>
-    <button class="tab-btn" onclick="renderGlossary('TSHOOT')">T-SHOOT</button>
-</div>
+        <div id="gloss-select-view" class="gloss-view">
+            <div class="exam-select-grid">
+                <button class="exam-select-btn" onclick="loadGlossaryExam('CORE1')">
+                    <span class="ex-title">CORE 1</span>
+                    <span class="ex-sub">HARDWARE & NETWORK</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('CORE2')">
+                    <span class="ex-title">CORE 2</span>
+                    <span class="ex-sub">SOFTWARE & SECURITY</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('NET')">
+                    <span class="ex-title">NETWORK+</span>
+                    <span class="ex-sub">INFRASTRUCTURE</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('SEC')">
+                    <span class="ex-title">SECURITY+</span>
+                    <span class="ex-sub">CYBERSECURITY</span>
+                </button>
+            </div>
+        </div>
 
-        <div id="glossary-content" class="glossary-grid"></div>
+        <div id="gloss-content-view" class="gloss-view hidden">
+            <div id="gloss-tabs" class="glossary-tabs">
+                </div>
+            <div id="glossary-content" class="glossary-grid">
+                </div>
+        </div>
     </div>
 </div>
 </body>
