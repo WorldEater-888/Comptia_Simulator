@@ -551,7 +551,7 @@ position: relative; /* Required for float/jitter */
         <div id="gloss-select-view" class="gloss-view">
             <div class="exam-select-grid">
                 <button class="exam-select-btn" onclick="loadGlossaryExam('CORE1')">
-                    <span class="ex-title">CORE 1 (Scroll sideways for more)</span>
+                    <span class="ex-title">CORE 1</span>
                     <span class="ex-sub">HARDWARE / NETWORKING</span>
                 </button>
                 <button class="exam-select-btn" onclick="loadGlossaryExam('CORE2')">
@@ -610,8 +610,14 @@ position: relative; /* Required for float/jitter */
                 </div>
             </div>
            <div style="text-align: right;">
-                 <div id="score-ui" style="font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">SYNC: 0</div>
-                 <button class="audio-btn" onclick="toggleGlossary()" style="margin-right: 4px; color: #ffff00; border-color: #ffff00;">[GUIDE]</button>
+                 <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 5px;">
+                     <div id="score-ui" style="font-weight: bold; font-size: 1.2rem;">SYNC: 0</div>
+                     <button class="audio-btn" onclick="toggleGlossary()" 
+                         style="color: #ff0000; border-color: #ff0000; box-shadow: 0 0 8px #ff0000; text-shadow: 0 0 5px #ff0000;">
+                         [GUIDE]
+                     </button>
+                 </div>
+                 
                  <button id="sound-toggle" class="audio-btn" onclick="AudioEngine.toggleMute()">[AUDIO: ON]</button>
             </div>
         </div>
@@ -5798,7 +5804,7 @@ position: relative; /* Required for float/jitter */
         document.getElementById('gloss-select-view').classList.add('hidden');
         document.getElementById('gloss-content-view').classList.remove('hidden');
         document.getElementById('gloss-back-btn').classList.remove('hidden');
-        document.getElementById('gloss-title').innerText = `>> DB: ${examKey}`;
+        document.getElementById('gloss-title').innerText = `>> GUIDE ${examKey} (Scroll sideways for more)`;
         
         // 2. Generate Tabs Dynamically
         const tabContainer = document.getElementById('gloss-tabs');
@@ -5849,6 +5855,7 @@ position: relative; /* Required for float/jitter */
 </script>
 </body>
 </html>
+
 
 
 
