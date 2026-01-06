@@ -43,7 +43,10 @@
     75% { transform: translate(2px, -1px); }
     100% { transform: translate(0, 0); box-shadow: 0 0 5px rgba(0,0,0,0.5); }
 }
-
+/* FORCE CURSOR TO TOP LAYER */
+#custom-cursor {
+    z-index: 2147483647 !important; /* Max possible Z-Index */
+}
 .sys-btn {
     background: rgba(0, 0, 0, 0.9);
     font-family: 'VT323', monospace;
@@ -830,18 +833,39 @@ html {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 15px; align-content: start;
 }
+/* REPLACE YOUR EXISTING .gloss-item, .gloss-key, AND .gloss-val STYLES WITH THIS: */
+
 .gloss-item {
-    border: 1px solid #333; padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    transition: 0.2s; cursor: default;
+    border: 1px solid #444; 
+    padding: 15px; /* More breathing room */
+    background: rgba(0, 0, 0, 0.6); /* Darker background for contrast */
+    transition: 0.2s; 
+    cursor: default;
 }
 .gloss-item:hover {
     border-color: var(--term-color);
-    box-shadow: 0 0 10px var(--term-color);
+    box-shadow: 0 0 15px var(--term-color); /* Stronger glow */
     transform: translateY(-2px);
+    background: #000;
 }
-.gloss-key { color: var(--term-color); font-size: 1.4rem; font-weight: bold; display: block; border-bottom: 1px dashed #555; margin-bottom: 5px; }
-.gloss-val { color: #fff; font-size: 1.1rem; line-height: 1.2; }
+.gloss-key { 
+    color: var(--term-color); 
+    font-family: 'VT323', monospace; /* Keep title retro */
+    font-size: 1.6rem; /* Larger Title */
+    font-weight: bold; 
+    display: block; 
+    border-bottom: 1px dashed #555; 
+    margin-bottom: 8px; 
+    padding-bottom: 5px;
+}
+.gloss-val { 
+    color: #fff; 
+    font-family: 'Courier New', Courier, monospace; /* CLEANER FONT */
+    font-size: 1.1rem; /* Larger Text */
+    line-height: 1.4; /* More spacing between lines */
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}.gloss-val { color: #fff; font-size: 1.1rem; line-height: 1.2; }
         
     </style>
 </head>
@@ -6423,7 +6447,7 @@ window.onload = function() {
     };
 
 /* ========================================================================= */
-/* SECTION: GLOSSARY LOGIC                                                   */
+/* SECTION: GLOSSARY LOGIC (EXPANDED)                                        */
 /* ========================================================================= */
 const GLOSSARY_DATA = {
     'PORTS': [
@@ -6432,12 +6456,41 @@ const GLOSSARY_DATA = {
         { k: "23", v: "Telnet. TCP. Unencrypted Login." },
         { k: "25", v: "SMTP (Sending Mail). TCP." },
         { k: "53", v: "DNS (Domain Name System). UDP/TCP." },
+        { k: "67/68", v: "DHCP (Dynamic Host Config). UDP." },
         { k: "80", v: "HTTP (Web). TCP. Unsecured." },
         { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes." },
+        { k: "137-139", v: "NetBIOS/NetBT. UDP/TCP. LAN file sharing." },
         { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs across devices." },
+        { k: "161/162", v: "SNMP (Network Mgmt). UDP. Monitor devices." },
+        { k: "389", v: "LDAP (Directory Services). TCP. Network auth." },
         { k: "443", v: "HTTPS (Secure Web). TCP. Encrypted." },
-        { k: "445", v: "SMB (Server Message Block). TCP. File/Printer Sharing." },
+        { k: "445", v: "SMB (Server Message Block). TCP. File/Printer Share." },
         { k: "3389", v: "RDP (Remote Desktop). TCP/UDP." }
+    ],
+    'IP': [
+        { k: "IPv4 Class A", v: "1.0.0.0 - 126.x.x.x | Subnet: 255.0.0.0 (/8)" },
+        { k: "IPv4 Class B", v: "128.0.0.0 - 191.x.x.x | Subnet: 255.255.0.0 (/16)" },
+        { k: "IPv4 Class C", v: "192.0.0.0 - 223.x.x.x | Subnet: 255.255.255.0 (/24)" },
+        { k: "Private Range A", v: "10.0.0.0 - 10.255.255.255" },
+        { k: "Private Range B", v: "172.16.0.0 - 172.31.255.255" },
+        { k: "Private Range C", v: "192.168.0.0 - 192.168.255.255" },
+        { k: "APIPA", v: "169.254.x.x | Auto-assigned when DHCP fails." },
+        { k: "Loopback (v4)", v: "127.0.0.1 | Tests NIC functionality." },
+        { k: "IPv6 Link Local", v: "fe80::/10 | Local subnet only (like APIPA)." },
+        { k: "IPv6 Unique Local", v: "fc00::/7 | Private internal (like 192.168.x)." },
+        { k: "IPv6 Global", v: "2000::/3 | Public routable internet address." },
+        { k: "Loopback (v6)", v: "::1" }
+    ],
+    'HARDWARE': [
+        { k: "ATX", v: "12 x 9.6 in. Standard desktop size. 7 expansion slots." },
+        { k: "Micro-ATX", v: "9.6 x 9.6 in. Smaller. 4 expansion slots." },
+        { k: "Mini-ITX", v: "6.7 x 6.7 in. Smallest. 1 expansion slot." },
+        { k: "PCIe x16", v: "High speed slot for GPU. 75W power from slot." },
+        { k: "M.2 Key M", v: "NVMe/PCIe SSDs (Fastest)." },
+        { k: "M.2 Key B", v: "SATA SSDs / Cellular cards." },
+        { k: "BIOS/UEFI", v: "Firmware. UEFI supports mouse, >2.2TB drives, Secure Boot." },
+        { k: "CMOS Battery", v: "CR2032. Keeps time/BIOS settings when unplugged." },
+        { k: "TPM", v: "Trusted Platform Module. Chip for encryption keys (BitLocker)." }
     ],
     'WIFI': [
         { k: "802.11a", v: "5 GHz | 54 Mbps | Legacy" },
@@ -6446,15 +6499,17 @@ const GLOSSARY_DATA = {
         { k: "802.11n", v: "2.4/5 GHz | 600 Mbps | Wi-Fi 4 (MIMO)" },
         { k: "802.11ac", v: "5 GHz | 6.9 Gbps | Wi-Fi 5 (MU-MIMO)" },
         { k: "802.11ax", v: "2.4/5/6 GHz | 9.6 Gbps | Wi-Fi 6 (OFDMA)" },
-        { k: "WPA2", v: "AES + CCMP (Standard Security)" },
-        { k: "WPA3", v: "SAE (Simultaneous Authentication of Equals)" }
+        { k: "2.4 GHz", v: "Longer range, penetrates walls better, more interference." },
+        { k: "5 GHz", v: "Faster speeds, shorter range, less interference." },
+        { k: "Channels (2.4)", v: "1, 6, 11 (Non-overlapping in US)." }
     ],
     'RAM': [
         { k: "DDR3", v: "240 Pins (Desktop) | 204 Pins (Laptop)" },
         { k: "DDR4", v: "288 Pins (Desktop) | 260 Pins (Laptop) | Curved Edge" },
-        { k: "DDR5", v: "288 Pins (Desktop) | 262 Pins (Laptop) | Lower Voltage" },
-        { k: "ECC", v: "Error Correcting Code (Server RAM)" },
-        { k: "Single vs Dual", v: "Dual channel doubles bandwidth (requires matching slots)" }
+        { k: "DDR5", v: "288 Pins (Desktop) | 262 Pins (Laptop) | On-die ECC" },
+        { k: "ECC", v: "Error Correcting. Detects bit flips. For servers." },
+        { k: "Parity", v: "Detects errors but CANNOT fix them." },
+        { k: "Dual Channel", v: "Doubles bandwidth. Must use matching colored slots." }
     ],
     'RAID': [
         { k: "RAID 0", v: "Striping. Speed++. 0 Redundancy. (Min 2 Drives)" },
@@ -6463,46 +6518,55 @@ const GLOSSARY_DATA = {
         { k: "RAID 10", v: "Stripe of Mirrors. Best of both. (Min 4 Drives)" }
     ],
     'CABLES': [
-        { k: "Cat 5e", v: "1 Gbps | 100m | Unshielded" },
-        { k: "Cat 6", v: "10 Gbps (55m) | 1 Gbps (100m)" },
-        { k: "Cat 6a", v: "10 Gbps (100m) | Shielded" },
-        { k: "Plenum", v: "Fire-resistant coating (For HVAC/Ceilings)" },
-        { k: "Fiber (Single)", v: "Laser | Long distance | Fast" },
-        { k: "Fiber (Multi)", v: "LED | Shorter distance | Cheaper" },
-        { k: "USB-C", v: "24-pin reversible | Data + Power + Video" }
+        { k: "RJ-45", v: "8-pin. Standard Ethernet." },
+        { k: "RJ-11", v: "4-pin/6-pin. Telephone/DSL lines." },
+        { k: "Cat 5e", v: "1 Gbps | 100m | Unshielded." },
+        { k: "Cat 6", v: "10 Gbps (55m) | 1 Gbps (100m)." },
+        { k: "Cat 6a", v: "10 Gbps (100m) | Shielded." },
+        { k: "Plenum", v: "Fire-resistant coating. For HVAC spaces (Drop ceilings)." },
+        { k: "USB 2.0", v: "480 Mbps | 5 meters max | Black/White." },
+        { k: "USB 3.0", v: "5 Gbps | 3 meters max | Blue." },
+        { k: "USB-C", v: "Reversible | Data + Power + Video." },
+        { k: "Thunderbolt 3", v: "40 Gbps | Uses USB-C connector." }
     ],
     'PRINTERS': [
-        { k: "1. Processing", v: "Printer receives job & rasterizes image" },
-        { k: "2. Charging", v: "Drum charged to -600V" },
-        { k: "3. Exposing", v: "Laser writes image to drum (-100V)" },
-        { k: "4. Developing", v: "Toner sticks to exposed areas" },
-        { k: "5. Transferring", v: "Toner moves from drum to paper" },
-        { k: "6. Fusing", v: "Heat & Pressure melt toner to paper" },
-        { k: "7. Cleaning", v: "Scraper removes excess toner" }
+        { k: "1. Processing", v: "Printer receives job & rasterizes image." },
+        { k: "2. Charging", v: "Primary Corona/Roller charges drum (-600V)." },
+        { k: "3. Exposing", v: "Laser writes image to drum (neutralizes charge)." },
+        { k: "4. Developing", v: "Toner sticks to exposed areas." },
+        { k: "5. Transferring", v: "Toner moves from drum to paper." },
+        { k: "6. Fusing", v: "Heat & Pressure melt toner to paper." },
+        { k: "7. Cleaning", v: "Scraper removes excess toner." },
+        { k: "Thermal", v: "Heating element + special paper. Receipt printers." },
+        { k: "Impact", v: "Pins strike ribbon. Dot Matrix. Carbon copies." }
     ],
     'CLOUD': [
         { k: "IaaS", v: "Infrastructure (AWS EC2). You manage OS & Apps." },
         { k: "PaaS", v: "Platform (Heroku). You manage Apps only." },
         { k: "SaaS", v: "Software (Gmail). Vendor manages everything." },
-        { k: "Hypervisor T1", v: "Bare Metal (ESXi). Runs on hardware." },
-        { k: "Hypervisor T2", v: "Hosted (VirtualBox). Runs on OS." }
+        { k: "Private Cloud", v: "Hardware dedicated to one org." },
+        { k: "Public Cloud", v: "Hardware shared by many orgs (AWS)." },
+        { k: "Resource Pooling", v: "Grouping hardware to serve multiple clients." },
+        { k: "Measured Service", v: "Pay-per-use (Utility metering)." }
     ],
     'CMDS': [
         { k: "ipconfig", v: "Win: IP details. /flushdns, /release, /renew" },
-        { k: "ping", v: "Test connectivity (ICMP)" },
-        { k: "tracert", v: "Trace hops to destination (Windows)" },
-        { k: "netstat", v: "Show active ports/connections" },
-        { k: "nslookup", v: "Query DNS records" },
-        { k: "chkdsk", v: "Check disk integrity (/f to fix)" },
-        { k: "gpupdate", v: "Force Group Policy update" }
+        { k: "ping", v: "Test connectivity (ICMP)." },
+        { k: "tracert", v: "Trace hops to destination (Windows)." },
+        { k: "netstat", v: "Show active ports/connections." },
+        { k: "nslookup", v: "Query DNS records (A, MX, CNAME)." },
+        { k: "chkdsk", v: "Check disk integrity (/f to fix)." },
+        { k: "sfc /scannow", v: "System File Checker. Fixes OS files." },
+        { k: "gpupdate", v: "Force Group Policy update." },
+        { k: "diskpart", v: "Disk partition management CLI." }
     ],
     'TSHOOT': [
-        { k: "1. Identify", v: "Question user, backup, check logs" },
-        { k: "2. Theory", v: "Guess the probable cause" },
-        { k: "3. Test", v: "Confirm the theory" },
-        { k: "4. Plan", v: "Create plan & implement solution" },
-        { k: "5. Verify", v: "Test full system functionality" },
-        { k: "6. Document", v: "Record findings & actions" }
+        { k: "1. Identify", v: "Question user, backup, check logs." },
+        { k: "2. Theory", v: "Guess the probable cause." },
+        { k: "3. Test", v: "Confirm the theory (Sandbox)." },
+        { k: "4. Plan", v: "Create plan & implement solution." },
+        { k: "5. Verify", v: "Test full system functionality." },
+        { k: "6. Document", v: "Record findings, actions, and lessons." }
     ]
 };
 
@@ -6541,9 +6605,16 @@ function renderGlossary(category) {
     
 </script>
 
-<div id="ref-widget" style="position: fixed; bottom: 35px; right: 20px; z-index: 5000;">
-    <button class="sys-btn" style="color: #0affba; border-color: #0affba;" onclick="toggleGlossary()">
-        [ REF_DB ]
+<div id="ref-widget" style="position: fixed; top: 20px; left: 20px; z-index: 5000;">
+    <button class="sys-btn" style="
+        color: #ff3333; 
+        border-color: #ff3333; 
+        font-size: 1.5rem; 
+        padding: 15px 30px;
+        text-shadow: 0 0 10px #ff0000;
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+    " onclick="toggleGlossary()">
+        [ CHEAT_SHEET ]
     </button>
 </div>
 
@@ -6555,16 +6626,18 @@ function renderGlossary(category) {
         </div>
         
         <div class="glossary-tabs">
-            <button class="tab-btn active" onclick="renderGlossary('PORTS')">PORTS</button>
-            <button class="tab-btn" onclick="renderGlossary('WIFI')">WI-FI</button>
-            <button class="tab-btn" onclick="renderGlossary('RAM')">RAM</button>
-            <button class="tab-btn" onclick="renderGlossary('RAID')">RAID</button>
-            <button class="tab-btn" onclick="renderGlossary('CABLES')">CABLES</button>
-            <button class="tab-btn" onclick="renderGlossary('PRINTERS')">PRINTERS</button>
-            <button class="tab-btn" onclick="renderGlossary('CLOUD')">CLOUD</button>
-            <button class="tab-btn" onclick="renderGlossary('CMDS')">COMMANDS</button>
-            <button class="tab-btn" onclick="renderGlossary('TSHOOT')">T-SHOOT</button>
-        </div>
+    <button class="tab-btn active" onclick="renderGlossary('PORTS')">PORTS</button>
+    <button class="tab-btn" onclick="renderGlossary('IP')">IP ADDR</button>
+    <button class="tab-btn" onclick="renderGlossary('WIFI')">WI-FI</button>
+    <button class="tab-btn" onclick="renderGlossary('RAM')">RAM</button>
+    <button class="tab-btn" onclick="renderGlossary('HARDWARE')">HARDWARE</button>
+    <button class="tab-btn" onclick="renderGlossary('RAID')">RAID</button>
+    <button class="tab-btn" onclick="renderGlossary('CABLES')">CABLES</button>
+    <button class="tab-btn" onclick="renderGlossary('PRINTERS')">PRINTERS</button>
+    <button class="tab-btn" onclick="renderGlossary('CLOUD')">CLOUD</button>
+    <button class="tab-btn" onclick="renderGlossary('CMDS')">COMMANDS</button>
+    <button class="tab-btn" onclick="renderGlossary('TSHOOT')">T-SHOOT</button>
+</div>
 
         <div id="glossary-content" class="glossary-grid"></div>
     </div>
