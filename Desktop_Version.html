@@ -785,6 +785,64 @@ html {
         @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
         @keyframes blink-cursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } } 
+
+        /* --- GLOSSARY STYLES --- */
+#glossary-ui {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    backdrop-filter: blur(5px);
+}
+.glossary-window {
+    width: 90%; max-width: 900px; height: 80vh;
+    border: 2px solid var(--term-color);
+    background: rgba(0, 10, 10, 0.95);
+    box-shadow: 0 0 20px var(--term-color), inset 0 0 20px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column;
+    animation: turnOn 0.3s ease-out;
+}
+.glossary-header {
+    background: var(--term-color); color: #000;
+    padding: 10px; font-weight: bold; font-size: 1.2rem;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.close-btn {
+    background: transparent; border: none; font-weight: bold; cursor: pointer;
+    font-family: 'VT323', monospace; font-size: 1.5rem; color: #000;
+}
+.close-btn:hover { color: #fff; }
+.glossary-tabs {
+    display: flex; flex-wrap: wrap; /* Allows tabs to wrap on mobile */
+    border-bottom: 1px solid var(--term-color);
+    background: rgba(0,0,0,0.5);
+}
+.tab-btn {
+    flex: 1 1 auto; /* Tabs auto-size */
+    min-width: 90px;
+    background: transparent; border: none; 
+    border-right: 1px solid var(--term-color); border-bottom: 1px solid transparent;
+    color: var(--term-color); font-family: 'VT323', monospace; font-size: 1.2rem;
+    padding: 10px; cursor: pointer; transition: 0.2s;
+}
+.tab-btn:hover, .tab-btn.active { background: var(--term-color); color: #000; }
+.glossary-grid {
+    flex-grow: 1; overflow-y: auto; padding: 20px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px; align-content: start;
+}
+.gloss-item {
+    border: 1px solid #333; padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: 0.2s; cursor: default;
+}
+.gloss-item:hover {
+    border-color: var(--term-color);
+    box-shadow: 0 0 10px var(--term-color);
+    transform: translateY(-2px);
+}
+.gloss-key { color: var(--term-color); font-size: 1.4rem; font-weight: bold; display: block; border-bottom: 1px dashed #555; margin-bottom: 5px; }
+.gloss-val { color: #fff; font-size: 1.1rem; line-height: 1.2; }
+        
     </style>
 </head>
 <body class="glitch-active">
@@ -6363,6 +6421,153 @@ function transitionToQuiz(certTag, moduleTag) {
 window.onload = function() {
         bootSystem();
     };
+
+/* ========================================================================= */
+/* SECTION: GLOSSARY LOGIC                                                   */
+/* ========================================================================= */
+const GLOSSARY_DATA = {
+    'PORTS': [
+        { k: "20/21", v: "FTP (File Transfer). TCP. Unsecured." },
+        { k: "22", v: "SSH (Secure Shell). TCP. Encrypted Login." },
+        { k: "23", v: "Telnet. TCP. Unencrypted Login." },
+        { k: "25", v: "SMTP (Sending Mail). TCP." },
+        { k: "53", v: "DNS (Domain Name System). UDP/TCP." },
+        { k: "80", v: "HTTP (Web). TCP. Unsecured." },
+        { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes." },
+        { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs across devices." },
+        { k: "443", v: "HTTPS (Secure Web). TCP. Encrypted." },
+        { k: "445", v: "SMB (Server Message Block). TCP. File/Printer Sharing." },
+        { k: "3389", v: "RDP (Remote Desktop). TCP/UDP." }
+    ],
+    'WIFI': [
+        { k: "802.11a", v: "5 GHz | 54 Mbps | Legacy" },
+        { k: "802.11b", v: "2.4 GHz | 11 Mbps | Legacy" },
+        { k: "802.11g", v: "2.4 GHz | 54 Mbps | Back-compatible w/ b" },
+        { k: "802.11n", v: "2.4/5 GHz | 600 Mbps | Wi-Fi 4 (MIMO)" },
+        { k: "802.11ac", v: "5 GHz | 6.9 Gbps | Wi-Fi 5 (MU-MIMO)" },
+        { k: "802.11ax", v: "2.4/5/6 GHz | 9.6 Gbps | Wi-Fi 6 (OFDMA)" },
+        { k: "WPA2", v: "AES + CCMP (Standard Security)" },
+        { k: "WPA3", v: "SAE (Simultaneous Authentication of Equals)" }
+    ],
+    'RAM': [
+        { k: "DDR3", v: "240 Pins (Desktop) | 204 Pins (Laptop)" },
+        { k: "DDR4", v: "288 Pins (Desktop) | 260 Pins (Laptop) | Curved Edge" },
+        { k: "DDR5", v: "288 Pins (Desktop) | 262 Pins (Laptop) | Lower Voltage" },
+        { k: "ECC", v: "Error Correcting Code (Server RAM)" },
+        { k: "Single vs Dual", v: "Dual channel doubles bandwidth (requires matching slots)" }
+    ],
+    'RAID': [
+        { k: "RAID 0", v: "Striping. Speed++. 0 Redundancy. (Min 2 Drives)" },
+        { k: "RAID 1", v: "Mirroring. Redundancy++. Slow Write. (Min 2 Drives)" },
+        { k: "RAID 5", v: "Striping + Parity. Speed + Safety. (Min 3 Drives)" },
+        { k: "RAID 10", v: "Stripe of Mirrors. Best of both. (Min 4 Drives)" }
+    ],
+    'CABLES': [
+        { k: "Cat 5e", v: "1 Gbps | 100m | Unshielded" },
+        { k: "Cat 6", v: "10 Gbps (55m) | 1 Gbps (100m)" },
+        { k: "Cat 6a", v: "10 Gbps (100m) | Shielded" },
+        { k: "Plenum", v: "Fire-resistant coating (For HVAC/Ceilings)" },
+        { k: "Fiber (Single)", v: "Laser | Long distance | Fast" },
+        { k: "Fiber (Multi)", v: "LED | Shorter distance | Cheaper" },
+        { k: "USB-C", v: "24-pin reversible | Data + Power + Video" }
+    ],
+    'PRINTERS': [
+        { k: "1. Processing", v: "Printer receives job & rasterizes image" },
+        { k: "2. Charging", v: "Drum charged to -600V" },
+        { k: "3. Exposing", v: "Laser writes image to drum (-100V)" },
+        { k: "4. Developing", v: "Toner sticks to exposed areas" },
+        { k: "5. Transferring", v: "Toner moves from drum to paper" },
+        { k: "6. Fusing", v: "Heat & Pressure melt toner to paper" },
+        { k: "7. Cleaning", v: "Scraper removes excess toner" }
+    ],
+    'CLOUD': [
+        { k: "IaaS", v: "Infrastructure (AWS EC2). You manage OS & Apps." },
+        { k: "PaaS", v: "Platform (Heroku). You manage Apps only." },
+        { k: "SaaS", v: "Software (Gmail). Vendor manages everything." },
+        { k: "Hypervisor T1", v: "Bare Metal (ESXi). Runs on hardware." },
+        { k: "Hypervisor T2", v: "Hosted (VirtualBox). Runs on OS." }
+    ],
+    'CMDS': [
+        { k: "ipconfig", v: "Win: IP details. /flushdns, /release, /renew" },
+        { k: "ping", v: "Test connectivity (ICMP)" },
+        { k: "tracert", v: "Trace hops to destination (Windows)" },
+        { k: "netstat", v: "Show active ports/connections" },
+        { k: "nslookup", v: "Query DNS records" },
+        { k: "chkdsk", v: "Check disk integrity (/f to fix)" },
+        { k: "gpupdate", v: "Force Group Policy update" }
+    ],
+    'TSHOOT': [
+        { k: "1. Identify", v: "Question user, backup, check logs" },
+        { k: "2. Theory", v: "Guess the probable cause" },
+        { k: "3. Test", v: "Confirm the theory" },
+        { k: "4. Plan", v: "Create plan & implement solution" },
+        { k: "5. Verify", v: "Test full system functionality" },
+        { k: "6. Document", v: "Record findings & actions" }
+    ]
+};
+
+function toggleGlossary() {
+    const ui = document.getElementById('glossary-ui');
+    if (ui.classList.contains('hidden')) {
+        ui.classList.remove('hidden');
+        renderGlossary('PORTS'); // Load default
+        AudioEngine.playSFX('click');
+    } else {
+        ui.classList.add('hidden');
+        AudioEngine.playSFX('error');
+    }
+}
+
+function renderGlossary(category) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        if(b.innerText === category) b.classList.add('active');
+    });
+
+    const container = document.getElementById('glossary-content');
+    container.innerHTML = "";
+    
+    if(GLOSSARY_DATA[category]) {
+        GLOSSARY_DATA[category].forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'gloss-item';
+            div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
+            div.onmouseenter = () => AudioEngine.playMenuHover();
+            container.appendChild(div);
+        });
+    }
+    AudioEngine.playSFX('type');
+}
+    
 </script>
+
+<div id="ref-widget" style="position: fixed; bottom: 35px; right: 20px; z-index: 5000;">
+    <button class="sys-btn" style="color: #0affba; border-color: #0affba;" onclick="toggleGlossary()">
+        [ REF_DB ]
+    </button>
+</div>
+
+<div id="glossary-ui" class="hidden">
+    <div class="glossary-window">
+        <div class="glossary-header">
+            <span>>> CORE_1_DATABASE</span>
+            <button class="close-btn" onclick="toggleGlossary()">[X]</button>
+        </div>
+        
+        <div class="glossary-tabs">
+            <button class="tab-btn active" onclick="renderGlossary('PORTS')">PORTS</button>
+            <button class="tab-btn" onclick="renderGlossary('WIFI')">WI-FI</button>
+            <button class="tab-btn" onclick="renderGlossary('RAM')">RAM</button>
+            <button class="tab-btn" onclick="renderGlossary('RAID')">RAID</button>
+            <button class="tab-btn" onclick="renderGlossary('CABLES')">CABLES</button>
+            <button class="tab-btn" onclick="renderGlossary('PRINTERS')">PRINTERS</button>
+            <button class="tab-btn" onclick="renderGlossary('CLOUD')">CLOUD</button>
+            <button class="tab-btn" onclick="renderGlossary('CMDS')">COMMANDS</button>
+            <button class="tab-btn" onclick="renderGlossary('TSHOOT')">T-SHOOT</button>
+        </div>
+
+        <div id="glossary-content" class="glossary-grid"></div>
+    </div>
+</div>
 </body>
 </html>
