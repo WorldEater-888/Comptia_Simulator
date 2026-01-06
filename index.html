@@ -5666,56 +5666,134 @@ position: relative; /* Required for float/jitter */
     
     function shutdownSystem() { location.reload(); }
 
- /* ============================    JS: GLOSSARY LOGIC      ============================ */
+ /* ============================    JS: GLOSSARY LOGIC (EXPANDED) ============================ */
     const GLOSSARY_DATA = {
         'CORE1': {
             'PORTS': [
-                { k: "20/21", v: "FTP (File Transfer). TCP. Unsecured." },
-                { k: "22", v: "SSH (Secure Shell). TCP. Encrypted Login." },
-                { k: "23", v: "Telnet. TCP. Unencrypted Login." },
-                { k: "25", v: "SMTP (Sending Mail). TCP." },
-                { k: "53", v: "DNS (Domain Name System). UDP/TCP." },
-                { k: "67/68", v: "DHCP (Dynamic Host Config). UDP." },
-                { k: "80", v: "HTTP (Web). TCP. Unsecured." },
-                { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes." },
-                { k: "137-139", v: "NetBIOS/NetBT. UDP/TCP. LAN file sharing." },
-                { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs across devices." },
-                { k: "161/162", v: "SNMP (Network Mgmt). UDP. Monitor devices." },
-                { k: "3389", v: "RDP (Remote Desktop). TCP/UDP." }
+                { k: "20/21", v: "FTP (File Transfer). TCP. Unsecured file sending." },
+                { k: "22", v: "SSH (Secure Shell). TCP. Encrypted remote login." },
+                { k: "23", v: "Telnet. TCP. Unencrypted remote login (Deprecated)." },
+                { k: "25", v: "SMTP (Sending Mail). TCP. Server-to-server email." },
+                { k: "53", v: "DNS (Domain Name System). TCP/UDP. Resolves Names to IPs." },
+                { k: "67/68", v: "DHCP (Dynamic Host Config). UDP. Assigns IPs auto." },
+                { k: "80", v: "HTTP (Web). TCP. Unsecured web traffic." },
+                { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes from server." },
+                { k: "137-139", v: "NetBIOS/NetBT. UDP/TCP. LAN naming & file sharing." },
+                { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs mail across devices." },
+                { k: "161/162", v: "SNMP (Network Mgmt). UDP. Monitor network devices." },
+                { k: "389", v: "LDAP (Directory Services). TCP. Network auth (Active Directory)." },
+                { k: "443", v: "HTTPS (Secure Web). TCP. Encrypted web traffic (SSL/TLS)." },
+                { k: "445", v: "SMB/CIFS (File Share). TCP. Windows file/printer sharing." },
+                { k: "3389", v: "RDP (Remote Desktop). TCP/UDP. Windows GUI remote access." }
             ],
-            'IP ADDR': [
-                { k: "IPv4 Class A", v: "1.0.0.0 - 126.x.x.x | Subnet: 255.0.0.0 (/8)" },
-                { k: "IPv4 Class B", v: "128.0.0.0 - 191.x.x.x | Subnet: 255.255.0.0 (/16)" },
-                { k: "IPv4 Class C", v: "192.0.0.0 - 223.x.x.x | Subnet: 255.255.255.0 (/24)" },
+            'NETWORK': [
+                { k: "IPv4 Class A", v: "1.0.0.0 - 126.x.x.x | Subnet: /8 (255.0.0.0)" },
+                { k: "IPv4 Class B", v: "128.0.0.0 - 191.x.x.x | Subnet: /16 (255.255.0.0)" },
+                { k: "IPv4 Class C", v: "192.0.0.0 - 223.x.x.x | Subnet: /24 (255.255.255.0)" },
+                { k: "Private Range A", v: "10.0.0.0 - 10.255.255.255 (Big Networks)" },
+                { k: "Private Range B", v: "172.16.0.0 - 172.31.255.255 (Mid Networks)" },
+                { k: "Private Range C", v: "192.168.0.0 - 192.168.255.255 (Home Networks)" },
                 { k: "APIPA", v: "169.254.x.x | Auto-assigned when DHCP fails." },
-                { k: "Loopback", v: "127.0.0.1 | Tests NIC functionality." }
+                { k: "Loopback", v: "127.0.0.1 | Ping self to test NIC stack." },
+                { k: "IPv6 Link Local", v: "fe80::/10 | Works like APIPA (Local LAN only)." },
+                { k: "IPv6 Global", v: "2000::/3 | Routable on the Internet." },
+                { k: "TCP vs UDP", v: "TCP: Connection-oriented (Ack). UDP: Connectionless (Fast)." }
             ],
             'HARDWARE': [
-                { k: "ATX", v: "12 x 9.6 in. Standard desktop size." },
-                { k: "Micro-ATX", v: "9.6 x 9.6 in. Smaller. 4 slots." },
-                { k: "Mini-ITX", v: "6.7 x 6.7 in. Smallest. 1 slot." },
-                { k: "M.2 Key M", v: "NVMe/PCIe SSDs (Fastest)." },
-                { k: "M.2 Key B", v: "SATA SSDs / Cellular cards." }
+                { k: "ATX", v: "12 x 9.6 in. Standard size. Max expansion." },
+                { k: "Micro-ATX", v: "9.6 x 9.6 in. 4 slots max. Compact towers." },
+                { k: "Mini-ITX", v: "6.7 x 6.7 in. 1 slot. HTPC/Small form factor." },
+                { k: "BIOS/UEFI", v: "UEFI supports >2.2TB drives, Secure Boot, Mouse use." },
+                { k: "CMOS Battery", v: "CR2032. Retains BIOS settings/Clock." },
+                { k: "TPM", v: "Trusted Platform Module. Hardware encryption chip." },
+                { k: "LoJack", v: "Anti-theft BIOS feature. Tracks/locks stolen PCs." },
+                { k: "Power: 24-Pin", v: "Main motherboard power." },
+                { k: "Power: EPS 12V", v: "4 or 8 pin. CPU dedicated power." },
+                { k: "Power: PCIe", v: "6 or 8 pin. GPU extra power." }
+            ],
+            'RAM': [
+                { k: "DDR3", v: "240 Pins (Desktop) | 204 Pins (Laptop/SODIMM)" },
+                { k: "DDR4", v: "288 Pins (Desktop) | 260 Pins (Laptop/SODIMM)" },
+                { k: "DDR5", v: "288 Pins (Desktop) | 262 Pins (Laptop/SODIMM)" },
+                { k: "ECC RAM", v: "Detects AND fixes single-bit errors. For Servers." },
+                { k: "Parity RAM", v: "Detects errors but CANNOT fix them." },
+                { k: "Dual Channel", v: "Doubles bandwidth. Install in matching colored slots." }
+            ],
+            'STORAGE': [
+                { k: "RAID 0", v: "Striping. Fast. 0 Redundancy. Dies if 1 drive fails." },
+                { k: "RAID 1", v: "Mirroring. Safe. Slow Write. Needs 2 drives." },
+                { k: "RAID 5", v: "Striping + Parity. Balanced. Needs 3 drives. 1 fail allowed." },
+                { k: "RAID 10", v: "Stripe of Mirrors. Fast & Safe. Needs 4 drives." },
+                { k: "NVMe", v: "Fastest SSD protocol. Uses PCIe lanes via M.2." },
+                { k: "SATA 3", v: "6 Gbps limit. Standard 2.5 inch SSD/HDD." },
+                { k: "M.2 Key M", v: "Used for NVMe/PCIe x4 SSDs." },
+                { k: "M.2 Key B", v: "Used for SATA SSDs or Cellular cards." }
+            ],
+            'CABLES': [
+                { k: "Cat 5e", v: "1 Gbps | 100m | Reduced crosstalk." },
+                { k: "Cat 6", v: "10 Gbps (55m) / 1 Gbps (100m)." },
+                { k: "Cat 6a", v: "10 Gbps (100m) | Shielded (F/UTP)." },
+                { k: "Plenum", v: "Fire-rated jacket. For HVAC ceilings. Less toxic smoke." },
+                { k: "Fiber: LC", v: "Local Connector. Small, 2-prongs." },
+                { k: "Fiber: ST", v: "Straight Tip. Round, twist-lock (BNC style)." },
+                { k: "Fiber: SC", v: "Subscriber Connector. Square plug." },
+                { k: "USB 2.0", v: "480 Mbps. 5m length." },
+                { k: "USB 3.0", v: "5 Gbps. 3m length. Blue port." },
+                { k: "Thunderbolt 3", v: "40 Gbps. Uses USB-C shape." }
             ],
             'WI-FI': [
-                { k: "802.11n (Wi-Fi 4)", v: "2.4/5 GHz | 600 Mbps." },
-                { k: "802.11ac (Wi-Fi 5)", v: "5 GHz | 6.9 Gbps." },
-                { k: "802.11ax (Wi-Fi 6)", v: "2.4/5/6 GHz | 9.6 Gbps." },
-                { k: "2.4 GHz", v: "Long range, wall penetration, high interference." },
-                { k: "5 GHz", v: "Fast speed, short range, low interference." }
+                { k: "802.11a", v: "5 GHz | 54 Mbps | Legacy." },
+                { k: "802.11b", v: "2.4 GHz | 11 Mbps | Legacy." },
+                { k: "802.11g", v: "2.4 GHz | 54 Mbps | Legacy." },
+                { k: "802.11n", v: "2.4/5 GHz | 600 Mbps | Wi-Fi 4." },
+                { k: "802.11ac", v: "5 GHz | 6.9 Gbps | Wi-Fi 5 (MU-MIMO)." },
+                { k: "802.11ax", v: "2.4/5/6 GHz | 9.6 Gbps | Wi-Fi 6 (OFDMA)." },
+                { k: "Channels 2.4", v: "1, 6, 11 are the only non-overlapping." },
+                { k: "WPA2", v: "AES Encryption + CCMP." },
+                { k: "WPA3", v: "SAE (Simultaneous Authentication of Equals). 192-bit." }
             ],
-            'RAID': [
-                { k: "RAID 0", v: "Striping. Fast. No Redundancy. (Min 2)" },
-                { k: "RAID 1", v: "Mirroring. Safe. Slow Write. (Min 2)" },
-                { k: "RAID 5", v: "Striping + Parity. Balanced. (Min 3)" },
-                { k: "RAID 10", v: "Stripe of Mirrors. Fast & Safe. (Min 4)" }
+            'MOBILE': [
+                { k: "OLED", v: "No backlight. Organic pixels. True blacks. Expensive." },
+                { k: "IPS LCD", v: "Better viewing angles/colors than TN." },
+                { k: "Digitizer", v: "Converts touch (analog) into digital signal." },
+                { k: "Inverter", v: "Converts DC (battery) to AC (screen backlight)." },
+                { k: "Tethering", v: "Sharing cellular internet via USB/Wi-Fi." },
+                { k: "NFC", v: "Near Field Comm. Contactless pay/pairing (4cm range)." },
+                { k: "IMSI", v: "Unique ID for the USER (Sim Card)." },
+                { k: "IMEI", v: "Unique ID for the DEVICE (Phone hardware)." }
+            ],
+            'PRINTERS': [
+                { k: "Laser Process", v: "Processing > Charging > Exposing > Developing > Transferring > Fusing > Cleaning." },
+                { k: "Corona Wire", v: "Applies high voltage charge (Laser)." },
+                { k: "Fuser", v: "Heats and presses toner to page (Laser)." },
+                { k: "Thermal", v: "Heat-sensitive paper. Receipts. Quiet. Fades over time." },
+                { k: "Impact", v: "Pins hit ribbon. Multi-part forms (Carbon copies)." },
+                { k: "Inkjet", v: "Liquid ink. Cheap HW, expensive ink. High res." },
+                { k: "3D Printer", v: "Filament. Fused Deposition Modeling (FDM)." }
+            ],
+            'CLOUD': [
+                { k: "IaaS", v: "Infrastructure. AWS EC2. You manage OS + Apps." },
+                { k: "PaaS", v: "Platform. Heroku/SQL. You manage Apps only." },
+                { k: "SaaS", v: "Software. Gmail/Dropbox. Vendor manages ALL." },
+                { k: "Type 1 Hypervisor", v: "Bare Metal (ESXi). OS runs ON hypervisor." },
+                { k: "Type 2 Hypervisor", v: "Hosted (VirtualBox). Hypervisor runs ON OS." },
+                { k: "Rapid Elasticity", v: "Scale resources up/down instantly." },
+                { k: "Resource Pooling", v: "Multiple customers share same physical HW." }
+            ],
+            'TROUBLESHOOT': [
+                { k: "1. Identify", v: "Ask user. Check logs. Duplicate issue. Backup." },
+                { k: "2. Theory", v: "Question the obvious. Research." },
+                { k: "3. Test Theory", v: "Confirm cause. If fails, new theory." },
+                { k: "4. Plan of Action", v: "Create plan to fix. Consider side effects." },
+                { k: "5. Verify", v: "Test full system. Implement preventive measures." },
+                { k: "6. Document", v: "Log findings, actions, and outcomes." },
+                { k: "S.M.A.R.T.", v: "Self-Monitoring Analysis. Disk drive health check." }
             ]
         },
         'CORE2': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
         'NET': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
         'SEC': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] }
     };
-
     let currentGlossaryExam = null;
 
     function toggleGlossary() {
@@ -5795,6 +5873,7 @@ position: relative; /* Required for float/jitter */
 </script>
 </body>
 </html>
+
 
 
 
