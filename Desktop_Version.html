@@ -33,6 +33,95 @@
     pointer-events: auto;
 }
 
+/* --- GLOSSARY STYLES --- */
+#glossary-ui {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    backdrop-filter: blur(5px);
+}
+.glossary-window {
+    width: 90%; max-width: 900px; height: 80vh;
+    border: 2px solid var(--term-color);
+    background: rgba(0, 10, 10, 0.95);
+    box-shadow: 0 0 20px var(--term-color), inset 0 0 20px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column;
+    animation: turnOn 0.3s ease-out;
+}
+.glossary-header {
+    background: var(--term-color); color: #000;
+    padding: 10px; font-weight: bold; font-size: 1.2rem;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.close-btn {
+    background: transparent; border: none; font-weight: bold; cursor: pointer;
+    font-family: 'VT323', monospace; font-size: 1.5rem; color: #000;
+}
+.close-btn:hover { color: #fff; }
+
+/* VIEW SWITCHING */
+.gloss-view { width: 100%; height: 100%; display: flex; flex-direction: column; }
+.gloss-view.hidden { display: none; }
+
+/* SELECTION MENU (THE BIG BUTTONS) */
+.exam-select-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 40px; height: 100%;
+}
+.exam-select-btn {
+    background: rgba(0,0,0,0.6); border: 2px solid var(--term-color); color: var(--term-color);
+    cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+}
+.exam-select-btn:hover {
+    background: var(--term-color); color: #000; box-shadow: 0 0 30px var(--term-color);
+}
+.ex-title { font-family: 'VT323', monospace; font-size: 3rem; font-weight: bold; }
+.ex-sub { font-family: 'Courier New', monospace; font-size: 1rem; letter-spacing: 2px; margin-top: 10px; opacity: 0.8; }
+
+/* CONTENT TABS */
+.glossary-tabs {
+    display: flex; flex-wrap: wrap; 
+    border-bottom: 1px solid var(--term-color); background: rgba(0,0,0,0.5);
+}
+.tab-btn {
+    flex: 1 1 auto; min-width: 90px;
+    background: transparent; border: none; 
+    border-right: 1px solid var(--term-color); border-bottom: 1px solid transparent;
+    color: var(--term-color); font-family: 'VT323', monospace; font-size: 1.2rem;
+    padding: 10px; cursor: pointer; transition: 0.2s;
+}
+.tab-btn:hover, .tab-btn.active { background: var(--term-color); color: #000; }
+
+.glossary-grid {
+    flex-grow: 1; overflow-y: auto; padding: 20px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px; align-content: start;
+}
+
+/* READABLE TEXT ITEMS */
+.gloss-item {
+    border: 1px solid #444; padding: 15px; 
+    background: rgba(0, 0, 0, 0.6); 
+    transition: 0.2s; cursor: default;
+}
+.gloss-item:hover {
+    border-color: var(--term-color);
+    box-shadow: 0 0 15px var(--term-color);
+    transform: translateY(-2px); background: #000;
+}
+.gloss-key { 
+    color: var(--term-color); font-family: 'VT323', monospace; 
+    font-size: 1.6rem; font-weight: bold; display: block; 
+    border-bottom: 1px dashed #555; margin-bottom: 8px; padding-bottom: 5px;
+}
+.gloss-val { 
+    color: #fff; font-family: 'Courier New', Courier, monospace; 
+    font-size: 1.1rem; line-height: 1.4; font-weight: bold; letter-spacing: 0.5px;
+}
+
+/* Z-INDEX FIX */
+#custom-cursor { z-index: 2147483647 !important; }
+        
 /* Jitter/Float Animation */
 @keyframes sys-btn-float {
     0% { transform: translate(0, 0); box-shadow: 0 0 5px rgba(0,0,0,0.5); }
@@ -43,10 +132,7 @@
     75% { transform: translate(2px, -1px); }
     100% { transform: translate(0, 0); box-shadow: 0 0 5px rgba(0,0,0,0.5); }
 }
-/* FORCE CURSOR TO TOP LAYER */
-#custom-cursor {
-    z-index: 2147483647 !important; /* Max possible Z-Index */
-}
+
 .sys-btn {
     background: rgba(0, 0, 0, 0.9);
     font-family: 'VT323', monospace;
@@ -788,118 +874,6 @@ html {
         @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
         @keyframes blink-cursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } } 
-
-        /* --- GLOSSARY STYLES --- */
-#glossary-ui {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); z-index: 9999;
-    display: flex; justify-content: center; align-items: center;
-    backdrop-filter: blur(5px);
-}
-.glossary-window {
-    width: 90%; max-width: 900px; height: 80vh;
-    border: 2px solid var(--term-color);
-    background: rgba(0, 10, 10, 0.95);
-    box-shadow: 0 0 20px var(--term-color), inset 0 0 20px rgba(0,0,0,0.5);
-    display: flex; flex-direction: column;
-    animation: turnOn 0.3s ease-out;
-}
-.glossary-header {
-    background: var(--term-color); color: #000;
-    padding: 10px; font-weight: bold; font-size: 1.2rem;
-    display: flex; justify-content: space-between; align-items: center;
-}
-.close-btn {
-    background: transparent; border: none; font-weight: bold; cursor: pointer;
-    font-family: 'VT323', monospace; font-size: 1.5rem; color: #000;
-}
-.close-btn:hover { color: #fff; }
-.glossary-tabs {
-    display: flex; flex-wrap: wrap; /* Allows tabs to wrap on mobile */
-    border-bottom: 1px solid var(--term-color);
-    background: rgba(0,0,0,0.5);
-}
-.tab-btn {
-    flex: 1 1 auto; /* Tabs auto-size */
-    min-width: 90px;
-    background: transparent; border: none; 
-    border-right: 1px solid var(--term-color); border-bottom: 1px solid transparent;
-    color: var(--term-color); font-family: 'VT323', monospace; font-size: 1.2rem;
-    padding: 10px; cursor: pointer; transition: 0.2s;
-}
-.tab-btn:hover, .tab-btn.active { background: var(--term-color); color: #000; }
-.glossary-grid {
-    flex-grow: 1; overflow-y: auto; padding: 20px;
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 15px; align-content: start;
-}
-/* REPLACE YOUR EXISTING .gloss-item, .gloss-key, AND .gloss-val STYLES WITH THIS: */
-
-.gloss-item {
-    border: 1px solid #444; 
-    padding: 15px; /* More breathing room */
-    background: rgba(0, 0, 0, 0.6); /* Darker background for contrast */
-    transition: 0.2s; 
-    cursor: default;
-}
-.gloss-item:hover {
-    border-color: var(--term-color);
-    box-shadow: 0 0 15px var(--term-color); /* Stronger glow */
-    transform: translateY(-2px);
-    background: #000;
-}
-.gloss-key { 
-    color: var(--term-color); 
-    font-family: 'VT323', monospace; /* Keep title retro */
-    font-size: 1.6rem; /* Larger Title */
-    font-weight: bold; 
-    display: block; 
-    border-bottom: 1px dashed #555; 
-    margin-bottom: 8px; 
-    padding-bottom: 5px;
-}
-.gloss-val { 
-    color: #fff; 
-    font-family: 'Courier New', Courier, monospace; /* CLEANER FONT */
-    font-size: 1.1rem; /* Larger Text */
-    line-height: 1.4; /* More spacing between lines */
-    font-weight: bold;
-    letter-spacing: 0.5px;
-}.gloss-val { color: #fff; font-size: 1.1rem; line-height: 1.2; }
-
-/* --- GLOSSARY UPDATE (MULTI-EXAM STYLES) --- */
-.gloss-view { width: 100%; height: 100%; display: flex; flex-direction: column; }
-.gloss-view.hidden { display: none; }
-
-/* Selection Grid Styles */
-.exam-select-grid {
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px; 
-    padding: 40px;
-    height: 100%;
-}
-.exam-select-btn {
-    background: rgba(0,0,0,0.6);
-    border: 2px solid var(--term-color);
-    color: var(--term-color);
-    cursor: pointer;
-    transition: 0.2s;
-    display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    text-align: center;
-}
-.exam-select-btn:hover {
-    background: var(--term-color);
-    color: #000;
-    box-shadow: 0 0 30px var(--term-color);
-}
-.ex-title { font-family: 'VT323', monospace; font-size: 3rem; font-weight: bold; }
-.ex-sub { font-family: 'Courier New', monospace; font-size: 1rem; letter-spacing: 2px; margin-top: 10px; }
-
-/* Ensure content view fills height */
-#gloss-content-view { overflow: hidden; }
-        
     </style>
 </head>
 <body class="glitch-active">
@@ -6480,10 +6454,9 @@ window.onload = function() {
     };
 
 /* ========================================================================= */
-/* SECTION: GLOSSARY LOGIC (MULTI-EXAM)                                      */
+/* SECTION: GLOSSARY LOGIC (FULL DATA + MENU SYSTEM)                         */
 /* ========================================================================= */
 
-// Nested Data Structure: Exam -> Category -> Items
 const GLOSSARY_DATA = {
     'CORE1': {
         'PORTS': [
@@ -6603,44 +6576,25 @@ const GLOSSARY_DATA = {
             { k: "6. Document", v: "Record findings, actions, and lessons." }
         ]
     },
-    'CORE2': {
-        'WINDOWS': [
-             { k: "Pro vs Home", v: "Pro has BitLocker & Domain Join." },
-             { k: "x86 vs x64", v: "x86 = 32-bit (4GB RAM limit)." }
-        ],
-        'CMD_LINE': [
-             { k: "gpupdate", v: "Update Group Policy." },
-             { k: "gpresult", v: "View applied policies." },
-             { k: "shutdown", v: "/s /r /t /a" }
-        ],
-        'SECURITY': [
-             { k: "Social Eng", v: "Phishing, Vishing, Tailgating." },
-             { k: "Malware", v: "Ransomware, Trojan, Worm." }
-        ]
-    },
-    'NET': {
-        'OSI_MODEL': [
-            { k: "L1 Physical", v: "Cables, Hubs." },
-            { k: "L2 Data Link", v: "MAC, Switch, Frames." },
-            { k: "L3 Network", v: "IP, Router, Packets." },
-            { k: "L4 Transport", v: "TCP/UDP, Ports." }
-        ],
-        'ROUTING': [
-            { k: "OSPF", v: "Link State Protocol." },
-            { k: "BGP", v: "Path Vector (Internet Backbone)." }
-        ]
-    },
-    'SEC': {
-        'THREATS': [
-            { k: "Zero Day", v: "Unknown vulnerability." },
-            { k: "DDoS", v: "Distributed Denial of Service." }
-        ],
-        'CRYPTO': [
-            { k: "Symmetric", v: "Same key (AES, DES)." },
-            { k: "Asymmetric", v: "Public/Private pair (RSA, ECC)." }
-        ]
-    }
+    // Placeholders for other exams so buttons don't break
+    'CORE2': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
+    'NET': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
+    'SEC': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] }
 };
+
+let currentGlossaryExam = null;
+
+function toggleGlossary() {
+    const ui = document.getElementById('glossary-ui');
+    if (ui.classList.contains('hidden')) {
+        ui.classList.remove('hidden');
+        showExamSelection(); // Always reset to main menu on open
+        AudioEngine.playSFX('click');
+    } else {
+        ui.classList.add('hidden');
+        AudioEngine.playSFX('error');
+    }
+}
 
 function showExamSelection() {
     document.getElementById('gloss-select-view').classList.remove('hidden');
@@ -6703,7 +6657,6 @@ function renderGlossaryCategory(category) {
 }
     
 </script>
-
 <div id="ref-widget" style="position: fixed; top: 20px; left: 20px; z-index: 5000;">
     <button class="sys-btn" style="
         color: #ff3333; 
@@ -6713,7 +6666,7 @@ function renderGlossaryCategory(category) {
         text-shadow: 0 0 10px #ff0000;
         box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
     " onclick="toggleGlossary()">
-        [ STUDY GUIDE ]
+        [STUDY GUIDE]
     </button>
 </div>
 
@@ -6731,11 +6684,11 @@ function renderGlossaryCategory(category) {
             <div class="exam-select-grid">
                 <button class="exam-select-btn" onclick="loadGlossaryExam('CORE1')">
                     <span class="ex-title">CORE 1</span>
-                    <span class="ex-sub">HARDWARE & NETWORK</span>
+                    <span class="ex-sub">HARDWARE/NETWORK</span>
                 </button>
                 <button class="exam-select-btn" onclick="loadGlossaryExam('CORE2')">
                     <span class="ex-title">CORE 2</span>
-                    <span class="ex-sub">SOFTWARE & SECURITY</span>
+                    <span class="ex-sub">SOFTWARE/SECURITY</span>
                 </button>
                 <button class="exam-select-btn" onclick="loadGlossaryExam('NET')">
                     <span class="ex-title">NETWORK+</span>
