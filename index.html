@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>IT CERT SIMULATOR</title>
+    <title>COMPTIA SIMULATOR</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
@@ -177,6 +177,133 @@
         .kas-btn { color: #70c7ba; border-color: #70c7ba; }
         .bmc-btn { color: #FF813F; border-color: #FF813F; }
 
+/* ============================    GLOSSARY / STUDY GUIDE    ============================ */
+        /* Wrapper for the floating button */
+        #ref-widget {
+            position: fixed; 
+            bottom: 85px; /* Positioned above the footer and NAV button */
+            right: 15px; 
+            z-index: 5000;
+            opacity: 0.9;
+        }
+
+        /* The floating button itself */
+        .study-btn {
+            background: #000;
+            color: var(--term-color); 
+            border: 1px solid var(--term-color); 
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem; 
+            padding: 8px 12px;
+            text-shadow: 0 0 5px var(--term-color);
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            cursor: pointer;
+            text-transform: uppercase;
+            animation: rare-static 4s infinite; /* Matches existing theme */
+        }
+        .study-btn:active {
+            background: var(--term-color);
+            color: #000;
+        }
+
+        /* The Modal Background */
+        #glossary-ui {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        /* The Main Window */
+        .glossary-window {
+            width: 95%; height: 85vh; /* Larger on mobile */
+            border: 2px solid var(--term-color);
+            background: rgba(0, 10, 10, 0.95);
+            box-shadow: 0 0 20px var(--term-color), inset 0 0 20px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            animation: turnOn 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        .gloss-view { 
+            width: 100%; flex: 1; 
+            min-height: 0; 
+            display: flex; flex-direction: column; 
+        }
+        .gloss-view.hidden { display: none; }
+
+        /* Header */
+        .glossary-header {
+            background: var(--term-color); color: #000;
+            padding: 10px; font-weight: bold; font-size: 1.2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+        .close-btn {
+            background: transparent; border: none; font-weight: bold; cursor: pointer;
+            font-family: 'VT323', monospace; font-size: 1.5rem; color: #000;
+        }
+
+        /* Selection Menu */
+        .exam-select-grid {
+            /* Changed to 1 column for Mobile legibility */
+            display: grid; grid-template-columns: 1fr; 
+            gap: 15px; padding: 20px; 
+            overflow-y: auto;
+        }
+        .exam-select-btn {
+            background: rgba(0,0,0,0.6); border: 1px solid var(--term-color); color: var(--term-color);
+            padding: 20px; cursor: pointer; transition: 0.2s; 
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            box-shadow: 0 0 5px var(--term-color);
+        }
+        .exam-select-btn:active {
+            background: var(--term-color); color: #000; 
+        }
+        .ex-title { font-family: 'VT323', monospace; font-size: 2.0rem; font-weight: bold; }
+        .ex-sub { font-family: 'VT323', monospace; font-size: 1rem; letter-spacing: 2px; margin-top: 5px; opacity: 0.8; }
+
+        /* Content Tabs */
+        .glossary-tabs {
+            display: flex; flex-wrap: nowrap; /* Horizontal scroll for tabs on mobile */
+            overflow-x: auto;
+            border-bottom: 1px solid var(--term-color); background: rgba(0,0,0,0.5);
+            flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .tab-btn {
+            flex: 0 0 auto; /* Don't shrink */
+            padding: 12px 15px;
+            background: transparent; border: none; 
+            border-right: 1px solid #333;
+            color: #888; font-family: 'VT323', monospace; font-size: 1.2rem;
+            cursor: pointer; transition: 0.2s;
+        }
+        .tab-btn.active { background: var(--term-color); color: #000; }
+
+        /* Content Grid */
+        .glossary-grid {
+            flex-grow: 1; overflow-y: auto; padding: 15px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        /* Items */
+        .gloss-item {
+            border: 1px solid #444; padding: 10px; 
+            background: rgba(0, 0, 0, 0.6); 
+        }
+        .gloss-key { 
+            color: var(--term-color); font-family: 'VT323', monospace; 
+            font-size: 1.4rem; font-weight: bold; display: block; 
+            border-bottom: 1px dashed #333; margin-bottom: 5px;
+        }
+        .gloss-val { 
+            color: #ccc; font-family: monospace; 
+            font-size: 0.9rem; line-height: 1.4; 
+        }
+
+      
         /* Integrity Bars */
         .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
         .bars-group { display: flex; flex-direction: column; gap: 4px; width: 65%; }
@@ -430,7 +557,51 @@ position: relative; /* Required for float/jitter */
 <div class="retro-grid"></div>
 <div id="panic-pulse"></div> 
 <div id="scan-container"></div> 
+<div id="ref-widget">
+    <button class="study-btn" onclick="toggleGlossary()">
+        [?] GUIDE
+    </button>
+</div>
 
+<div id="glossary-ui" class="hidden">
+    <div class="glossary-window">
+        <div class="glossary-header">
+            <span id="gloss-title">>> SELECT_DATABASE</span>
+            <div>
+                <button id="gloss-back-btn" class="close-btn hidden" style="margin-right: 15px;" onclick="showExamSelection()">[<]</button>
+                <button class="close-btn" onclick="toggleGlossary()">[X]</button>
+            </div>
+        </div>
+        
+        <div id="gloss-select-view" class="gloss-view">
+            <div class="exam-select-grid">
+                <button class="exam-select-btn" onclick="loadGlossaryExam('CORE1')">
+                    <span class="ex-title">CORE 1</span>
+                    <span class="ex-sub">HARDWARE / NETWORKING</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('CORE2')">
+                    <span class="ex-title">CORE 2</span>
+                    <span class="ex-sub">SOFTWARE / SECURITY</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('NET')">
+                    <span class="ex-title">NET+</span>
+                    <span class="ex-sub">INFRASTRUCTURE</span>
+                </button>
+                <button class="exam-select-btn" onclick="loadGlossaryExam('SEC')">
+                    <span class="ex-title">SEC+</span>
+                    <span class="ex-sub">CYBERSECURITY</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="gloss-content-view" class="gloss-view hidden">
+            <div id="gloss-tabs" class="glossary-tabs">
+                </div>
+            <div id="glossary-content" class="glossary-grid">
+                </div>
+        </div>
+    </div>
+</div>
 
 <div class="terminal-window" id="term-win">
     
@@ -5494,7 +5665,129 @@ position: relative; /* Required for float/jitter */
     }
     
     function shutdownSystem() { location.reload(); }
-    
+
+ /* ============================    JS: GLOSSARY LOGIC      ============================ */
+    const GLOSSARY_DATA = {
+        'CORE1': {
+            'PORTS': [
+                { k: "20/21", v: "FTP (File Transfer). TCP. Unsecured." },
+                { k: "22", v: "SSH (Secure Shell). TCP. Encrypted Login." },
+                { k: "23", v: "Telnet. TCP. Unencrypted Login." },
+                { k: "25", v: "SMTP (Sending Mail). TCP." },
+                { k: "53", v: "DNS (Domain Name System). UDP/TCP." },
+                { k: "67/68", v: "DHCP (Dynamic Host Config). UDP." },
+                { k: "80", v: "HTTP (Web). TCP. Unsecured." },
+                { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes." },
+                { k: "137-139", v: "NetBIOS/NetBT. UDP/TCP. LAN file sharing." },
+                { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs across devices." },
+                { k: "161/162", v: "SNMP (Network Mgmt). UDP. Monitor devices." },
+                { k: "3389", v: "RDP (Remote Desktop). TCP/UDP." }
+            ],
+            'IP ADDR': [
+                { k: "IPv4 Class A", v: "1.0.0.0 - 126.x.x.x | Subnet: 255.0.0.0 (/8)" },
+                { k: "IPv4 Class B", v: "128.0.0.0 - 191.x.x.x | Subnet: 255.255.0.0 (/16)" },
+                { k: "IPv4 Class C", v: "192.0.0.0 - 223.x.x.x | Subnet: 255.255.255.0 (/24)" },
+                { k: "APIPA", v: "169.254.x.x | Auto-assigned when DHCP fails." },
+                { k: "Loopback", v: "127.0.0.1 | Tests NIC functionality." }
+            ],
+            'HARDWARE': [
+                { k: "ATX", v: "12 x 9.6 in. Standard desktop size." },
+                { k: "Micro-ATX", v: "9.6 x 9.6 in. Smaller. 4 slots." },
+                { k: "Mini-ITX", v: "6.7 x 6.7 in. Smallest. 1 slot." },
+                { k: "M.2 Key M", v: "NVMe/PCIe SSDs (Fastest)." },
+                { k: "M.2 Key B", v: "SATA SSDs / Cellular cards." }
+            ],
+            'WI-FI': [
+                { k: "802.11n (Wi-Fi 4)", v: "2.4/5 GHz | 600 Mbps." },
+                { k: "802.11ac (Wi-Fi 5)", v: "5 GHz | 6.9 Gbps." },
+                { k: "802.11ax (Wi-Fi 6)", v: "2.4/5/6 GHz | 9.6 Gbps." },
+                { k: "2.4 GHz", v: "Long range, wall penetration, high interference." },
+                { k: "5 GHz", v: "Fast speed, short range, low interference." }
+            ],
+            'RAID': [
+                { k: "RAID 0", v: "Striping. Fast. No Redundancy. (Min 2)" },
+                { k: "RAID 1", v: "Mirroring. Safe. Slow Write. (Min 2)" },
+                { k: "RAID 5", v: "Striping + Parity. Balanced. (Min 3)" },
+                { k: "RAID 10", v: "Stripe of Mirrors. Fast & Safe. (Min 4)" }
+            ]
+        },
+        'CORE2': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
+        'NET': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
+        'SEC': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] }
+    };
+
+    let currentGlossaryExam = null;
+
+    function toggleGlossary() {
+        const ui = document.getElementById('glossary-ui');
+        if (ui.classList.contains('hidden')) {
+            ui.classList.remove('hidden');
+            showExamSelection(); // Always reset to main menu on open
+            AudioEngine.playSFX('click');
+        } else {
+            ui.classList.add('hidden');
+            AudioEngine.playSFX('error');
+        }
+    }
+
+    function showExamSelection() {
+        document.getElementById('gloss-select-view').classList.remove('hidden');
+        document.getElementById('gloss-content-view').classList.add('hidden');
+        document.getElementById('gloss-back-btn').classList.add('hidden');
+        document.getElementById('gloss-title').innerText = ">> SELECT_DATABASE";
+    }
+
+    function loadGlossaryExam(examKey) {
+        currentGlossaryExam = examKey;
+        
+        // 1. Switch Views
+        document.getElementById('gloss-select-view').classList.add('hidden');
+        document.getElementById('gloss-content-view').classList.remove('hidden');
+        document.getElementById('gloss-back-btn').classList.remove('hidden');
+        document.getElementById('gloss-title').innerText = `>> DB: ${examKey}`;
+        
+        // 2. Generate Tabs Dynamically
+        const tabContainer = document.getElementById('gloss-tabs');
+        tabContainer.innerHTML = "";
+        
+        const categories = Object.keys(GLOSSARY_DATA[examKey]);
+        categories.forEach((cat, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'tab-btn';
+            btn.innerText = cat;
+            btn.onclick = () => { AudioEngine.playSFX('click'); renderGlossaryCategory(cat); };
+            if(index === 0) { btn.classList.add('active'); }
+            tabContainer.appendChild(btn);
+        });
+
+        // 3. Render first category
+        if(categories.length > 0) renderGlossaryCategory(categories[0]);
+        
+        AudioEngine.playSFX('success');
+    }
+
+    function renderGlossaryCategory(category) {
+        // Highlight Tab
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active');
+            if(b.innerText === category) b.classList.add('active');
+        });
+
+        // Render Grid
+        const container = document.getElementById('glossary-content');
+        container.innerHTML = "";
+        
+        const data = GLOSSARY_DATA[currentGlossaryExam][category];
+        if(data) {
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'gloss-item';
+                div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
+                container.appendChild(div);
+            });
+        }
+    } 
+  
    // ON LOAD INIT
     window.onload = function() {
         bootSystem();
@@ -5502,6 +5795,7 @@ position: relative; /* Required for float/jitter */
 </script>
 </body>
 </html>
+
 
 
 
