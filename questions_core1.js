@@ -1,14 +1,14 @@
 /* ========================================================================== */
-/* CORE 1 MODULE (Hardware, Networking, Mobile, Cloud)                      */
+/* CORE 1 QUESTIONS MODULE                                                  */
 /* ========================================================================== */
 
-if(window.MASTER_DATABASE) {
-    window.MASTER_DATABASE.push(
-        // --- HARDWARE ---
-  
+// Check if the bucket exists
+if (window.MASTER_DATABASE) {
 
-    // PASTE YOUR CLEANED JSON OBJECTS HERE (Between the brackets)
-    const MASTER_DATABASE = [
+    // Instead of "const MASTER_DATABASE = [ ... ]"
+    // We use ".push( ... )" to add to the existing bucket
+    
+    window.MASTER_DATABASE.push(
 { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses).", hint: "Check the architecture bit-depth limit." },
 { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity.", hint: "Balances redundancy and speed using parity." },
 { tags: ["CORE1", "Hardware"], question: "A projector's image is flickering. What is the most likely cause?", options: ["Bulb life ending", "Loose cable", "Keystone setting", "Incompatible resolution"], answer: 1, explanation: "Flickering is often caused by a loose VGA or HDMI cable connection. A dying bulb usually dims.", hint: "Check physical video connections first." },
@@ -4180,4 +4180,11 @@ if(window.MASTER_DATABASE) {
 { tags: ["CORE1", "Networking"], question: "If a DNS query is sent via UDP and fails, what is the typical client behavior?", options: ["The system crashes", "The client simply tries the query again", "The client switches to APIPA", "The connection remains open indefinitely"], answer: 1, explanation: "Because UDP is connectionless and doesn't guarantee delivery, the application (DNS client) is responsible for simply retrying the query.", hint: "Since there is no error correction, the user just asks again." },
 { tags: ["CORE1", "Networking"], question: "Why is SSH traffic not suitable for UDP?", options: ["UDP is too slow", "UDP cannot carry text data", "Missing a single packet could corrupt a command", "SSH only works on local networks"], answer: 2, explanation: "SSH manages critical infrastructure; a lost packet could change a command (e.g., 'rm -rf' becoming something else), so TCP accuracy is mandatory.", hint: "Accuracy is the absolute priority for server management." },
 { tags: ["CORE1", "Networking"], question: "Which packet is sent by the server to the client during the second step of the TCP handshake?", options: ["SYN", "ACK", "SYN-ACK", "FIN"], answer: 2, explanation: "The server responds with a SYN-ACK, which acknowledges the client's SYN and sends its own SYN request simultaneously.", hint: "It is a combination of a synchronization request and an acknowledgment." },
-    ]; 
+
+);
+    
+    console.log(">> LOADED: CORE 1 QUESTIONS");
+    
+} else {
+    console.error("CRITICAL ERROR: MASTER_DATABASE NOT FOUND. CHECK DB_INIT.JS");
+}
