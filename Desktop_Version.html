@@ -22,72 +22,6 @@
             --sway-speed: 5s; 
         }
 
-/* --- GLOSSARY UI STYLES --- */
-#glossary-ui {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); z-index: 9999;
-    display: flex; justify-content: center; align-items: center;
-    backdrop-filter: blur(5px);
-}
-
-.glossary-window {
-    width: 90%; max-width: 800px; height: 80vh;
-    border: 2px solid var(--term-color);
-    background: rgba(0, 10, 10, 0.95);
-    box-shadow: 0 0 20px var(--term-color), inset 0 0 20px rgba(0,0,0,0.5);
-    display: flex; flex-direction: column;
-    animation: turnOn 0.4s ease-out;
-}
-
-.glossary-header {
-    background: var(--term-color); color: #000;
-    padding: 10px; font-weight: bold; font-size: 1.2rem;
-    display: flex; justify-content: space-between; align-items: center;
-}
-
-.close-btn {
-    background: transparent; border: none; font-weight: bold; cursor: pointer;
-    font-family: 'VT323', monospace; font-size: 1.5rem; color: #000;
-}
-.close-btn:hover { color: #fff; }
-
-.glossary-tabs {
-    display: flex; 
-    flex-wrap: wrap; /* Allows tabs to wrap on small screens */
-    border-bottom: 1px solid var(--term-color);
-    background: rgba(0,0,0,0.5);
-}
-
-.tab-btn {
-    flex: 1 1 auto; /* Tabs grow/shrink */
-    min-width: 100px; 
-    background: transparent; border: none; border-right: 1px solid var(--term-color); border-bottom: 1px solid transparent;
-    color: var(--term-color); font-family: 'VT323', monospace; font-size: 1.2rem;
-    padding: 10px; cursor: pointer; transition: 0.2s;
-}
-.tab-btn:hover, .tab-btn.active {
-    background: var(--term-color); color: #000;
-}
-
-.glossary-grid {
-    flex-grow: 1; overflow-y: auto; padding: 20px;
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 15px; align-content: start;
-}
-
-.gloss-item {
-    border: 1px solid #333; padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    transition: 0.2s; cursor: default;
-}
-.gloss-item:hover {
-    border-color: var(--term-color);
-    box-shadow: 0 0 10px var(--term-color);
-    transform: translateY(-2px);
-}
-.gloss-key { color: var(--term-color); font-size: 1.4rem; font-weight: bold; display: block; border-bottom: 1px dashed #555; margin-bottom: 5px; }
-.gloss-val { color: #fff; font-size: 1.1rem; line-height: 1.2; }
-        
 /* --- DONATION WIDGET --- */
 #donate-widget {
     position: fixed;
@@ -875,35 +809,6 @@ html {
                 </div>
             </div>
         </div>
-<div id="glossary-ui" class="hidden">
-    <div class="glossary-window">
-        <div class="glossary-header">
-            <span>>> SYSTEM_REFERENCE_DATABASE</span>
-            <button class="close-btn" onclick="toggleGlossary()">[X]</button>
-        </div>
-        
-        <div class="glossary-tabs">
-            <button class="tab-btn active" onclick="renderGlossary('PORTS')">PORTS</button>
-            <button class="tab-btn" onclick="renderGlossary('WIFI')">WI-FI</button>
-            <button class="tab-btn" onclick="renderGlossary('RAM')">RAM</button>
-            <button class="tab-btn" onclick="renderGlossary('RAID')">RAID</button>
-            <button class="tab-btn" onclick="renderGlossary('CONN')">CABLES</button>
-            <button class="tab-btn" onclick="renderGlossary('PRINTERS')">PRINTERS</button>
-            <button class="tab-btn" onclick="renderGlossary('CLOUD')">CLOUD</button>
-            <button class="tab-btn" onclick="renderGlossary('MOBILE')">MOBILE</button>
-            <button class="tab-btn" onclick="renderGlossary('CMDS')">COMMANDS</button>
-            <button class="tab-btn" onclick="renderGlossary('T-SHOOT')">T-SHOOT</button>
-        </div>
-
-        <div id="glossary-content" class="glossary-grid">
-            </div>
-    </div>
-</div>
-<div id="ref-widget" style="position: fixed; bottom: 35px; right: 20px; z-index: 5000;">
-    <button class="sys-btn" style="color: #0affba; border-color: #0affba;" onclick="toggleGlossary()">
-        [ REF_DB ]
-    </button>
-</div>
         
         <div class="stats-area">
             <div class="score-box" id="score-ui">UPLOADS: 0</div>
@@ -953,9 +858,6 @@ html {
     <div id="core1-menu" class="hidden">
         <p style="font-size: 1.2rem; border-bottom: 1px dashed var(--term-color); padding-bottom: 9px;">> CORE_1 // MODULES:</p>
         <div class="menu-grid">
-            <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE1', 'Memorization')">
-    [F] RAPID_MEMORY_DRILL <span style="float:right">>></span>
-</button>
             <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="transitionToQuiz('CORE1', 'Mobile')">
                 [A] MOBILE DEVICES <span style="float:right">>></span>
             </button>
@@ -1737,24 +1639,6 @@ html {
     /* ========================================================================= */
 
     const MASTER_DATABASE = [
-    /* --- NEW MEMORIZATION MODULE --- */
-{ tags: ["CORE1", "Memorization"], type: "match", question: "Match the Port Number to the Protocol.", pairs: [{ left: "21", right: "FTP" }, { left: "22", right: "SSH" }, { left: "23", right: "Telnet" }, { left: "53", right: "DNS" }], explanation: "FTP (21), SSH (22 - Secure), Telnet (23 - Insecure), DNS (53).", hint: "DNS is 53." },
-
-{ tags: ["CORE1", "Memorization"], type: "match", question: "Match the RAID Level to its Description.", pairs: [{ left: "RAID 0", right: "Striping (Speed)" }, { left: "RAID 1", right: "Mirroring (Redundancy)" }, { left: "RAID 5", right: "Striping + Parity" }, { left: "RAID 10", right: "Stripe of Mirrors" }], explanation: "RAID 0 = Speed (0 redundancy). RAID 1 = Redundancy. RAID 5 = 3+ disks with parity. RAID 10 = Best of both worlds.", hint: "RAID 0 has zero fault tolerance." },
-
-{ tags: ["CORE1", "Memorization"], type: "match", question: "Match the Wi-Fi Standard to its Frequency.", pairs: [{ left: "802.11a", right: "5 GHz Only" }, { left: "802.11b", right: "2.4 GHz Only" }, { left: "802.11g", right: "2.4 GHz Only (Faster)" }, { left: "802.11ac", right: "5 GHz Only (Wi-Fi 5)" }], explanation: "802.11a and ac are 5GHz. b and g are 2.4GHz. n and ax are both.", hint: "'a' and 'ac' are 5GHz." },
-
-{ tags: ["CORE1", "Memorization"], question: "Which port is used by RDP (Remote Desktop Protocol)?", options: ["3389", "445", "443", "8080"], answer: 0, explanation: "RDP uses port 3389. SMB uses 445. HTTPS uses 443.", hint: "It is in the 3000s." },
-
-{ tags: ["CORE1", "Memorization"], question: "How many pins does a DDR4 DIMM stick have?", options: ["288", "240", "204", "184"], answer: 0, explanation: "DDR4 DIMMs have 288 pins. DDR3 had 240. Laptop DDR4 (SODIMM) has 260.", hint: "DDR4 has the highest pin count of the DDR standard." },
-
-{ tags: ["CORE1", "Memorization"], question: "Which USB standard has a maximum speed of 5 Gbps?", options: ["USB 3.0", "USB 2.0", "USB 3.1 Gen 2", "USB 3.2 Gen 2x2"], answer: 0, explanation: "USB 3.0 (also called USB 3.1 Gen 1) runs at 5 Gbps. USB 2.0 is 480 Mbps.", hint: "The first blue USB port." },
-
-{ tags: ["CORE1", "Memorization"], question: "Which port is used for secure web traffic (HTTPS)?", options: ["443", "80", "25", "110"], answer: 0, explanation: "HTTPS uses port 443. HTTP uses port 80.", hint: "443 is secure." },
-
-{ tags: ["CORE1", "Memorization"], question: "What is the maximum cable length for standard Cat6 ethernet running at 10 Gbps?", options: ["55 meters", "100 meters", "10 meters", "300 meters"], answer: 0, explanation: "Cat6 can only do 10Gbps up to 55 meters. You need Cat6a to do 10Gbps at the full 100 meters.", hint: "It falls short of the full 100m for 10Gbps." },
-
-{ tags: ["CORE1", "Memorization"], question: "Which email protocol is used specifically for SENDING mail?", options: ["SMTP", "POP3", "IMAP", "SNMP"], answer: 0, explanation: "SMTP (Simple Mail Transfer Protocol) is for sending. POP3 and IMAP are for receiving.", hint: "S is for Sending." }
         { tags: ["CORE1", "Hardware"], question: "A technician installs 16GB RAM, but Windows reports 4GB usable. Why?", options: ["OS is 32-bit (x86)", "RAM is unseated", "BIOS outdated", "Motherboard limitation"], answer: 0, explanation: "32-bit operating systems have a hard memory address limit of 4GB (2^32 addresses).", hint: "Check the architecture bit-depth limit." },
 { tags: ["CORE1", "Hardware"], question: "Which RAID level provides striping with parity, requiring at least three drives?", options: ["RAID 0", "RAID 1", "RAID 5", "RAID 10"], answer: 2, explanation: "RAID 5 requires a minimum of three drives and provides fault tolerance through distributed parity.", hint: "Balances redundancy and speed using parity." },
 { tags: ["CORE1", "Hardware"], question: "A projector's image is flickering. What is the most likely cause?", options: ["Bulb life ending", "Loose cable", "Keystone setting", "Incompatible resolution"], answer: 1, explanation: "Flickering is often caused by a loose VGA or HDMI cable connection. A dying bulb usually dims.", hint: "Check physical video connections first." },
@@ -6479,131 +6363,6 @@ function transitionToQuiz(certTag, moduleTag) {
 window.onload = function() {
         bootSystem();
     };
-  /* ========================================================================= */
-/* SECTION: GLOSSARY / REFERENCE DB LOGIC                                    */
-/* ========================================================================= */
-
-const GLOSSARY_DATA = {
-    'PORTS': [
-        { k: "21", v: "FTP (File Transfer). TCP. Unsecured file transfer." },
-        { k: "22", v: "SSH (Secure Shell). TCP. Encrypted remote terminal." },
-        { k: "23", v: "Telnet. TCP. Unencrypted remote terminal." },
-        { k: "25", v: "SMTP (Sending Mail). TCP. Server-to-server email." },
-        { k: "53", v: "DNS (Domain Name System). UDP/TCP. Hostnames to IPs." },
-        { k: "80", v: "HTTP (Web). TCP. Unsecured web traffic." },
-        { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes." },
-        { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs mail across devices." },
-        { k: "443", v: "HTTPS (Secure Web). TCP. Encrypted SSL/TLS traffic." },
-        { k: "445", v: "SMB (Server Message Block). TCP. File/Printer Sharing." },
-        { k: "3389", v: "RDP (Remote Desktop). TCP/UDP. Windows GUI access." }
-    ],
-    'WIFI': [
-        { k: "802.11a", v: "5 GHz. 54 Mbps. Legacy." },
-        { k: "802.11b", v: "2.4 GHz. 11 Mbps. Legacy." },
-        { k: "802.11g", v: "2.4 GHz. 54 Mbps. Backward compatible with b." },
-        { k: "802.11n", v: "2.4/5 GHz (Wi-Fi 4). 600 Mbps. MIMO." },
-        { k: "802.11ac", v: "5 GHz (Wi-Fi 5). 6.9 Gbps. MU-MIMO." },
-        { k: "802.11ax", v: "2.4/5/6 GHz (Wi-Fi 6). 9.6 Gbps. OFDMA." }
-    ],
-    'RAM': [
-        { k: "DDR3", v: "240 Pins. 1.5V standard." },
-        { k: "DDR4", v: "288 Pins. 1.2V. Curved contact edge." },
-        { k: "DDR5", v: "288 Pins. 1.1V. Different key notch." },
-        { k: "SODIMM", v: "Laptop RAM. DDR4 = 260 Pins. DDR3 = 204 Pins." },
-        { k: "ECC", v: "Error Correcting Code. Server RAM. Detects errors." }
-    ],
-    'RAID': [
-        { k: "RAID 0", v: "Striping. Speed++. 0 Redundancy. Min 2 drives." },
-        { k: "RAID 1", v: "Mirroring. Redundancy++. Writes slow. Min 2 drives." },
-        { k: "RAID 5", v: "Striping + Parity. Speed + Redundancy. Min 3 drives." },
-        { k: "RAID 10", v: "Stripe of Mirrors. Speed + High Redundancy. Min 4 drives." }
-    ],
-    'CONN': [
-        { k: "HDMI", v: "Video + Audio. Digital signal." },
-        { k: "DisplayPort", v: "Video + Audio. Packet-based. Daisy-chaining." },
-        { k: "USB-C", v: "Reversible. Data, Power, Video. 24 pins." },
-        { k: "Thunderbolt", v: "Intel/Apple. Uses USB-C shape. 40Gbps." },
-        { k: "SATA Data", v: "7 pins. L-shaped key." },
-        { k: "SATA Power", v: "15 pins. L-shaped key." },
-        { k: "Cat 6a", v: "Ethernet. 10 Gbps @ 100m. Shielded." },
-        { k: "Plenum", v: "Fire-rated cable jacket for HVAC/Ceilings." }
-    ],
-    'PRINTERS': [
-        { k: "Laser Process", v: "Process, Charge, Expose, Develop, Transfer, Fuse, Clean." },
-        { k: "Fuser", v: "Heats/presses toner to paper." },
-        { k: "Drum", v: "Photosensitive cylinder holding the image." },
-        { k: "Thermal", v: "Heating element on special paper (Receipts)." },
-        { k: "Impact", v: "Pins strike ribbon (Dot Matrix). Duplicate forms." },
-        { k: "Inkjet", v: "Sprays liquid drops. Head alignment required." }
-    ],
-    'CLOUD': [
-        { k: "IaaS", v: "Infrastructure. You manage OS (AWS EC2)." },
-        { k: "PaaS", v: "Platform. You manage Apps (Heroku)." },
-        { k: "SaaS", v: "Software. Vendor manages all (Gmail)." },
-        { k: "Type 1 Hypervisor", v: "Bare Metal. Runs on hardware (ESXi)." },
-        { k: "Type 2 Hypervisor", v: "Hosted. Runs on OS (VirtualBox)." }
-    ],
-    'MOBILE': [
-        { k: "Digitizer", v: "Glass layer converting touch to digital signal." },
-        { k: "Inverter", v: "Converts DC to AC for LCD Backlights." },
-        { k: "OLED", v: "Organic. No backlight. True blacks." },
-        { k: "IMEI", v: "Hardcoded Device ID." },
-        { k: "IMSI", v: "User ID on SIM card." }
-    ],
-    'CMDS': [
-        { k: "ipconfig", v: "Win: IP details. /flushdns, /release, /renew." },
-        { k: "ping", v: "Test connectivity. Uses ICMP." },
-        { k: "tracert", v: "Trace path hops to destination." },
-        { k: "netstat", v: "Show active connections/ports." },
-        { k: "nslookup", v: "Query DNS server for IP records." },
-        { k: "chkdsk", v: "Check disk integrity. /f fixes." },
-        { k: "sfc /scannow", v: "System File Checker. Fixes OS files." },
-        { k: "diskpart", v: "Manage partitions/volumes via CLI." }
-    ],
-    'T-SHOOT': [
-        { k: "1. Identify", v: "Question user, check logs, reproduce error." },
-        { k: "2. Theory", v: "Establish theory of probable cause." },
-        { k: "3. Test", v: "Test the theory to determine cause." },
-        { k: "4. Plan", v: "Establish plan of action and implement." },
-        { k: "5. Verify", v: "Verify functionality and implement prevention." },
-        { k: "6. Document", v: "Document findings, actions, and outcomes." }
-    ]
-};
-
-function toggleGlossary() {
-    const ui = document.getElementById('glossary-ui');
-    if (ui.classList.contains('hidden')) {
-        ui.classList.remove('hidden');
-        renderGlossary('PORTS'); // Default view
-        AudioEngine.playSFX('click');
-    } else {
-        ui.classList.add('hidden');
-        AudioEngine.playSFX('error');
-    }
-}
-
-function renderGlossary(category) {
-    // 1. Highlight Tab
-    document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('active');
-        if(b.innerText === category) b.classList.add('active');
-    });
-
-    // 2. Render Grid
-    const container = document.getElementById('glossary-content');
-    container.innerHTML = "";
-    
-    if(GLOSSARY_DATA[category]) {
-        GLOSSARY_DATA[category].forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'gloss-item';
-            div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
-            div.onmouseenter = () => AudioEngine.playMenuHover();
-            container.appendChild(div);
-        });
-    }
-    AudioEngine.playSFX('type');
-}  
 </script>
 </body>
 </html>
