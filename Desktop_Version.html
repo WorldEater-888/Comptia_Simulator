@@ -993,17 +993,26 @@ html {
             <button class="btn" onmouseenter="AudioEngine.playMenuHover()" onclick="goToSubMenu('sec')">
                 [4] SECURITY+ (under construction)<span style="float:right">>></span>
             </button>
-            <div style="margin-top: 20px; border-top: 1px dashed var(--term-color); padding-top: 10px;">
-    <p style="font-size: 1rem; margin-bottom: 5px; opacity: 0.8;">> TOPIC SEARCH // (e.g., "RAID", "PRINTER", "PORT" or "CORE1 + RAM")</p>
-    
-    <div style="display: flex; gap: 10px;">
-        <input type="text" id="topic-search-input" placeholder="ENTER_KEYWORD..." 
-               style="background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.2rem; padding: 5px; flex-grow: 1; outline: none; text-transform: uppercase;">
-        
-        <button class="btn" onclick="startTopicRun()" style="padding: 5px 15px; font-size: 1.2rem; opacity: 1; transform: none; animation: none;">
-            [ SEARCH ]
+<div style="margin-top: 20px; border-top: 1px dashed var(--term-color); padding-top: 10px;">
+    <p style="font-size: 1rem; margin-bottom: 5px; opacity: 0.8;">
+        > SEARCH_PROTOCOL // SYNTAX: [EXAM] + [TERM]
+    </p>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="flex-grow: 1; position: relative;">
+            <input type="text" id="topic-search-input" 
+                   placeholder='TRY: "CORE 1 + RAID" OR "NET + WIFI"' 
+                   style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.2rem; padding: 10px; outline: none; text-transform: uppercase; padding-right: 40px;">
+            <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); opacity: 0.5; font-size: 0.8rem; pointer-events: none;">
+                [?]
+            </span>
+        </div>
+        <button class="btn" onclick="startTopicRun()" style="padding: 8px 20px; font-size: 1.2rem; opacity: 1; transform: none; animation: none; margin: 0;">
+            [ INITIATE_RUN ]
         </button>
     </div>
+    <p style="font-size: 0.8rem; opacity: 0.6; margin-top: 5px; letter-spacing: 1px;">
+        ACCEPTED_PREFIXES: CORE1, CORE2, NET, SEC
+    </p>
 </div>
         </div>
     </div>
@@ -1613,79 +1622,565 @@ html {
         glitchLogo();
     }
 
-function startTopicRun() {
-    // 1. Get the input value (we will create this input ID in Step 3)
-    const inputEl = document.getElementById('topic-search-input');
-    const keyword = inputEl.value;
+    /* ========================================================================= */
+    /* SECTION: QUIZ DATA & LOGIC                                                */
+    /* ========================================================================= */
 
-    if (!keyword) {
-        alert(">> ERROR: INPUT_EMPTY");
-        return;
+    // UTILITY: Helper to fetch questions based on required tags
+    function fetchQuestions(requiredTags) {
+        return MASTER_DATABASE.filter(q => 
+            requiredTags.every(tag => q.tags.includes(tag))
+        );
     }
 
-    // 2. Fetch questions using the new text search
-    qQueue = fetchQuestionsByKeyword(keyword);
+    // UTILITY: Keyword Search with "Category + Term" capability
+    function fetchQuestionsByKeyword(input) {
+        let term = input.trim();
+        if (!term) return [];
 
-    // 3. Handle no results
-    if (qQueue.length === 0) {
-        alert(`>> ERROR: DATA_NOT_FOUND [${keyword.toUpperCase()}]`);
-        return;
+        let targetTag = null;
+
+        // 1. Check if user is using "Category + Keyword" syntax
+        if (term.includes('+')) {
+            const parts = term.split('+');
+            const potentialCategory = parts[0].trim().toLowerCase();
+            
+            const categoryMap = {
+                'core 1': 'CORE1', 'core1': 'CORE1', 'a+ 1': 'CORE1', '1101': 'CORE1',
+                'core 2': 'CORE2', 'core2': 'CORE2', 'a+ 2': 'CORE2', '1102': 'CORE2',
+                'net': 'NET', 'net+': 'NET', 'network': 'NET', 'network+': 'NET', 'n10-008': 'NET',
+                'sec': 'SEC', 'sec+': 'SEC', 'security': 'SEC', 'security+': 'SEC', 'sy0-601': 'SEC', 'sy0-701': 'SEC'
+            };
+
+            if (categoryMap[potentialCategory]) {
+                targetTag = categoryMap[potentialCategory];
+                term = parts.slice(1).join('+').trim();
+            }
+        }
+
+        const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(?:^|[^a-z0-9])${safeTerm}(?:$|[^a-z0-9])`, 'i');
+
+        return MASTER_DATABASE.filter(q => {
+            if (targetTag && !q.tags.includes(targetTag)) return false;
+            const content = (q.question + " " + (q.explanation || "") + " " + (q.hint || ""));
+            return regex.test(content);
+        });
     }
 
-    // 4. Shuffle Logic (Copy-pasted from your existing code to keep it consistent)
-    for (let i = qQueue.length - 1; i > 0; i--) { 
-        const j = Math.floor(Math.random() * (i + 1));
-        [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
-    }
-    function runGlossaryTopic(fullQuery) {
-    AudioEngine.playSFX('click');
-
-    // 1. Close the modal
-    toggleGlossary();
-
-    // 2. Populate the search box so the user sees what happened
-    const searchInput = document.getElementById('topic-search-input');
-    if(searchInput) {
-        searchInput.value = fullQuery;
+    // 2. THE RUNNER (Required for the button to work)
+    function startTopicRun() {
+        const inputEl = document.getElementById('topic-search-input');
+        if(!inputEl) { console.error("Search input not found!"); return; }
         
-        // Visual flair: Flash the input box
-        searchInput.style.transition = '0s';
-        searchInput.style.backgroundColor = '#fff';
-        setTimeout(() => {
-            searchInput.style.transition = 'background 0.5s';
-            searchInput.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        }, 100);
+        const keyword = inputEl.value;
+        if (!keyword) { alert(">> ERROR: INPUT_EMPTY"); return; }
+
+        qQueue = fetchQuestionsByKeyword(keyword);
+
+        if (qQueue.length === 0) {
+            alert(`>> ERROR: DATA_NOT_FOUND [${keyword.toUpperCase()}]`);
+            return;
+        }
+
+        // Shuffle
+        for (let i = qQueue.length - 1; i > 0; i--) { 
+            const j = Math.floor(Math.random() * (i + 1));
+            [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
+        }
+        
+        // Limit to 25
+        if (qQueue.length > 25) qQueue = qQueue.slice(0, 25);
+
+        // Reset & Launch (Desktop specific logic)
+        isExam = false;
+        resetGame();
+        sessionTime = 5400;
+
+        // Transition Logic
+        switchScreen('root-menu', 'quiz-ui', () => {
+            startHUD();
+            loadSeq();
+            
+            // Popup Message
+            const msg = document.createElement('div');
+            msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
+            msg.innerHTML = `SEARCH QUERY: "${keyword.toUpperCase()}"<br><span style="color:#0affba">${qQueue.length} PACKETS FOUND</span>`;
+            document.body.appendChild(msg);
+            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+            setTimeout(() => { msg.remove(); }, 3000);
+        });
     }
 
-    // 3. Trigger the existing search function
-    // We add a small delay so the glossary has time to close visually
-    setTimeout(() => {
-        startTopicRun(); 
-    }, 200);
-}
+    function transitionToQuiz(certTag, moduleTag) {
+        qQueue = fetchQuestions([certTag, moduleTag]);
+        
+        for (let i = qQueue.length - 1; i > 0; i--) { 
+            const j = Math.floor(Math.random() * (i + 1));
+            [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
+        }
 
-    // 5. Reset Game State
-    isExam = false;
-    resetGame();
-    sessionTime = 5400;
+        if (qQueue.length > 25) {
+            qQueue = qQueue.slice(0, 25);
+        }
 
-    // 6. Transition Screen
-    // We assume you want to launch from the Root Menu, but this works from anywhere
-    switchScreen('root-menu', 'quiz-ui', () => {
-        startHUD();
-        loadSeq();
+        if(qQueue.length === 0) { 
+            alert(`NO DATA FOUND FOR TAGS: [${certTag}, ${moduleTag}]`);
+            return; 
+        }
 
-        // Custom Cogitator Message for Topic Runs
-        const msg = document.createElement('div');
-        msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
-        msg.innerHTML = `SEARCH QUERY: "${keyword.toUpperCase()}"<br><span style="color:#0affba">${qQueue.length} PACKETS FOUND</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
-        document.body.appendChild(msg);
+        isExam = false; 
+        resetGame();
+        sessionTime = 5400; 
+        
+        let fromMenu = 'root-menu';
+        if(certTag === 'CORE1') fromMenu = 'core1-menu';
+        if(certTag === 'CORE2') fromMenu = 'core2-menu';
+        if(certTag === 'NET') fromMenu = 'net-menu';
+        if(certTag === 'SEC') fromMenu = 'sec-menu';
+        
+        switchScreen(fromMenu, 'quiz-ui', () => {
+             startHUD();
+             loadSeq();
 
-        setTimeout(() => { msg.style.opacity = '0'; }, 2000);
-        setTimeout(() => { msg.remove(); }, 3000);
-    });
-}
+            const msg = document.createElement('div');
+            msg.style.cssText = "position:fixed; top:75%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:3rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 2s ease-out; font-family: 'VT323', monospace;";
+            msg.innerHTML = `NEW QUESTIONS GENERATED</span>`;
+            
+            document.body.appendChild(msg);
+            setTimeout(() => { msg.style.opacity = '0'; }, 2000); 
+            setTimeout(() => { msg.remove(); }, 3000);          
+        });
+    }
+
+    function startExam(certTag) {
+        const blueprint = EXAM_BLUEPRINTS[certTag];
+        if(!blueprint) { alert("EXAM BLUEPRINT MISSING"); return; }
+        
+        let examDeck = [];
+        const totalExamQuestions = 90; 
+
+        for (const [moduleName, weight] of Object.entries(blueprint)) {
+            const count = Math.ceil(totalExamQuestions * weight);
+            const pool = fetchQuestions([certTag, moduleName]);
+            
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            examDeck = examDeck.concat(pool.slice(0, count));
+        }
+
+        for (let i = examDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [examDeck[i], examDeck[j]] = [examDeck[j], examDeck[i]];
+        }
+        
+        qQueue = examDeck.slice(0, 90); 
+
+        if(qQueue.length === 0) { 
+            alert(`NO DATA FOUND FOR EXAM: [${certTag}]`);
+            return; 
+        }
+
+        isExam = true;
+        resetGame();
+        sessionTime = 5400; 
+        
+        let fromMenu = 'root-menu';
+        if(certTag === 'CORE1') fromMenu = 'core1-menu';
+        if(certTag === 'CORE2') fromMenu = 'core2-menu';
+        if(certTag === 'NET') fromMenu = 'net-menu';
+        if(certTag === 'SEC') fromMenu = 'sec-menu';
+
+        switchScreen(fromMenu, 'quiz-ui', () => {
+             startHUD();
+             loadSeq();
+        });
+    }
     
+    function resetGame() {
+        currentScore = 0;
+        integrity = 100; currentStreak = 0; questionsCorrect = 0; questionsAttempted = 0; isDead = false;
+        quizHistory = []; 
+        tagLedger = {}; // Reset ledger
+        updateSystemState();
+        document.getElementById('crit-warn').style.display = 'none';
+        document.getElementById('fail-ui').style.display = 'none';
+        document.getElementById('fail-ui').classList.remove('fail-visible'); 
+        document.getElementById('breakdown-container').style.display = 'none';
+    }
+
+    // --- INTEGRATED SYSTEM STATE ---
+    function updateSystemState() {
+        if (integrity > 100) integrity = 100;
+        if (integrity < 0) integrity = 0;
+        
+        const bar = document.getElementById('integrity-bar'); 
+        bar.style.width = `${integrity}%`;
+        document.getElementById('score-ui').innerText = `SCORE: ${currentScore}`;
+        document.getElementById('streak-text').innerText = `SYNCS: ${currentStreak}`;
+        
+        const intNum = document.getElementById('integrity-num');
+        intNum.innerText = `${Math.floor(integrity)}%`;
+        if(integrity < 30) intNum.classList.add('label-crit'); 
+        else intNum.classList.remove('label-crit');
+
+        const warn = document.getElementById('crit-warn');
+        if (integrity <= 0) warn.style.display = 'none';
+        else if (integrity < 25) { warn.style.display = 'inline-block'; warn.style.color = 'red'; warn.innerText = ">> CRITICAL FAILURE <<"; }
+        else if (integrity < 50) { warn.style.display = 'inline-block'; warn.style.color = 'orange'; warn.innerText = ">> WARNING: UNSTABLE <<"; }
+        else warn.style.display = 'none';
+
+        const root = document.documentElement; 
+        
+        let hue, sat, light;
+        if(integrity > 50) {
+             hue = 140 + ((integrity - 50) * 0.4);
+             sat = 100;
+             light = 50; 
+        } else {
+             hue = integrity * 1.2;
+             sat = 100;
+             light = 40 + (integrity * 0.2);
+        }
+        
+        const newColor = `hsl(${hue}, ${sat}%, ${light}%)`;
+        root.style.setProperty('--term-color', newColor);
+        root.style.setProperty('--glow-color', `hsla(${hue}, ${sat}%, ${light}%, 0.5)`);
+
+        const panicLevel = (100 - integrity) / 100;
+        root.style.setProperty('--edge-opacity', panicLevel * 0.6);
+        root.style.setProperty('--shake-amp', (panicLevel * 1.2) + 'px'); 
+        const glitchSize = Math.max(1, (100 - integrity) / 6);
+        root.style.setProperty('--glitch-amp', glitchSize + 'px');
+        const swaySpeed = 0.2 + (integrity * 0.05); 
+        root.style.setProperty('--sway-speed', swaySpeed + 's');
+
+        const termWindow = document.getElementById('term-win');
+        if(integrity < 30) {
+             termWindow.classList.add('stress-active');
+        } else {
+             termWindow.classList.remove('stress-active');
+        }
+
+        if (integrity < 30) bar.classList.add('integrity-critical'); else bar.classList.remove('integrity-critical');
+        if (integrity <= 0 && !isDead) triggerFailure();
+        if (isExam && qQueue.length === 0) finish();
+    }
+
+    function triggerFailure() { 
+        isDead = true;
+        document.getElementById('fail-ui').classList.add('fail-visible'); 
+        AudioEngine.playGameOver(); 
+    }
+
+    /* === NEW: UNIVERSAL LOAD SEQUENCE (PBQ SUPPORT) === */
+    function loadSeq() {
+        if (integrity <= 0) return;
+        if (explainTimer) { clearTimeout(explainTimer); explainTimer = null; }
+        
+        resetTemp();
+        document.getElementById('explanation-box').style.display = 'none';
+        
+        document.getElementById('opts-list').style.display = 'none';
+        document.getElementById('pbq-area').style.display = 'none';
+        document.getElementById('pbq-submit-btn').style.display = 'none';
+        document.getElementById('next-btn').classList.add('hidden');
+
+        if (qQueue.length === 0) { finish(); return; }
+        
+        const q = qQueue.pop();
+        window.currentQ = q; // Store globally for checking
+        
+        document.getElementById('packet-counter').innerText = qQueue.length.toString().padStart(3, '0');
+        const qEl = document.getElementById('q-text'); 
+        scrambleText(qEl, q.question, 600);
+
+        if (q.type === 'terminal' || q.type === 'match') {
+            renderPBQ(q);
+        } else {
+            document.getElementById('opts-list').style.display = 'flex';
+            renderMCQ(q);
+        }
+    }
+
+    function renderMCQ(q) {
+        const optsList = document.getElementById('opts-list');
+        optsList.innerHTML = '';
+        let opts = q.options.map((t, i) => ({ t, isC: i === q.answer }));
+        for (let k = opts.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1));
+        [opts[k], opts[j]] = [opts[j], opts[k]]; }
+        
+        opts.forEach(o => {
+            const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o.t}`;
+            b.onmouseenter = () => AudioEngine.playOptionHover();
+            b.style.animationDelay = (Math.random() * -5) + 's';
+            b.onclick = () => processResult(o.isC, b, opts); 
+            optsList.appendChild(b);
+        });
+    }
+
+    function renderPBQ(q) {
+        const container = document.getElementById('pbq-area');
+        container.innerHTML = '';
+        container.style.display = 'flex';
+        document.getElementById('pbq-submit-btn').style.display = 'block';
+
+        if (q.type === 'terminal') {
+            let hintHTML = '';
+            if (q.hint) {
+                hintHTML = `
+                    <div style="margin-top:10px;">
+                        <button class="hint-btn" onclick="toggleHint()">[ >> ACCESS_HINT << ]</button>
+                        <div id="pbq-hint-text" class="hint-text">>> DECRYPTING: ${q.hint}</div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div class="cmd-input-line">
+                    <span class="cmd-prompt">C:\\ADMIN></span>
+                    <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
+                </div>
+                ${hintHTML}
+            `;
+            setTimeout(() => document.getElementById('cmd-input').focus(), 100);
+            document.getElementById('cmd-input').addEventListener("keypress", function(event) {
+                if (event.key === "Enter") submitPBQ();
+            });
+        } else if (q.type === 'match') {
+            matchState = { selected: null, pairsFound: 0 };
+            
+            let lefts = [];
+            let rights = [];
+            q.pairs.forEach((p, i) => {
+                lefts.push({ txt: p.left, id: i });
+                rights.push({ txt: p.right, id: i });
+            });
+            for (let k = rights.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1));
+            [rights[k], rights[j]] = [rights[j], rights[k]]; }
+
+            let html = `<div class="match-container">
+                <div class="match-col" id="col-left"></div>
+                <div class="match-col" id="col-right"></div>
+            </div>`;
+            container.innerHTML = html;
+
+            const lCol = document.getElementById('col-left');
+            const rCol = document.getElementById('col-right');
+            lefts.forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'match-item'; div.innerText = item.txt;
+                div.dataset.id = item.id; div.dataset.side = 'left';
+                div.onclick = (e) => handleMatchClick(e.target);
+                lCol.appendChild(div);
+            });
+            rights.forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'match-item'; div.innerText = item.txt;
+                div.dataset.id = item.id; div.dataset.side = 'right';
+                div.onclick = (e) => handleMatchClick(e.target);
+                rCol.appendChild(div);
+            });
+        }
+    }
+    
+    function toggleHint() {
+        const hintBox = document.getElementById('pbq-hint-text');
+        if (hintBox) {
+            AudioEngine.playSFX('data');
+            hintBox.style.display = 'block';
+        }
+    }
+
+    function handleMatchClick(el) {
+        if (el.classList.contains('matched')) return;
+        if (el.classList.contains('selected')) {
+            el.classList.remove('selected');
+            matchState.selected = null;
+            return;
+        }
+
+        if (!matchState.selected) {
+            document.querySelectorAll('.match-item').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            matchState.selected = el;
+        } 
+        else {
+            const first = matchState.selected;
+            const second = el;
+
+            if (first.dataset.side === second.dataset.side) {
+                first.classList.remove('selected');
+                second.classList.add('selected');
+                matchState.selected = second;
+                return;
+            }
+
+            if (first.dataset.id === second.dataset.id) {
+                first.classList.remove('selected');
+                second.classList.remove('selected');
+                first.classList.add('matched'); second.classList.add('matched');
+                first.style.borderColor = '#0f0';
+                second.style.borderColor = '#0f0';
+                AudioEngine.playSFX('click');
+                matchState.pairsFound++;
+                matchState.selected = null;
+            } else {
+                first.classList.remove('selected');
+                second.classList.add('wrong'); 
+                setTimeout(()=> second.classList.remove('wrong'), 400);
+                AudioEngine.playSFX('error');
+                integrity -= 3;
+                updateSystemState();
+                showFloatText("ERR0R", null, '#ff0000');
+                matchState.selected = null;
+            }
+        }
+    }
+
+    function submitPBQ() {
+        const q = window.currentQ;
+        let isCorrect = false;
+
+        if (q.type === 'terminal') {
+            const input = document.getElementById('cmd-input').value.trim().toLowerCase();
+            if (q.validCommands.includes(input)) isCorrect = true;
+        }
+        else if (q.type === 'match') {
+            if (matchState.pairsFound === q.pairs.length) isCorrect = true;
+        }
+
+        const btn = document.getElementById('pbq-submit-btn');
+        processResult(isCorrect, btn);
+    }
+
+    function processResult(isCorrect, visualElement, allOpts = []) {
+        questionsAttempted++;
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+
+        const currentTags = window.currentQ.tags;
+        currentTags.forEach(tag => {
+            if (!tagLedger[tag]) tagLedger[tag] = { seen: 0, correct: 0 };
+            
+            tagLedger[tag].seen++;
+            if(isCorrect) tagLedger[tag].correct++;
+        });
+
+        quizHistory.push({ tags: window.currentQ.tags, correct: isCorrect });
+        
+        if (isCorrect) {
+            if(visualElement) visualElement.classList.add('correct'); 
+            currentStreak++; currentScore += 1;
+            questionsCorrect++;
+            if (currentStreak > 0 && currentStreak % 3 === 0) { 
+                showFloatText("+ INTEGRITY RESTORED", null, '#0f0');
+                integrity += 10; AudioEngine.playSFX('healthup'); 
+            } else { 
+                showFloatText("INPUT ACCEPTED", null, '#0f0');
+                integrity += 5; AudioEngine.playSFX('success'); 
+            }
+        } else {
+            if(visualElement) visualElement.classList.add('wrong');
+            AudioEngine.playSFX('error');
+            const damage = isExam ? 6 : 19; integrity -= damage; currentStreak = 0;
+            const errCodes = ["ERR#0x4F", "FATAL_X9", "SEG_FAULT", "NULL_REF", "0x000DEAD"];
+            showFloatText(errCodes[Math.floor(Math.random()*errCodes.length)], null, '#f00');
+            
+            const wrap = document.getElementById('integrity-wrap');
+            wrap.classList.remove('dmg-shock'); void wrap.offsetWidth; wrap.classList.add('dmg-shock');
+            if (allOpts.length > 0) {
+                 allBtns.forEach(b => { if (b.innerText.includes(allOpts.find(o => o.isC).t)) b.classList.add('correct'); });
+            }
+        }
+        
+        if (allOpts.length > 0) {
+             allBtns.forEach(b => { if (!b.classList.contains('correct') && b !== visualElement) { b.style.display = 'none'; } });
+        }
+
+        if (document.getElementById('pbq-submit-btn')) document.getElementById('pbq-submit-btn').style.display = 'none';
+        const hintBtn = document.querySelector('.hint-btn');
+        if(hintBtn) hintBtn.style.display = 'none';
+
+        const expBox = document.getElementById('explanation-box');
+        const expText = window.currentQ.explanation ? `>> ANALYSIS: ${window.currentQ.explanation}` : ">> ANALYSIS: Data corrupted.";
+        typeExplain(expBox, expText);
+        
+        updateSystemState();
+        if (integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
+    }
+    
+    function showFloatText(text, element, color) {
+        const floatEl = document.createElement('div');
+        floatEl.className = 'float-text'; floatEl.innerText = text;
+        floatEl.style.color = color; floatEl.style.textShadow = `0 0 10px ${color}`;
+        document.getElementById('term-win').appendChild(floatEl); 
+        setTimeout(() => floatEl.remove(), 2000);
+    }
+
+    function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
+
+    function finish() {
+        switchScreen('quiz-ui', 'results-ui', () => {
+             let i = 0; let pct = 0; 
+             if(questionsAttempted > 0) pct = Math.floor((questionsCorrect/questionsAttempted)*100); 
+             if(isNaN(pct)) pct = 0;
+             
+             document.getElementById('results-ui').style.display = 'flex';
+
+             const interval = setInterval(() => {
+                document.getElementById('final-percent').innerText = `${i}%`;
+                
+                if (i % 2 === 0) AudioEngine.playSFX('type'); 
+                
+                if (i >= pct) {
+                    clearInterval(interval);
+                    AudioEngine.playSFX('success');
+                }
+                i++;
+            }, 25); 
+
+             generateBreakdown();
+        });
+    }
+
+    function generateBreakdown() {
+        const container = document.getElementById('breakdown-container');
+        container.innerHTML = "<div style='margin-bottom:10px; opacity:0.7;'>>> MODULE PERFORMANCE:</div>";
+        container.style.display = 'block';
+        
+        Object.keys(tagLedger).sort().forEach(tag => {
+            if (["CORE1", "CORE2", "NET", "SEC"].includes(tag)) return;
+
+            const data = tagLedger[tag];
+            const percent = Math.floor((data.correct / data.seen) * 100);
+            
+            let barClass = 'bar-red'; 
+            if (percent >= 90) barClass = 'bar-green';
+            else if (percent >= 70) barClass = 'bar-yellow';
+
+            const row = document.createElement('div');
+            row.className = 'breakdown-row';
+            
+            row.innerHTML = `
+                <div class="bd-tag" title="${tag}">${tag}</div>
+                <div class="bd-bar-bg"><div class="bd-bar-fill ${barClass}" style="width: 0%;"></div></div>
+                <div class="bd-stat">${percent}% (${data.correct}/${data.seen})</div>
+            `;
+            container.appendChild(row);
+
+            setTimeout(() => {
+                row.querySelector('.bd-bar-fill').style.width = `${percent}%`;
+            }, 100);
+        });
+    }
+    
+    window.onload = function() {
+        bootSystem();
+    };
+
     function shutdownSystem() {
         AudioEngine.playSFX('error'); 
         const term = document.getElementById('term-win');
@@ -1694,7 +2189,6 @@ function startTopicRun() {
         setTimeout(() => { location.reload(); }, 600);
     }
     
-    // Header Decrypt Effect
     function decryptHeader(targetHTML) {
         const header = document.getElementById('main-header');
         header.style.opacity = 0;
@@ -1743,7 +2237,7 @@ function startTopicRun() {
         document.getElementById('net-menu').classList.add('hidden');
         document.getElementById('sec-menu').classList.add('hidden');
         
-        decryptHeader('SYSTEM <span style="font-size:0.6em; color:#fff;">ROOT</span>');
+        decryptHeader('COMPTIA <span style="font-size:0.6em; color:#fff;">SIMULATOR</span>');
 
         const root = document.getElementById('root-menu');
         root.classList.remove('hidden');
@@ -1779,724 +2273,8 @@ function startTopicRun() {
         }, 250);
     }
 
-    /* ========================================================================= */
-    /* SECTION: DONATION / CRYPTO LOGIC                                          */
-    /* ========================================================================= */
-    function showCrypto() {
-        AudioEngine.playSFX('success');
-        const walletAddress = "kaspa:qqy08j0lcaunrga9pdq29sputscc8v5hjjyjlge93qye9aexejhxv43sq7tyq";
-        const popup = document.createElement('div');
-        popup.id = "crypto-popup";
-        
-        popup.style.position = "fixed"; 
-        popup.style.top = "50%";
-        popup.style.left = "50%";
-        popup.style.transform = "translate(-50%, -50%)";
-        popup.style.width = "90%";
-        popup.style.maxWidth = "600px";
-        popup.style.background = "rgba(0, 10, 10, 0.95)";
-        popup.style.border = "2px solid #70c7ba"; 
-        popup.style.padding = "30px";
-        popup.style.zIndex = "9000";
-        popup.style.textAlign = "center";
-        popup.style.boxShadow = "0 0 50px rgba(112, 199, 186, 0.3)";
-        popup.style.backdropFilter = "blur(10px)";
-        popup.style.animation = "turnOn 0.3s ease-out forwards";
-
-        popup.innerHTML = `
-            <style>
-                .kas-link { 
-                    color: #70c7ba;
-                    font-family: 'VT323', monospace; 
-                    font-size: 1.4rem; 
-                    text-decoration: none; 
-                    border-bottom: 1px dashed #70c7ba; 
-                    transition: all 0.2s ease; 
-                    padding: 2px 5px;
-                }
-                .kas-link:hover { 
-                    background: #70c7ba;
-                    color: #000; 
-                    box-shadow: 0 0 15px #70c7ba; 
-                    border-bottom: 1px solid transparent; 
-                    text-shadow: none;
-                    cursor: pointer;
-                }
-            </style>
-
-            <h2 style="color: #70c7ba; margin: 0 0 10px 0; font-size: 2rem; letter-spacing: 2px;">>> MACHINE SPIRIT: APPEASED <<</h2>
-            <p style="color: #fff; font-size: 1.4rem; margin-bottom: 20px;">> SECURE_CHANNEL_OPEN. AWAITING_FUNDS.</p>
-            
-            <div style="background: #000; padding: 15px; font-family: 'Courier New', monospace; color: #70c7ba; margin-bottom: 25px; border: 1px dashed #555; word-break: break-all; font-size: 0.8rem; line-height: 1.4;">
-                ${walletAddress}
-            </div>
-
-            <div style="margin-bottom: 30px;">
-                <a href="https://kaspa.org" target="_blank" class="kas-link">[ >> Learn about Kaspa << ]</a>
-            </div>
-
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <button id="copy-btn" class="btn" style="margin: 0; padding: 10px 20px; font-size: 1.2rem; border-color: #70c7ba; color: #70c7ba; opacity: 1; transform: none; width: auto;">
-                    [ COPY_ADDRESS ]
-                </button>
-                <button id="close-crypto" class="btn" style="margin: 0; padding: 10px 20px; font-size: 1.2rem; border-color: #ff4444; color: #ff4444; opacity: 1; transform: none; width: auto;">
-                    [ X ] CLOSE
-                </button>
-            </div>
-        `;
-
-        document.body.appendChild(popup);
-
-        document.getElementById('copy-btn').onclick = () => {
-            navigator.clipboard.writeText(walletAddress);
-            AudioEngine.playSFX('success');
-            const btn = document.getElementById('copy-btn');
-            btn.innerHTML = ">> COPIED_TO_CLIPBOARD <<";
-            btn.style.background = "#70c7ba";
-            btn.style.color = "#000";
-        };
-
-        document.getElementById('close-crypto').onclick = () => {
-            AudioEngine.playSFX('click');
-            popup.style.opacity = '0';
-            setTimeout(() => popup.remove(), 200);
-        };
-    }
-
-    /* ========================================================================= */
-    /* SECTION: QUIZ DATA                                                        */
-    /* ========================================================================= */
-
-   
-    // UTILITY: Helper to fetch questions based on required tags
-    function fetchQuestions(requiredTags) {
-        return MASTER_DATABASE.filter(q => 
-            requiredTags.every(tag => q.tags.includes(tag))
-        );
-    }
-// UTILITY: Keyword Search with "Category + Term" capability
-function fetchQuestionsByKeyword(input) {
-    let term = input.trim();
-    if (!term) return [];
-
-    let targetTag = null;
-
-    // 1. Check if user is using "Category + Keyword" syntax
-    if (term.includes('+')) {
-        // Split by the first '+' found
-        const parts = term.split('+');
-        const potentialCategory = parts[0].trim().toLowerCase();
-        
-        // Define aliases for your database tags
-        const categoryMap = {
-            // Core 1 Aliases
-            'core 1': 'CORE1', 'core1': 'CORE1', 'a+ 1': 'CORE1', '1101': 'CORE1',
-            // Core 2 Aliases
-            'core 2': 'CORE2', 'core2': 'CORE2', 'a+ 2': 'CORE2', '1102': 'CORE2',
-            // Network+ Aliases
-            'net': 'NET', 'net+': 'NET', 'network': 'NET', 'network+': 'NET', 'n10-008': 'NET',
-            // Security+ Aliases
-            'sec': 'SEC', 'sec+': 'SEC', 'security': 'SEC', 'security+': 'SEC', 'sy0-601': 'SEC', 'sy0-701': 'SEC'
-        };
-
-        // If the left side matches a category, set the tag and update the search term
-        if (categoryMap[potentialCategory]) {
-            targetTag = categoryMap[potentialCategory];
-            // The new search term is everything AFTER the plus sign
-            term = parts.slice(1).join('+').trim();
-        }
-    }
-
-    // 2. Escape special characters for the Regex (Safe Search)
-    const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    // 3. Create Smart Regex (Word Boundaries)
-    const regex = new RegExp(`(?:^|[^a-z0-9])${safeTerm}(?:$|[^a-z0-9])`, 'i');
-
-    return MASTER_DATABASE.filter(q => {
-        // A. Filter by Tag first (if a category was typed)
-        if (targetTag && !q.tags.includes(targetTag)) return false;
-
-        // B. Search Text Content
-        const content = (
-            q.question + " " + 
-            (q.explanation || "") + " " + 
-            (q.hint || "")
-        );
-        return regex.test(content);
-    });
-}
-    /* ========================================================================= */
-    /* SECTION: QUIZ LOGIC & SYSTEM STATE                                        */
-    /* ========================================================================= */
-
-    function transitionToQuiz(certTag, moduleTag) {
-        qQueue = fetchQuestions([certTag, moduleTag]);
-        
-        // 1. Shuffle ALL questions first
-        for (let i = qQueue.length - 1; i > 0; i--) { 
-            const j = Math.floor(Math.random() * (i + 1));
-            [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
-        }
-
-        // 2. Limit to 25
-        if (qQueue.length > 25) {
-            qQueue = qQueue.slice(0, 25);
-        }
-
-        if(qQueue.length === 0) { 
-            alert(`NO DATA FOUND FOR TAGS: [${certTag}, ${moduleTag}]`);
-            return; 
-        }
-
-        isExam = false; 
-        resetGame();
-        sessionTime = 5400; 
-        
-        let fromMenu = 'root-menu';
-        if(certTag === 'CORE1') fromMenu = 'core1-menu';
-        if(certTag === 'CORE2') fromMenu = 'core2-menu';
-        if(certTag === 'NET') fromMenu = 'net-menu';
-        if(certTag === 'SEC') fromMenu = 'sec-menu';
-        
-        switchScreen(fromMenu, 'quiz-ui', () => {
-             startHUD();
-             loadSeq();
-
-            // 3. THE SIMPLE "COGITATOR" MESSAGE
-            const msg = document.createElement('div');
-            // Inline styles to center it and make it look cool
-            msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 0px #ff0a0a; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
-            
-            // Uses qQueue.length to dynamically show "25" (or fewer if the DB is small)
-            msg.innerHTML = `NEW QUESTIONS GENERATED</span>`;
-            
-            document.body.appendChild(msg);
-
-            // Fade out and remove
-            setTimeout(() => { msg.style.opacity = '0'; }, 2000); // Start fade at 2s
-            setTimeout(() => { msg.remove(); }, 3000);          // Delete at 3s
-        });
-    }
-function transitionToQuiz(certTag, moduleTag) {
-        qQueue = fetchQuestions([certTag, moduleTag]);
-        
-        // 1. Shuffle ALL questions first
-        for (let i = qQueue.length - 1; i > 0; i--) { 
-            const j = Math.floor(Math.random() * (i + 1));
-            [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
-        }
-
-        // 2. Limit to 25
-        if (qQueue.length > 25) {
-            qQueue = qQueue.slice(0, 25);
-        }
-
-        if(qQueue.length === 0) { 
-            alert(`NO DATA FOUND FOR TAGS: [${certTag}, ${moduleTag}]`);
-            return; 
-        }
-
-        isExam = false; 
-        resetGame();
-        sessionTime = 5400; 
-        
-        let fromMenu = 'root-menu';
-        if(certTag === 'CORE1') fromMenu = 'core1-menu';
-        if(certTag === 'CORE2') fromMenu = 'core2-menu';
-        if(certTag === 'NET') fromMenu = 'net-menu';
-        if(certTag === 'SEC') fromMenu = 'sec-menu';
-        
-        switchScreen(fromMenu, 'quiz-ui', () => {
-             startHUD();
-             loadSeq();
-
-            // 3. THE SIMPLE "COGITATOR" MESSAGE
-            const msg = document.createElement('div');
-            // Inline styles to center it and make it look cool
-            msg.style.cssText = "position:fixed; top:75%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:3rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 2s ease-out; font-family: 'VT323', monospace;";
-            
-            // Uses qQueue.length to dynamically show "25" (or fewer if the DB is small)
-            // Color set to #0affba (Mint) to match your theme. Change to #ff0a0a if you want Red.
-            msg.innerHTML = `NEW QUESTIONS GENERATED</span>`;
-            
-            document.body.appendChild(msg);
-
-            // Fade out and remove
-            setTimeout(() => { msg.style.opacity = '0'; }, 2000); // Start fade at 2s
-            setTimeout(() => { msg.remove(); }, 3000);          // Delete at 3s
-        });
-    }
-    function startExam(certTag) {
-        // BLUEPRINT ALGORITHM: Weighted shuffling
-        const blueprint = EXAM_BLUEPRINTS[certTag];
-        if(!blueprint) { alert("EXAM BLUEPRINT MISSING"); return; }
-        
-        let examDeck = [];
-        const totalExamQuestions = 90; // Standard CompTIA count
-
-        // Pull questions for each domain based on weight
-        for (const [moduleName, weight] of Object.entries(blueprint)) {
-            const count = Math.ceil(totalExamQuestions * weight);
-            const pool = fetchQuestions([certTag, moduleName]);
-            
-            // Randomly select 'count' questions from 'pool'
-            // If pool is smaller than count, take all of them.
-            for (let i = pool.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [pool[i], pool[j]] = [pool[j], pool[i]];
-            }
-            examDeck = examDeck.concat(pool.slice(0, count));
-        }
-
-        // Final shuffle of the constructed deck
-        for (let i = examDeck.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [examDeck[i], examDeck[j]] = [examDeck[j], examDeck[i]];
-        }
-        
-        // Trim to exactly 90 if over (due to Math.ceil rounding)
-        qQueue = examDeck.slice(0, 90); 
-
-        if(qQueue.length === 0) { 
-            alert(`NO DATA FOUND FOR EXAM: [${certTag}]`);
-            return; 
-        }
-
-        isExam = true;
-        resetGame();
-        sessionTime = 5400; 
-        
-        let fromMenu = 'root-menu';
-        if(certTag === 'CORE1') fromMenu = 'core1-menu';
-        if(certTag === 'CORE2') fromMenu = 'core2-menu';
-        if(certTag === 'NET') fromMenu = 'net-menu';
-        if(certTag === 'SEC') fromMenu = 'sec-menu';
-
-        switchScreen(fromMenu, 'quiz-ui', () => {
-             startHUD();
-             loadSeq();
-        });
-    }
-    
-    function resetGame() {
-        currentScore = 0;
-        integrity = 100; currentStreak = 0; questionsCorrect = 0; questionsAttempted = 0; isDead = false;
-        quizHistory = []; 
-        tagLedger = {}; // Reset ledger
-        updateSystemState();
-        document.getElementById('crit-warn').style.display = 'none';
-        document.getElementById('fail-ui').style.display = 'none';
-        document.getElementById('fail-ui').classList.remove('fail-visible'); 
-        document.getElementById('breakdown-container').style.display = 'none';
-    }
-
-    // --- INTEGRATED SYSTEM STATE ---
-    function updateSystemState() {
-        if (integrity > 100) integrity = 100;
-        if (integrity < 0) integrity = 0;
-        
-        const bar = document.getElementById('integrity-bar'); 
-        bar.style.width = `${integrity}%`;
-        document.getElementById('score-ui').innerText = `SCORE: ${currentScore}`;
-        document.getElementById('streak-text').innerText = `SYNCS: ${currentStreak}`;
-        
-        // UPDATED: Numeric Integrity
-        const intNum = document.getElementById('integrity-num');
-        intNum.innerText = `${Math.floor(integrity)}%`;
-        if(integrity < 30) intNum.classList.add('label-crit'); 
-        else intNum.classList.remove('label-crit');
-
-        // Critical Warnings
-        const warn = document.getElementById('crit-warn');
-        if (integrity <= 0) warn.style.display = 'none';
-        else if (integrity < 25) { warn.style.display = 'inline-block'; warn.style.color = 'red'; warn.innerText = ">> CRITICAL FAILURE <<"; }
-        else if (integrity < 50) { warn.style.display = 'inline-block'; warn.style.color = 'orange'; warn.innerText = ">> WARNING: UNSTABLE <<"; }
-        else warn.style.display = 'none';
-
-        // --- DYNAMIC CALCS ---
-        const root = document.documentElement; 
-        
-        let hue, sat, light;
-        if(integrity > 50) {
-             hue = 140 + ((integrity - 50) * 0.4);
-             sat = 100;
-             light = 50; 
-        } else {
-             hue = integrity * 1.2;
-             sat = 100;
-             light = 40 + (integrity * 0.2);
-        }
-        
-        const newColor = `hsl(${hue}, ${sat}%, ${light}%)`;
-        root.style.setProperty('--term-color', newColor);
-        root.style.setProperty('--glow-color', `hsla(${hue}, ${sat}%, ${light}%, 0.5)`);
-
-        const panicLevel = (100 - integrity) / 100;
-        root.style.setProperty('--edge-opacity', panicLevel * 0.6);
-        // CHANGED: Reduced shake by 40% (2 -> 1.2)
-        root.style.setProperty('--shake-amp', (panicLevel * 1.2) + 'px'); 
-        const glitchSize = Math.max(1, (100 - integrity) / 6);
-        root.style.setProperty('--glitch-amp', glitchSize + 'px');
-        const swaySpeed = 0.2 + (integrity * 0.05); 
-        root.style.setProperty('--sway-speed', swaySpeed + 's');
-
-        const termWindow = document.getElementById('term-win');
-        if(integrity < 30) {
-             termWindow.classList.add('stress-active');
-        } else {
-             termWindow.classList.remove('stress-active');
-        }
-
-        if (integrity < 30) bar.classList.add('integrity-critical'); else bar.classList.remove('integrity-critical');
-        if (integrity <= 0 && !isDead) triggerFailure();
-        if (isExam && qQueue.length === 0) finish();
-    }
-
-    // UPDATED TRIGGER FAILURE FUNCTION
-    function triggerFailure() { 
-        isDead = true;
-        document.getElementById('fail-ui').classList.add('fail-visible'); 
-        AudioEngine.playGameOver(); 
-    }
-
-    /* === NEW: UNIVERSAL LOAD SEQUENCE (PBQ SUPPORT) === */
-    function loadSeq() {
-        if (integrity <= 0) return;
-        if (explainTimer) { clearTimeout(explainTimer); explainTimer = null; }
-        
-        resetTemp();
-        document.getElementById('explanation-box').style.display = 'none';
-        
-        // Reset UI visibility
-        document.getElementById('opts-list').style.display = 'none';
-        document.getElementById('pbq-area').style.display = 'none';
-        document.getElementById('pbq-submit-btn').style.display = 'none';
-        document.getElementById('next-btn').classList.add('hidden');
-
-        if (qQueue.length === 0) { finish(); return; }
-        
-        const q = qQueue.pop();
-        window.currentQ = q; // Store globally for checking
-        
-        document.getElementById('packet-counter').innerText = qQueue.length.toString().padStart(3, '0');
-        const qEl = document.getElementById('q-text'); 
-        scrambleText(qEl, q.question, 600);
-
-        // --- CHECK TYPE ---
-        if (q.type === 'terminal' || q.type === 'match') {
-            renderPBQ(q);
-        } else {
-            // Standard MCQ Logic
-            document.getElementById('opts-list').style.display = 'flex';
-            renderMCQ(q);
-        }
-    }
-
-    function renderMCQ(q) {
-        const optsList = document.getElementById('opts-list');
-        optsList.innerHTML = '';
-        let opts = q.options.map((t, i) => ({ t, isC: i === q.answer }));
-        // Shuffle options
-        for (let k = opts.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1));
-        [opts[k], opts[j]] = [opts[j], opts[k]]; }
-        
-        opts.forEach(o => {
-            const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o.t}`;
-            b.onmouseenter = () => AudioEngine.playOptionHover();
-            b.style.animationDelay = (Math.random() * -5) + 's';
-            b.onclick = () => processResult(o.isC, b, opts); 
-            optsList.appendChild(b);
-        });
-    }
-
-    function renderPBQ(q) {
-        const container = document.getElementById('pbq-area');
-        container.innerHTML = '';
-        container.style.display = 'flex';
-        document.getElementById('pbq-submit-btn').style.display = 'block';
-
-        if (q.type === 'terminal') {
-            
-            // --- HINT BUTTON INJECTION ---
-            let hintHTML = '';
-            if (q.hint) {
-                hintHTML = `
-                    <div style="margin-top:10px;">
-                        <button class="hint-btn" onclick="toggleHint()">[ >> ACCESS_HINT << ]</button>
-                        <div id="pbq-hint-text" class="hint-text">>> DECRYPTING: ${q.hint}</div>
-                    </div>
-                `;
-            }
-            
-            container.innerHTML = `
-                <div class="cmd-input-line">
-                    <span class="cmd-prompt">C:\\ADMIN></span>
-                    <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus>
-                </div>
-                ${hintHTML}
-            `;
-            setTimeout(() => document.getElementById('cmd-input').focus(), 100);
-            document.getElementById('cmd-input').addEventListener("keypress", function(event) {
-                if (event.key === "Enter") submitPBQ();
-            });
-        } else if (q.type === 'match') {
-            matchState = { selected: null, pairsFound: 0 };
-            
-            let lefts = [];
-            let rights = [];
-            q.pairs.forEach((p, i) => {
-                lefts.push({ txt: p.left, id: i });
-                rights.push({ txt: p.right, id: i });
-            });
-            // Shuffle right side only
-            for (let k = rights.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1));
-            [rights[k], rights[j]] = [rights[j], rights[k]]; }
-
-            let html = `<div class="match-container">
-                <div class="match-col" id="col-left"></div>
-                <div class="match-col" id="col-right"></div>
-            </div>`;
-            container.innerHTML = html;
-
-            const lCol = document.getElementById('col-left');
-            const rCol = document.getElementById('col-right');
-            lefts.forEach(item => {
-                let div = document.createElement('div');
-                div.className = 'match-item'; div.innerText = item.txt;
-                div.dataset.id = item.id; div.dataset.side = 'left';
-                div.onclick = (e) => handleMatchClick(e.target);
-                lCol.appendChild(div);
-            });
-            rights.forEach(item => {
-                let div = document.createElement('div');
-                div.className = 'match-item'; div.innerText = item.txt;
-                div.dataset.id = item.id; div.dataset.side = 'right';
-                div.onclick = (e) => handleMatchClick(e.target);
-                rCol.appendChild(div);
-            });
-        }
-    }
-    
-    // --- GLOBAL HINT TOGGLE ---
-    function toggleHint() {
-        const hintBox = document.getElementById('pbq-hint-text');
-        if (hintBox) {
-            AudioEngine.playSFX('data');
-            hintBox.style.display = 'block';
-        }
-    }
-
-    function handleMatchClick(el) {
-        if (el.classList.contains('matched')) return;
-        if (el.classList.contains('selected')) {
-            el.classList.remove('selected');
-            matchState.selected = null;
-            return;
-        }
-
-        // 1. First click
-        if (!matchState.selected) {
-            document.querySelectorAll('.match-item').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-            matchState.selected = el;
-        } 
-        // 2. Second click (Attempt Match)
-        else {
-            const first = matchState.selected;
-            const second = el;
-
-            if (first.dataset.side === second.dataset.side) {
-                first.classList.remove('selected');
-                second.classList.add('selected');
-                matchState.selected = second;
-                return;
-            }
-
-            if (first.dataset.id === second.dataset.id) {
-                first.classList.remove('selected');
-                second.classList.remove('selected');
-                first.classList.add('matched'); second.classList.add('matched');
-                first.style.borderColor = '#0f0';
-                second.style.borderColor = '#0f0';
-                AudioEngine.playSFX('click');
-                matchState.pairsFound++;
-                matchState.selected = null;
-            } else {
-                first.classList.remove('selected');
-                second.classList.add('wrong'); 
-                setTimeout(()=> second.classList.remove('wrong'), 400);
-                AudioEngine.playSFX('error');
-                integrity -= 3;
-                updateSystemState();
-                showFloatText("ERR0R", null, '#ff0000');
-                matchState.selected = null;
-            }
-        }
-    }
-
-    function submitPBQ() {
-        const q = window.currentQ;
-        let isCorrect = false;
-
-        // --- TERMINAL GRADING ---
-        if (q.type === 'terminal') {
-            const input = document.getElementById('cmd-input').value.trim().toLowerCase();
-            if (q.validCommands.includes(input)) isCorrect = true;
-        }
-        // --- MATCHING GRADING ---
-        else if (q.type === 'match') {
-            if (matchState.pairsFound === q.pairs.length) isCorrect = true;
-        }
-
-        const btn = document.getElementById('pbq-submit-btn');
-        processResult(isCorrect, btn);
-    }
-
-    /* === NEW: UNIFIED GRADING LOGIC WITH TAG TRACKING === */
-    function processResult(isCorrect, visualElement, allOpts = []) {
-        questionsAttempted++;
-        const allBtns = document.querySelectorAll('.option-btn');
-        allBtns.forEach(b => b.disabled = true);
-
-        // SILENT LEDGER: Track Tag Performance
-        const currentTags = window.currentQ.tags;
-        currentTags.forEach(tag => {
-            // Initialize if not exists
-            if (!tagLedger[tag]) tagLedger[tag] = { seen: 0, correct: 0 };
-            
-            tagLedger[tag].seen++;
-            if(isCorrect) tagLedger[tag].correct++;
-        });
-
-        // Log History for Breakdown
-        quizHistory.push({ tags: window.currentQ.tags, correct: isCorrect });
-        
-        if (isCorrect) {
-            if(visualElement) visualElement.classList.add('correct'); 
-            currentStreak++; currentScore += 1;
-            questionsCorrect++;
-            if (currentStreak > 0 && currentStreak % 3 === 0) { 
-                showFloatText("+ INTEGRITY RESTORED", null, '#0f0');
-                integrity += 10; AudioEngine.playSFX('healthup'); 
-            } else { 
-                showFloatText("INPUT ACCEPTED", null, '#0f0');
-                integrity += 5; AudioEngine.playSFX('success'); 
-            }
-        } else {
-            if(visualElement) visualElement.classList.add('wrong');
-            AudioEngine.playSFX('error');
-            const damage = isExam ? 6 : 19; integrity -= damage; currentStreak = 0;
-            const errCodes = ["ERR#0x4F", "FATAL_X9", "SEG_FAULT", "NULL_REF", "0x000DEAD"];
-            showFloatText(errCodes[Math.floor(Math.random()*errCodes.length)], null, '#f00');
-            
-            const wrap = document.getElementById('integrity-wrap');
-            wrap.classList.remove('dmg-shock'); void wrap.offsetWidth; wrap.classList.add('dmg-shock');
-            // Highlight correct answer for MCQ
-            if (allOpts.length > 0) {
-                 allBtns.forEach(b => { if (b.innerText.includes(allOpts.find(o => o.isC).t)) b.classList.add('correct'); });
-            }
-        }
-        
-        // Hide unused MCQ options
-        if (allOpts.length > 0) {
-             allBtns.forEach(b => { if (!b.classList.contains('correct') && b !== visualElement) { b.style.display = 'none'; } });
-        }
-
-        if (document.getElementById('pbq-submit-btn')) document.getElementById('pbq-submit-btn').style.display = 'none';
-        const hintBtn = document.querySelector('.hint-btn');
-        if(hintBtn) hintBtn.style.display = 'none';
-
-        // Show Explanation
-        const expBox = document.getElementById('explanation-box');
-        const expText = window.currentQ.explanation ? `>> ANALYSIS: ${window.currentQ.explanation}` : ">> ANALYSIS: Data corrupted.";
-        typeExplain(expBox, expText);
-        
-        updateSystemState();
-        if (integrity > 0) document.getElementById('next-btn').classList.remove('hidden');
-    }
-    
-    function showFloatText(text, element, color) {
-        const floatEl = document.createElement('div');
-        floatEl.className = 'float-text'; floatEl.innerText = text;
-        floatEl.style.color = color; floatEl.style.textShadow = `0 0 10px ${color}`;
-        document.getElementById('term-win').appendChild(floatEl); 
-        // CHANGED: Removed coordinate logic so it defaults to fixed center CSS
-        setTimeout(() => floatEl.remove(), 2000);
-    }
-
-    function nextSeq() { AudioEngine.playSFX('click'); loadSeq(); }
-
-    function finish() {
-        switchScreen('quiz-ui', 'results-ui', () => {
-             // 1. Calculate Main Score
-             let i = 0; let pct = 0; 
-             if(questionsAttempted > 0) pct = Math.floor((questionsCorrect/questionsAttempted)*100); 
-             if(isNaN(pct)) pct = 0;
-             
-             // Make Results UI Flex for centering
-             document.getElementById('results-ui').style.display = 'flex';
-
-             const interval = setInterval(() => {
-                document.getElementById('final-percent').innerText = `${i}%`;
-                
-                // Play sound every 2 ticks (prevents audio spamming too hard)
-                if (i % 2 === 0) AudioEngine.playSFX('type'); 
-                
-                if (i >= pct) {
-                    clearInterval(interval);
-                    // Final "Ding"
-                    AudioEngine.playSFX('success');
-                }
-                i++;
-            }, 25); // Slightly slower for dramatic effect
-
-             // 2. GENERATE BREAKDOWN
-             generateBreakdown();
-        });
-    }
-
-    function generateBreakdown() {
-        const container = document.getElementById('breakdown-container');
-        container.innerHTML = "<div style='margin-bottom:10px; opacity:0.7;'>>> MODULE PERFORMANCE:</div>";
-        container.style.display = 'block';
-        
-        // Loop through the Silent Ledger
-        Object.keys(tagLedger).sort().forEach(tag => {
-            // Ignore top-level tags for cleaner display
-            if (["CORE1", "CORE2", "NET", "SEC"].includes(tag)) return;
-
-            const data = tagLedger[tag];
-            const percent = Math.floor((data.correct / data.seen) * 100);
-            
-            // Determine Traffic Light Color
-            let barClass = 'bar-red'; // Default Failure
-            if (percent >= 90) barClass = 'bar-green';
-            else if (percent >= 70) barClass = 'bar-yellow';
-
-            const row = document.createElement('div');
-            row.className = 'breakdown-row';
-            
-            row.innerHTML = `
-                <div class="bd-tag" title="${tag}">${tag}</div>
-                <div class="bd-bar-bg"><div class="bd-bar-fill ${barClass}" style="width: 0%;"></div></div>
-                <div class="bd-stat">${percent}% (${data.correct}/${data.seen})</div>
-            `;
-            container.appendChild(row);
-
-            // Animate bar width after a delay
-            setTimeout(() => {
-                row.querySelector('.bd-bar-fill').style.width = `${percent}%`;
-            }, 100);
-        });
-    }
-    
-window.onload = function() {
-        bootSystem();
-    };
-
 /* ========================================================================= */
-/* SECTION: GLOSSARY LOGIC (FULL DATA + MENU SYSTEM)                         */
+/* SECTION: GLOSSARY LOGIC                                                   */
 /* ========================================================================= */
 
 const GLOSSARY_DATA = {
@@ -2695,14 +2473,12 @@ function renderGlossaryCategory(category) {
             // --- NEW CLICK LOGIC ---
             div.onclick = () => {
                 // 1. Clean the term for better search results
-                // Example: "HTTP (Web)" -> "HTTP"
                 let searchTerm = item.k.split('(')[0].trim();
                 
                 // Example: "20/21" -> "20" (Searching just one is safer)
                 if(searchTerm.includes('/')) searchTerm = searchTerm.split('/')[0].trim();
 
                 // 2. Construct the query: e.g., "CORE1 + FTP"
-                // currentGlossaryExam is already set globally when you opened the glossary
                 const query = `${currentGlossaryExam} + ${searchTerm}`;
                 
                 // 3. Run the helper
@@ -2713,6 +2489,32 @@ function renderGlossaryCategory(category) {
             container.appendChild(div);
         });
     }
+}
+
+function runGlossaryTopic(fullQuery) {
+    AudioEngine.playSFX('click');
+
+    // 1. Close the modal
+    toggleGlossary();
+
+    // 2. Populate the search box so the user sees what happened
+    const searchInput = document.getElementById('topic-search-input');
+    if(searchInput) {
+        searchInput.value = fullQuery;
+        
+        // Visual flair: Flash the input box
+        searchInput.style.transition = '0s';
+        searchInput.style.backgroundColor = '#fff';
+        setTimeout(() => {
+            searchInput.style.transition = 'background 0.5s';
+            searchInput.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        }, 100);
+    }
+
+    // 3. Trigger the existing search function
+    setTimeout(() => {
+        startTopicRun(); 
+    }, 200);
 }
     
 </script>
