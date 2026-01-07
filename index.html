@@ -1286,8 +1286,9 @@
     }
 
     // --- UTILITY: Fetch questions by text content (Keyword Search) with Word Boundaries ---
+    // --- UTILITY: Fetch questions by text content (Keyword Search) with Word Boundaries ---
     function fetchQuestionsByKeyword(keyword) {
-        const term = keyword.trim();
+        let term = keyword.trim();
         if (!term) return [];
         let targetTag = null;
 
@@ -1326,10 +1327,10 @@
         const btn = document.getElementById('run-btn');
         
         // Visual Feedback
-        if(btn) { btn.style.background = "#fff"; btn.style.color="#000"; btn.innerText = "..."; }
+        if(btn) { btn.style.background = "#fff"; btn.style.color="#000"; }
 
         setTimeout(() => {
-            if(btn) { btn.style.background = ""; btn.style.color=""; btn.innerText = "[ RUN ]"; }
+            if(btn) { btn.style.background = ""; btn.style.color=""; }
             
             if (!keyword) { alert(">> ERROR: INPUT_EMPTY"); return; }
             qQueue = fetchQuestionsByKeyword(keyword);
@@ -1337,7 +1338,7 @@
             if (qQueue.length === 0) { alert(`>> ERROR: DATA_NOT_FOUND [${keyword.toUpperCase()}]`); return; }
             
             for (let i = qQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; }
-            if (qQueue.length > 25) qQueue = qQueue.slice(0, 25);
+            if (qQueue.length > 5000) qQueue = qQueue.slice(0, 666);
             window.sessionTotal = qQueue.length; 
             
             startQuiz(); // Mobile uses startQuiz directly
