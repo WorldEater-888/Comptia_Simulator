@@ -87,15 +87,15 @@
 
         /* ============================    CSS: TERMINAL WINDOW (UPDATED)    ============================ */
         .terminal-window {
-            /* FIXED: Slightly narrower width + Centered */
-            width: 92%; 
+            /* FIXED: Narrower width to prevent edge touching */
+            width: 96%; 
             height: 100%;
-            margin: 0 auto;
+            margin: 0 auto; /* Centers the GUI */
             border: none;
             background: rgba(0, 5, 5, 0.25); 
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(2px);
-            padding: 10px; /* Reduced padding for more room */
+            padding: 10px; 
             display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
             transition: border-color 0.2s ease, filter 0.2s ease; 
@@ -153,23 +153,25 @@
         .bmc-btn { color: #FF813F; border-color: #FF813F; }
 
         /* ============================    GLOSSARY / STUDY GUIDE    ============================ */
-        /* GLOSSARY INTERACTIVITY (FIXED: No text, just highlight) */
+        /* GLOSSARY INTERACTIVITY (FIXED: Clean Highlight Only) */
         .gloss-item {
             cursor: pointer;
             position: relative;
-            transition: all 0.2s ease;
+            transition: all 0.1s ease;
             border-left: 3px solid transparent; 
             padding-right: 10px; 
         }
 
-        /* On click, flash the background neon mint */
+        /* On click: Flash Neon Mint Background */
         .gloss-item:active {
             background: var(--term-color); 
             color: #000;
-            border-left: 3px solid #fff;
-            box-shadow: 0 0 15px var(--term-color);
+            border-left: 5px solid #fff;
+            box-shadow: 0 0 20px var(--term-color);
+            transform: scale(0.98);
         }
         
+        /* Force text to turn black on highlight so it's readable */
         .gloss-item:active .gloss-key, 
         .gloss-item:active .gloss-val {
             color: #000 !important;
@@ -512,10 +514,10 @@
                 <div style="display: flex; gap: 5px; width: 100%;">
                     <input type="text" id="topic-search-input" 
                            placeholder='Ex: "NET + 802.11"' 
-                           style="background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1rem; padding: 8px; flex: 1; min-width: 0; outline: none; text-transform: uppercase;">
+                           style="background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.1rem; padding: 8px; flex: 1; min-width: 0; outline: none; text-transform: uppercase;">
                     
-                    <button class="btn" id="run-btn" onclick="startTopicRun()" style="padding: 5px 8px; font-size: 1rem; opacity: 1; transform: none; animation: none; margin: 0; flex-shrink: 0;">
-                        [ RUN ]
+                    <button class="btn" id="run-btn" onclick="startTopicRun()" style="padding: 8px 12px; font-size: 1.2rem; opacity: 1; transform: none; animation: none; margin: 0; flex-shrink: 0;">
+                        [RUN]
                     </button>
                 </div>
                 <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 6px; display:flex; justify-content:space-between;">
@@ -1309,7 +1311,9 @@
         const regex = new RegExp(`(?:^|[^a-z0-9])${safeTerm}(?:$|[^a-z0-9])`, 'i');
 
         return MASTER_DATABASE.filter(q => {
-            if (targetTag && !q.tags.includes(targetTag)) return false;
+            // SAFE CHECK: Check if q.tags exists before using it
+            if (targetTag && (!q.tags || !q.tags.includes(targetTag))) return false;
+            
             const content = (q.question + " " + (q.explanation || "") + " " + (q.hint || ""));
             return regex.test(content);
         });
