@@ -27,6 +27,41 @@
     padding: 5px 12px !important;  /* Increased from 2px 6px */
     letter-spacing: 1px;           /* Adds a little breathing room */
 }
+
+/* GLOSSARY INTERACTIVITY */
+.gloss-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    border-left: 3px solid transparent; /* Prepare for hover border */
+}
+
+.gloss-item:hover {
+    background: rgba(10, 255, 186, 0.1); 
+    border-left: 3px solid var(--term-color);
+    padding-left: 15px; /* Slide effect */
+    box-shadow: inset 0 0 15px rgba(10, 255, 186, 0.05);
+}
+
+/* "RUN SIM" GHOST TEXT ON HOVER */
+.gloss-item::after {
+    content: '[ RUN_SIMULATION ]';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    color: var(--term-color);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    text-shadow: 0 0 5px var(--term-color);
+}
+
+.gloss-item:hover::after {
+    opacity: 1;
+}
         
 /* --- DONATION WIDGET --- */
 #donate-widget {
@@ -1602,7 +1637,32 @@ function startTopicRun() {
         const j = Math.floor(Math.random() * (i + 1));
         [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
     }
-    
+    function runGlossaryTopic(fullQuery) {
+    AudioEngine.playSFX('click');
+
+    // 1. Close the modal
+    toggleGlossary();
+
+    // 2. Populate the search box so the user sees what happened
+    const searchInput = document.getElementById('topic-search-input');
+    if(searchInput) {
+        searchInput.value = fullQuery;
+        
+        // Visual flair: Flash the input box
+        searchInput.style.transition = '0s';
+        searchInput.style.backgroundColor = '#fff';
+        setTimeout(() => {
+            searchInput.style.transition = 'background 0.5s';
+            searchInput.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        }, 100);
+    }
+
+    // 3. Trigger the existing search function
+    // We add a small delay so the glossary has time to close visually
+    setTimeout(() => {
+        startTopicRun(); 
+    }, 200);
+}
 
     // 5. Reset Game State
     isExam = false;
@@ -2631,11 +2691,28 @@ function renderGlossaryCategory(category) {
             const div = document.createElement('div');
             div.className = 'gloss-item';
             div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
-            div.onmouseenter = () => AudioEngine.playMenuHover();
+            
+            // --- NEW CLICK LOGIC ---
+            div.onclick = () => {
+                // 1. Clean the term for better search results
+                // Example: "HTTP (Web)" -> "HTTP"
+                let searchTerm = item.k.split('(')[0].trim();
+                
+                // Example: "20/21" -> "20" (Searching just one is safer)
+                if(searchTerm.includes('/')) searchTerm = searchTerm.split('/')[0].trim();
+
+                // 2. Construct the query: e.g., "CORE1 + FTP"
+                // currentGlossaryExam is already set globally when you opened the glossary
+                const query = `${currentGlossaryExam} + ${searchTerm}`;
+                
+                // 3. Run the helper
+                runGlossaryTopic(query);
+            };
+            // -----------------------
+
             container.appendChild(div);
         });
     }
-    AudioEngine.playSFX('type');
 }
     
 </script>
