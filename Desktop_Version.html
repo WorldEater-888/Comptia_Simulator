@@ -959,7 +959,7 @@ html {
                 [4] SECURITY+ (under construction)<span style="float:right">>></span>
             </button>
             <div style="margin-top: 20px; border-top: 1px dashed var(--term-color); padding-top: 10px;">
-    <p style="font-size: 1rem; margin-bottom: 5px; opacity: 0.8;">> TOPIC SEARCH // (e.g., "RAID", "PRINTER", "PORT")</p>
+    <p style="font-size: 1rem; margin-bottom: 5px; opacity: 0.8;">> TOPIC SEARCH // (e.g., "RAID", "PRINTER", "PORT" or "CORE1 + RAM")</p>
     
     <div style="display: flex; gap: 10px;">
         <input type="text" id="topic-search-input" placeholder="ENTER_KEYWORD..." 
@@ -1814,21 +1814,50 @@ function startTopicRun() {
             requiredTags.every(tag => q.tags.includes(tag))
         );
     }
-// UTILITY: Fetch questions by text content (Keyword Search)
-function fetchQuestionsByKeyword(keyword) {
-    const term = keyword.trim();
+// UTILITY: Keyword Search with "Category + Term" capability
+function fetchQuestionsByKeyword(input) {
+    let term = input.trim();
     if (!term) return [];
 
-    // 1. Escape special characters so terms like "C++", "A+", or "802.11" don't break the code
+    let targetTag = null;
+
+    // 1. Check if user is using "Category + Keyword" syntax
+    if (term.includes('+')) {
+        // Split by the first '+' found
+        const parts = term.split('+');
+        const potentialCategory = parts[0].trim().toLowerCase();
+        
+        // Define aliases for your database tags
+        const categoryMap = {
+            // Core 1 Aliases
+            'core 1': 'CORE1', 'core1': 'CORE1', 'a+ 1': 'CORE1', '1101': 'CORE1',
+            // Core 2 Aliases
+            'core 2': 'CORE2', 'core2': 'CORE2', 'a+ 2': 'CORE2', '1102': 'CORE2',
+            // Network+ Aliases
+            'net': 'NET', 'net+': 'NET', 'network': 'NET', 'network+': 'NET', 'n10-008': 'NET',
+            // Security+ Aliases
+            'sec': 'SEC', 'sec+': 'SEC', 'security': 'SEC', 'security+': 'SEC', 'sy0-601': 'SEC', 'sy0-701': 'SEC'
+        };
+
+        // If the left side matches a category, set the tag and update the search term
+        if (categoryMap[potentialCategory]) {
+            targetTag = categoryMap[potentialCategory];
+            // The new search term is everything AFTER the plus sign
+            term = parts.slice(1).join('+').trim();
+        }
+    }
+
+    // 2. Escape special characters for the Regex (Safe Search)
     const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    // 2. Create a "Smart Regex"
-    // (?:^|[^a-z0-9]) -> Ensures the character BEFORE the match is NOT a letter or number (or it's the start of the line)
-    // (?:$|[^a-z0-9]) -> Ensures the character AFTER the match is NOT a letter or number
-    // 'i' flag        -> Makes it case-insensitive
+    // 3. Create Smart Regex (Word Boundaries)
     const regex = new RegExp(`(?:^|[^a-z0-9])${safeTerm}(?:$|[^a-z0-9])`, 'i');
 
     return MASTER_DATABASE.filter(q => {
+        // A. Filter by Tag first (if a category was typed)
+        if (targetTag && !q.tags.includes(targetTag)) return false;
+
+        // B. Search Text Content
         const content = (
             q.question + " " + 
             (q.explanation || "") + " " + 
