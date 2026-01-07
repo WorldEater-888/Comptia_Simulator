@@ -14,18 +14,12 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
-        /* ================================================================================== */
         /* ============================    CSS: THEME & GLOBALS    ============================ */
-        /* ================================================================================== */
         :root {
             /* COLORS */
             --term-color: #0affba;       /* Neon Mint */
             --term-dim: rgba(10, 255, 186, 0.4); 
-            
-            /* GLOWS */
             --glow-color: rgba(10, 255, 186, 0.6); 
-            
-            /* VARIABLES */
             --edge-opacity: 0; 
             --shake-amp: 0px; 
             --sway-speed: 5s;
@@ -39,7 +33,7 @@
             cursor: auto !important; 
         }
 
-        /* ============================    NO SCROLLBARS    ============================ */
+        /* No Scrollbars */
         *::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -91,15 +85,17 @@
             animation: pulse-breath-erratic 2s infinite; 
         }
 
-        /* ============================    CSS: TERMINAL WINDOW (UPDATED WIDTH)    ============================ */
+        /* ============================    CSS: TERMINAL WINDOW (UPDATED)    ============================ */
         .terminal-window {
-            width: 100%; height: 100%;
+            /* FIXED: Slightly narrower width + Centered */
+            width: 92%; 
+            height: 100%;
+            margin: 0 auto;
             border: none;
             background: rgba(0, 5, 5, 0.25); 
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(2px);
-            /* CHANGED: Reduced padding from 20px to 10px to widen GUI */
-            padding: 10px;
+            padding: 10px; /* Reduced padding for more room */
             display: none; flex-direction: column; position: relative;
             z-index: 100; overflow: hidden;
             transition: border-color 0.2s ease, filter 0.2s ease; 
@@ -157,38 +153,27 @@
         .bmc-btn { color: #FF813F; border-color: #FF813F; }
 
         /* ============================    GLOSSARY / STUDY GUIDE    ============================ */
-        /* GLOSSARY INTERACTIVITY (MOBILE) */
+        /* GLOSSARY INTERACTIVITY (FIXED: No text, just highlight) */
         .gloss-item {
             cursor: pointer;
             position: relative;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
             border-left: 3px solid transparent; 
-            padding-right: 50px; 
+            padding-right: 10px; 
         }
 
+        /* On click, flash the background neon mint */
         .gloss-item:active {
-            background: rgba(10, 255, 186, 0.2); 
-            border-left: 3px solid var(--term-color);
+            background: var(--term-color); 
+            color: #000;
+            border-left: 3px solid #fff;
+            box-shadow: 0 0 15px var(--term-color);
         }
-
-        /* "RUN" GHOST TEXT */
-        .gloss-item::after {
-            content: '[ RUN ]';
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: 'VT323', monospace;
-            font-size: 0.9rem;
-            color: var(--term-color);
-            opacity: 0.3; 
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
-
-        .gloss-item:active::after {
-            opacity: 1;
-            text-shadow: 0 0 5px var(--term-color);
+        
+        .gloss-item:active .gloss-key, 
+        .gloss-item:active .gloss-val {
+            color: #000 !important;
+            text-shadow: none;
         }
 
         #glossary-ui {
@@ -527,9 +512,9 @@
                 <div style="display: flex; gap: 5px; width: 100%;">
                     <input type="text" id="topic-search-input" 
                            placeholder='Ex: "NET + 802.11"' 
-                           style="background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.1rem; padding: 8px; flex: 1; min-width: 0; outline: none; text-transform: uppercase;">
+                           style="background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1rem; padding: 8px; flex: 1; min-width: 0; outline: none; text-transform: uppercase;">
                     
-                    <button class="btn" onclick="startTopicRun()" style="padding: 5px 12px; font-size: 1.1rem; opacity: 1; transform: none; animation: none; margin: 0; flex-shrink: 0;">
+                    <button class="btn" id="run-btn" onclick="startTopicRun()" style="padding: 5px 8px; font-size: 1rem; opacity: 1; transform: none; animation: none; margin: 0; flex-shrink: 0;">
                         [ RUN ]
                     </button>
                 </div>
@@ -1334,21 +1319,32 @@
     function startTopicRun() {
         const inputEl = document.getElementById('topic-search-input');
         const keyword = inputEl.value;
-        if (!keyword) { alert(">> ERROR: INPUT_EMPTY"); return; }
-        qQueue = fetchQuestionsByKeyword(keyword);
-        if (qQueue.length === 0) { alert(`>> ERROR: DATA_NOT_FOUND [${keyword.toUpperCase()}]`); return; }
-        for (let i = qQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; }
-        if (qQueue.length > 25) qQueue = qQueue.slice(0, 25);
-        window.sessionTotal = qQueue.length; 
+        const btn = document.getElementById('run-btn');
         
-        startQuiz(); // Mobile uses startQuiz directly
+        // Visual Feedback
+        if(btn) { btn.style.background = "#fff"; btn.style.color="#000"; btn.innerText = "..."; }
 
-        const msg = document.createElement('div');
-        msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
-        msg.innerHTML = `SEARCH QUERY: "${keyword.toUpperCase()}"<br><span style="color:#0affba">${qQueue.length} PACKETS FOUND</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
-        document.body.appendChild(msg);
-        setTimeout(() => { msg.style.opacity = '0'; }, 2000);
-        setTimeout(() => { msg.remove(); }, 3000);
+        setTimeout(() => {
+            if(btn) { btn.style.background = ""; btn.style.color=""; btn.innerText = "[ RUN ]"; }
+            
+            if (!keyword) { alert(">> ERROR: INPUT_EMPTY"); return; }
+            qQueue = fetchQuestionsByKeyword(keyword);
+            
+            if (qQueue.length === 0) { alert(`>> ERROR: DATA_NOT_FOUND [${keyword.toUpperCase()}]`); return; }
+            
+            for (let i = qQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; }
+            if (qQueue.length > 25) qQueue = qQueue.slice(0, 25);
+            window.sessionTotal = qQueue.length; 
+            
+            startQuiz(); // Mobile uses startQuiz directly
+
+            const msg = document.createElement('div');
+            msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
+            msg.innerHTML = `SEARCH QUERY: "${keyword.toUpperCase()}"<br><span style="color:#0affba">${qQueue.length} PACKETS FOUND</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+            document.body.appendChild(msg);
+            setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+            setTimeout(() => { msg.remove(); }, 3000);
+        }, 200); // Tiny delay to show visual click
     }
   
    // ON LOAD INIT
