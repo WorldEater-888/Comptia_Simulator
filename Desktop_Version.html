@@ -740,17 +740,21 @@ html {
             100% { transform: translateX(0); } 
         }
 
-        /* --- RESULTS BREAKDOWN UI (Fixed Clipping) --- */
-        #results-ui {
-            display: none; /* Toggled via JS */
-            flex-direction: column;
-            justify-content: center; /* Centers vertically */
-            align-items: center;
-            height: 100%;
-            text-align: center;
-            overflow-y: hidden; /* Prevent scrolling */
-            padding-bottom: 50px;
-        }
+        /* --- RESULTS BREAKDOWN UI (Fixed Scrolling & Button Clipping) --- */
+#results-ui {
+    display: none; 
+    flex-direction: column;
+    /* Changed from center to flex-start so long lists don't get cut off at the top */
+    justify-content: flex-start; 
+    align-items: center;
+    height: 100%;
+    text-align: center;
+    /* ENABLE SCROLLING */
+    overflow-y: auto; 
+    /* Add breathing room at top and bottom */
+    padding-top: 60px;
+    padding-bottom: 120px; 
+}
 
         #breakdown-container {
             width: 100%;
