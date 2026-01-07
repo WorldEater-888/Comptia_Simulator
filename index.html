@@ -630,6 +630,18 @@ position: relative; /* Required for float/jitter */
             <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('core2', 'A+ CORE 2')">[2] COMPTIA A+ CORE 2 (empty)</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('net', 'NETWORK+')">[3] NETWORK+ (empty)</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('sec', 'SECURITY+')">[4] SECURITY+ (empty)</button>
+          <div style="margin-top: 20px; border-top: 1px dashed var(--term-color); padding-top: 10px;">
+    <p style="font-size: 1rem; margin-bottom: 5px; opacity: 0.8;">> TOPIC SEARCH // (e.g., "RAID", "PRINTER", "PORT")</p>
+    
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="topic-search-input" placeholder="ENTER_KEYWORD..." 
+               style="background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.2rem; padding: 5px; flex-grow: 1; outline: none; text-transform: uppercase;">
+        
+        <button class="btn" onclick="startTopicRun()" style="padding: 5px 15px; font-size: 1.2rem; opacity: 1; transform: none; animation: none;">
+            [ RUN ]
+        </button>
+    </div>
+</div>
         </div>
     </div>
 
@@ -846,6 +858,26 @@ position: relative; /* Required for float/jitter */
 
     function fetchQuestions(tags) { return MASTER_DATABASE.filter(q => tags.every(t => q.tags.includes(t))); }
 
+// UTILITY: Fetch questions by text content (Keyword Search)
+function fetchQuestionsByKeyword(keyword) {
+    // Clean the input (lowercase, remove extra spaces)
+    const term = keyword.toLowerCase().trim();
+    
+    if (!term) return [];
+
+    return MASTER_DATABASE.filter(q => {
+        // Combine all searchable text into one string for easy checking
+        // We check Question text, Explanation, and Hint.
+        const content = (
+            q.question + " " + 
+            (q.explanation || "") + " " + 
+            (q.hint || "")
+        ).toLowerCase();
+
+        return content.includes(term);
+    });
+}
+  
     /* ============================    JS: VISUAL FX           ============================ */
     function spawnScanline() {
         if(isDead) return;
@@ -1133,7 +1165,57 @@ position: relative; /* Required for float/jitter */
             const j = Math.floor(Math.random() * (i + 1)); 
             [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
         }
-        
+
+function startTopicRun() {
+    // 1. Get the input value (we will create this input ID in Step 3)
+    const inputEl = document.getElementById('topic-search-input');
+    const keyword = inputEl.value;
+
+    if (!keyword) {
+        alert(">> ERROR: INPUT_EMPTY");
+        return;
+    }
+
+    // 2. Fetch questions using the new text search
+    qQueue = fetchQuestionsByKeyword(keyword);
+
+    // 3. Handle no results
+    if (qQueue.length === 0) {
+        alert(`>> ERROR: DATA_NOT_FOUND [${keyword.toUpperCase()}]`);
+        return;
+    }
+
+    // 4. Shuffle Logic (Copy-pasted from your existing code to keep it consistent)
+    for (let i = qQueue.length - 1; i > 0; i--) { 
+        const j = Math.floor(Math.random() * (i + 1));
+        [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
+    }
+    
+    // Optional: Limit custom runs to 25 questions if there are too many
+    if (qQueue.length > 25) qQueue = qQueue.slice(0, 25);
+
+    // 5. Reset Game State
+    isExam = false;
+    resetGame();
+    sessionTime = 5400;
+
+    // 6. Transition Screen
+    // We assume you want to launch from the Root Menu, but this works from anywhere
+    switchScreen('root-menu', 'quiz-ui', () => {
+        startHUD();
+        loadSeq();
+
+        // Custom Cogitator Message for Topic Runs
+        const msg = document.createElement('div');
+        msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
+        msg.innerHTML = `SEARCH QUERY: "${keyword.toUpperCase()}"<br><span style="color:#0affba">${qQueue.length} PACKETS FOUND</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+        document.body.appendChild(msg);
+
+        setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+        setTimeout(() => { msg.remove(); }, 3000);
+    });
+}
+      
         // 2. Limit to 25
         if(qQueue.length > 25) qQueue = qQueue.slice(0, 25);
         window.sessionTotal = qQueue.length; // Save for the counter
