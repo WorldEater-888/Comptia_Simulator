@@ -1248,27 +1248,30 @@ html {
 <div id="dungeon-ui" class="hidden">
         
         <div id="dungeon-mission-select">
-            <h2 style="margin-bottom: 10px; text-decoration: underline; color:#fff;">>> STEP 1: INITIALIZE CLASS <<</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; width: 90%;">
-                <button class="btn" onclick="Dungeon.selectClass('netadmin')" id="btn-c1">
-                    NET_ADMIN<br><span style="font-size:0.7em; color:#0af;">MP++ / HP--</span>
-                </button>
-                <button class="btn" onclick="Dungeon.selectClass('tank')" id="btn-c2">
-                    HELP_DESK<br><span style="font-size:0.7em; color:#0f0;">HP++ / MP--</span>
-                </button>
-                <button class="btn" onclick="Dungeon.selectClass('analyst')" id="btn-c3">
-                    ANALYST<br><span style="font-size:0.7em; color:#ffd700;">BALANCED</span>
-                </button>
+            
+            <div id="dungeon-step-1" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <h2 style="margin-bottom: 10px; text-decoration: underline; color:#fff;">>> STEP 1: INITIALIZE CLASS <<</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; width: 90%;">
+                    <button class="btn visible" style="opacity: 1; transform: translateY(0);" onclick="Dungeon.selectClass('netadmin')" id="btn-c1">
+                        NET_ADMIN<br><span style="font-size:0.7em; color:#0af;">MP++ / HP--</span>
+                    </button>
+                    <button class="btn visible" style="opacity: 1; transform: translateY(0);" onclick="Dungeon.selectClass('tank')" id="btn-c2">
+                        HELP_DESK<br><span style="font-size:0.7em; color:#0f0;">HP++ / MP--</span>
+                    </button>
+                    <button class="btn visible" style="opacity: 1; transform: translateY(0);" onclick="Dungeon.selectClass('analyst')" id="btn-c3">
+                        ANALYST<br><span style="font-size:0.7em; color:#ffd700;">BALANCED</span>
+                    </button>
+                </div>
             </div>
 
             <div id="mission-area" style="display:none; width: 100%; text-align: center;">
                 <h2 style="margin-bottom: 10px; text-decoration: underline; color:#fff;">>> STEP 2: SELECT TARGET <<</h2>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <button class="btn" onclick="Dungeon.loadMission('CORE1')">CORE 1</button>
-                    <button class="btn" onclick="Dungeon.loadMission('CORE2')">CORE 2</button>
-                    <button class="btn" onclick="Dungeon.loadMission('NET')">NETWORK+</button>
-                    <button class="btn" onclick="Dungeon.loadMission('SEC')">SECURITY+</button>
-                    <button class="btn" style="grid-column: span 2; border-color: #ffd700; color: #ffd700;" onclick="Dungeon.loadMission('ALL')">>> CHAOS MODE <<</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 90%; margin: 0 auto;">
+                    <button class="btn visible" style="opacity: 1; transform: translateY(0);" onclick="Dungeon.loadMission('CORE1')">CORE 1</button>
+                    <button class="btn visible" style="opacity: 1; transform: translateY(0);" onclick="Dungeon.loadMission('CORE2')">CORE 2</button>
+                    <button class="btn visible" style="opacity: 1; transform: translateY(0);" onclick="Dungeon.loadMission('NET')">NETWORK+</button>
+                    <button class="btn visible" style="opacity: 1; transform: translateY(0);" onclick="Dungeon.loadMission('SEC')">SECURITY+</button>
+                    <button class="btn visible" style="opacity: 1; transform: translateY(0); grid-column: span 2; border-color: #ffd700; color: #ffd700;" onclick="Dungeon.loadMission('ALL')">>> CHAOS MODE <<</button>
                 </div>
             </div>
         </div>
@@ -2746,10 +2749,8 @@ const Dungeon = {
         
         // Reset Selection UI
         document.getElementById('dungeon-mission-select').style.display = 'flex';
-        document.getElementById('mission-area').style.display = 'none';
-        
-        // Reset Buttons
-        ['btn-c1','btn-c2','btn-c3'].forEach(b => document.getElementById(b).style.borderColor = '');
+        document.getElementById('dungeon-step-1').style.display = 'flex'; // Show Step 1
+        document.getElementById('mission-area').style.display = 'none';   // Hide Step 2
         
         this.player.classId = null;
     },
@@ -2758,15 +2759,10 @@ const Dungeon = {
     selectClass: function(clsId) {
         this.player.classId = clsId;
         
-        // Highlight Selection
-        ['btn-c1','btn-c2','btn-c3'].forEach(b => document.getElementById(b).style.borderColor = '');
-        if(clsId === 'netadmin') document.getElementById('btn-c1').style.borderColor = '#0affba';
-        if(clsId === 'tank') document.getElementById('btn-c2').style.borderColor = '#0affba';
-        if(clsId === 'analyst') document.getElementById('btn-c3').style.borderColor = '#0affba';
-
         AudioEngine.playSFX('click');
         
-        // Show Step 2
+        // Hide Step 1, Show Step 2
+        document.getElementById('dungeon-step-1').style.display = 'none';
         document.getElementById('mission-area').style.display = 'block';
     },
 
