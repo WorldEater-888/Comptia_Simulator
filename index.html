@@ -74,7 +74,7 @@
         }
 
         /* ================================================================================== */
-        /* ============================    CSS: CRT & BACKGROUND   ============================ */
+        /* ============================    CSS: CRT & BACKGROUND    ============================ */
         /* ================================================================================== */
         .scan-line {
             position: fixed;
@@ -282,7 +282,7 @@
             border-bottom: 1px dashed #333; margin-bottom: 5px;
         }
         .gloss-val { color: #ccc; font-family: monospace; font-size: 0.9rem; line-height: 1.4; }
-      
+       
         /* Integrity Bars */
         .header-stats-row { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; }
         .bars-group { display: flex; flex-direction: column; gap: 4px; width: 65%; }
@@ -445,7 +445,7 @@ position: relative; /* Required for float/jitter */
         .match-item.wrong { background: #a00; color: #fff; box-shadow: 0 0 15px #f00; }
 
         /* ================================================================================== */
-        /* ============================    CSS: ANIMATIONS       ============================ */
+        /* ============================    CSS: ANIMATIONS        ============================ */
         /* ================================================================================== */
         @keyframes turnOn { 0% { transform: scaleY(0.005) scaleX(0); opacity: 0; filter: brightness(4); } 60% { transform: scaleY(0.005) scaleX(1); opacity: 1; filter: brightness(2); } 100% { transform: scaleY(1) scaleX(1); opacity: 1; filter: brightness(1); } }
         @keyframes stress-shake { 0% { transform: translate(0, 0); } 20% { transform: translate(-1px, 1px); } 40% { transform: translate(1px, -1px); } 60% { transform: translate(-0.5px, 0.5px); } 80% { transform: translate(0.5px, -0.5px); } 100% { transform: translate(0, 0); } }
@@ -630,18 +630,18 @@ position: relative; /* Required for float/jitter */
             <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('core2', 'A+ CORE 2')">[2] COMPTIA A+ CORE 2 (empty)</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('net', 'NETWORK+')">[3] NETWORK+ (empty)</button>
             <button class="btn" onclick="AudioEngine.playMenuHover(); goToSubMenu('sec', 'SECURITY+')">[4] SECURITY+ (empty)</button>
-          <div style="margin-top: 20px; border-top: 1px dashed var(--term-color); padding-top: 10px;">
-    <p style="font-size: 1rem; margin-bottom: 5px; opacity: 0.8;">> TOPIC SEARCH // (e.g., "RAID", "PRINTER", "PORT")</p>
-    
-    <div style="display: flex; gap: 10px;">
-        <input type="text" id="topic-search-input" placeholder="ENTER_KEYWORD..." 
-               style="background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.2rem; padding: 5px; flex-grow: 1; outline: none; text-transform: uppercase;">
-        
-        <button class="btn" onclick="startTopicRun()" style="padding: 5px 15px; font-size: 1.2rem; opacity: 1; transform: none; animation: none;">
-            [ RUN ]
-        </button>
-    </div>
-</div>
+            
+            <div style="margin-top: 20px; border-top: 1px dashed var(--term-color); padding-top: 10px;">
+                <p style="font-size: 1rem; margin-bottom: 5px; opacity: 0.8;">> TOPIC SEARCH // (e.g., "RAID", "PRINTER")</p>
+                <div style="display: flex; gap: 5px; width: 100%;">
+                    <input type="text" id="topic-search-input" placeholder="KEYWORD..." 
+                           style="background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.2rem; padding: 5px; flex-grow: 1; min-width: 0; outline: none; text-transform: uppercase;">
+                    <button class="btn" onclick="startTopicRun()" style="padding: 5px 10px; font-size: 1.1rem; opacity: 1; transform: none; animation: none;">
+                        [RUN]
+                    </button>
+                </div>
+            </div>
+            
         </div>
     </div>
 
@@ -878,7 +878,7 @@ function fetchQuestionsByKeyword(keyword) {
     });
 }
   
-    /* ============================    JS: VISUAL FX           ============================ */
+    /* ============================    JS: VISUAL FX            ============================ */
     function spawnScanline() {
         if(isDead) return;
         const line = document.createElement('div'); line.className = 'scan-line';
@@ -1165,57 +1165,7 @@ function fetchQuestionsByKeyword(keyword) {
             const j = Math.floor(Math.random() * (i + 1)); 
             [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
         }
-
-function startTopicRun() {
-    // 1. Get the input value (we will create this input ID in Step 3)
-    const inputEl = document.getElementById('topic-search-input');
-    const keyword = inputEl.value;
-
-    if (!keyword) {
-        alert(">> ERROR: INPUT_EMPTY");
-        return;
-    }
-
-    // 2. Fetch questions using the new text search
-    qQueue = fetchQuestionsByKeyword(keyword);
-
-    // 3. Handle no results
-    if (qQueue.length === 0) {
-        alert(`>> ERROR: DATA_NOT_FOUND [${keyword.toUpperCase()}]`);
-        return;
-    }
-
-    // 4. Shuffle Logic (Copy-pasted from your existing code to keep it consistent)
-    for (let i = qQueue.length - 1; i > 0; i--) { 
-        const j = Math.floor(Math.random() * (i + 1));
-        [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
-    }
-    
-    // Optional: Limit custom runs to 25 questions if there are too many
-    if (qQueue.length > 25) qQueue = qQueue.slice(0, 25);
-
-    // 5. Reset Game State
-    isExam = false;
-    resetGame();
-    sessionTime = 5400;
-
-    // 6. Transition Screen
-    // We assume you want to launch from the Root Menu, but this works from anywhere
-    switchScreen('root-menu', 'quiz-ui', () => {
-        startHUD();
-        loadSeq();
-
-        // Custom Cogitator Message for Topic Runs
-        const msg = document.createElement('div');
-        msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
-        msg.innerHTML = `SEARCH QUERY: "${keyword.toUpperCase()}"<br><span style="color:#0affba">${qQueue.length} PACKETS FOUND</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
-        document.body.appendChild(msg);
-
-        setTimeout(() => { msg.style.opacity = '0'; }, 2000);
-        setTimeout(() => { msg.remove(); }, 3000);
-    });
-}
-      
+        
         // 2. Limit to 25
         if(qQueue.length > 25) qQueue = qQueue.slice(0, 25);
         window.sessionTotal = qQueue.length; // Save for the counter
@@ -1233,6 +1183,48 @@ function startTopicRun() {
         setTimeout(() => { msg.remove(); }, 3000);          // Delete at 3s
 
         startQuiz();
+    }
+
+    // --- FIX: startTopicRun moved outside ---
+    function startTopicRun() {
+        // 1. Get the input value
+        const inputEl = document.getElementById('topic-search-input');
+        const keyword = inputEl.value;
+
+        if (!keyword) {
+            alert(">> ERROR: INPUT_EMPTY");
+            return;
+        }
+
+        // 2. Fetch questions using the new text search
+        qQueue = fetchQuestionsByKeyword(keyword);
+
+        // 3. Handle no results
+        if (qQueue.length === 0) {
+            alert(`>> ERROR: DATA_NOT_FOUND [${keyword.toUpperCase()}]`);
+            return;
+        }
+
+        // 4. Shuffle Logic
+        for (let i = qQueue.length - 1; i > 0; i--) { 
+            const j = Math.floor(Math.random() * (i + 1));
+            [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
+        }
+        
+        // Optional: Limit custom runs to 25 questions if there are too many
+        if (qQueue.length > 25) qQueue = qQueue.slice(0, 25);
+        
+        // 5. Trigger Mobile Start Sequence
+        startQuiz();
+
+        // Custom Cogitator Message for Topic Runs
+        const msg = document.createElement('div');
+        msg.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; color:white; font-size:2rem; z-index:9999; text-shadow:0 0 15px #ffffff; pointer-events:none; transition: opacity 1s ease-out; font-family: 'VT323', monospace;";
+        msg.innerHTML = `SEARCH QUERY: "${keyword.toUpperCase()}"<br><span style="color:#0affba">${qQueue.length} PACKETS FOUND</span><br><span style="font-size:1.5rem; opacity:0.7">INITIATE</span>`;
+        document.body.appendChild(msg);
+
+        setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+        setTimeout(() => { msg.remove(); }, 3000);
     }
     
     // NEW WEIGHTED EXAM ALGORITHM
@@ -1580,222 +1572,4 @@ function startTopicRun() {
                                 <span style="color:${color}">${tagPct}% (${stat.correct}/${stat.total})</span>
                             </div>
                             <div style="width: 100%; background: #222; height: 12px; border: 1px solid #555;">
-                                <div style="width: ${tagPct}%; background: ${color}; height: 100%; box-shadow: 0 0 5px ${color};"></div>
-                            </div>
-                        </div>
-                    `;
-                    container.innerHTML += html;
-                }
-            }
-        }
-    }
-    
-    function shutdownSystem() { location.reload(); }
-
- /* ============================    JS: GLOSSARY LOGIC (EXPANDED) ============================ */
-    const GLOSSARY_DATA = {
-        'CORE1': {
-            'PORTS': [
-                { k: "20/21", v: "FTP (File Transfer). TCP. Unsecured file sending." },
-                { k: "22", v: "SSH (Secure Shell). TCP. Encrypted remote login." },
-                { k: "23", v: "Telnet. TCP. Unencrypted remote login (Deprecated)." },
-                { k: "25", v: "SMTP (Sending Mail). TCP. Server-to-server email." },
-                { k: "53", v: "DNS (Domain Name System). TCP/UDP. Resolves Names to IPs." },
-                { k: "67/68", v: "DHCP (Dynamic Host Config). UDP. Assigns IPs auto." },
-                { k: "80", v: "HTTP (Web). TCP. Unsecured web traffic." },
-                { k: "110", v: "POP3 (Receiving Mail). TCP. Downloads & deletes from server." },
-                { k: "137-139", v: "NetBIOS/NetBT. UDP/TCP. LAN naming & file sharing." },
-                { k: "143", v: "IMAP (Receiving Mail). TCP. Syncs mail across devices." },
-                { k: "161/162", v: "SNMP (Network Mgmt). UDP. Monitor network devices." },
-                { k: "389", v: "LDAP (Directory Services). TCP. Network auth (Active Directory)." },
-                { k: "443", v: "HTTPS (Secure Web). TCP. Encrypted web traffic (SSL/TLS)." },
-                { k: "445", v: "SMB/CIFS (File Share). TCP. Windows file/printer sharing." },
-                { k: "3389", v: "RDP (Remote Desktop). TCP/UDP. Windows GUI remote access." }
-            ],
-            'NETWORK': [
-                { k: "IPv4 Class A", v: "1.0.0.0 - 126.x.x.x | Subnet: /8 (255.0.0.0)" },
-                { k: "IPv4 Class B", v: "128.0.0.0 - 191.x.x.x | Subnet: /16 (255.255.0.0)" },
-                { k: "IPv4 Class C", v: "192.0.0.0 - 223.x.x.x | Subnet: /24 (255.255.255.0)" },
-                { k: "Private Range A", v: "10.0.0.0 - 10.255.255.255 (Big Networks)" },
-                { k: "Private Range B", v: "172.16.0.0 - 172.31.255.255 (Mid Networks)" },
-                { k: "Private Range C", v: "192.168.0.0 - 192.168.255.255 (Home Networks)" },
-                { k: "APIPA", v: "169.254.x.x | Auto-assigned when DHCP fails." },
-                { k: "Loopback", v: "127.0.0.1 | Ping self to test NIC stack." },
-                { k: "IPv6 Link Local", v: "fe80::/10 | Works like APIPA (Local LAN only)." },
-                { k: "IPv6 Global", v: "2000::/3 | Routable on the Internet." },
-                { k: "TCP vs UDP", v: "TCP: Connection-oriented (Ack). UDP: Connectionless (Fast)." }
-            ],
-            'HARDWARE': [
-                { k: "ATX", v: "12 x 9.6 in. Standard size. Max expansion." },
-                { k: "Micro-ATX", v: "9.6 x 9.6 in. 4 slots max. Compact towers." },
-                { k: "Mini-ITX", v: "6.7 x 6.7 in. 1 slot. HTPC/Small form factor." },
-                { k: "BIOS/UEFI", v: "UEFI supports >2.2TB drives, Secure Boot, Mouse use." },
-                { k: "CMOS Battery", v: "CR2032. Retains BIOS settings/Clock." },
-                { k: "TPM", v: "Trusted Platform Module. Hardware encryption chip." },
-                { k: "LoJack", v: "Anti-theft BIOS feature. Tracks/locks stolen PCs." },
-                { k: "Power: 24-Pin", v: "Main motherboard power." },
-                { k: "Power: EPS 12V", v: "4 or 8 pin. CPU dedicated power." },
-                { k: "Power: PCIe", v: "6 or 8 pin. GPU extra power." }
-            ],
-            'RAM': [
-                { k: "DDR3", v: "240 Pins (Desktop) | 204 Pins (Laptop/SODIMM)" },
-                { k: "DDR4", v: "288 Pins (Desktop) | 260 Pins (Laptop/SODIMM)" },
-                { k: "DDR5", v: "288 Pins (Desktop) | 262 Pins (Laptop/SODIMM)" },
-                { k: "ECC RAM", v: "Detects AND fixes single-bit errors. For Servers." },
-                { k: "Parity RAM", v: "Detects errors but CANNOT fix them." },
-                { k: "Dual Channel", v: "Doubles bandwidth. Install in matching colored slots." }
-            ],
-            'STORAGE': [
-                { k: "RAID 0", v: "Striping. Fast. 0 Redundancy. Dies if 1 drive fails." },
-                { k: "RAID 1", v: "Mirroring. Safe. Slow Write. Needs 2 drives." },
-                { k: "RAID 5", v: "Striping + Parity. Balanced. Needs 3 drives. 1 fail allowed." },
-                { k: "RAID 10", v: "Stripe of Mirrors. Fast & Safe. Needs 4 drives." },
-                { k: "NVMe", v: "Fastest SSD protocol. Uses PCIe lanes via M.2." },
-                { k: "SATA 3", v: "6 Gbps limit. Standard 2.5 inch SSD/HDD." },
-                { k: "M.2 Key M", v: "Used for NVMe/PCIe x4 SSDs." },
-                { k: "M.2 Key B", v: "Used for SATA SSDs or Cellular cards." }
-            ],
-            'CABLES': [
-                { k: "Cat 5e", v: "1 Gbps | 100m | Reduced crosstalk." },
-                { k: "Cat 6", v: "10 Gbps (55m) / 1 Gbps (100m)." },
-                { k: "Cat 6a", v: "10 Gbps (100m) | Shielded (F/UTP)." },
-                { k: "Plenum", v: "Fire-rated jacket. For HVAC ceilings. Less toxic smoke." },
-                { k: "Fiber: LC", v: "Local Connector. Small, 2-prongs." },
-                { k: "Fiber: ST", v: "Straight Tip. Round, twist-lock (BNC style)." },
-                { k: "Fiber: SC", v: "Subscriber Connector. Square plug." },
-                { k: "USB 2.0", v: "480 Mbps. 5m length." },
-                { k: "USB 3.0", v: "5 Gbps. 3m length. Blue port." },
-                { k: "Thunderbolt 3", v: "40 Gbps. Uses USB-C shape." }
-            ],
-            'WI-FI': [
-                { k: "802.11a", v: "5 GHz | 54 Mbps | Legacy." },
-                { k: "802.11b", v: "2.4 GHz | 11 Mbps | Legacy." },
-                { k: "802.11g", v: "2.4 GHz | 54 Mbps | Legacy." },
-                { k: "802.11n", v: "2.4/5 GHz | 600 Mbps | Wi-Fi 4." },
-                { k: "802.11ac", v: "5 GHz | 6.9 Gbps | Wi-Fi 5 (MU-MIMO)." },
-                { k: "802.11ax", v: "2.4/5/6 GHz | 9.6 Gbps | Wi-Fi 6 (OFDMA)." },
-                { k: "Channels 2.4", v: "1, 6, 11 are the only non-overlapping." },
-                { k: "WPA2", v: "AES Encryption + CCMP." },
-                { k: "WPA3", v: "SAE (Simultaneous Authentication of Equals). 192-bit." }
-            ],
-            'MOBILE': [
-                { k: "OLED", v: "No backlight. Organic pixels. True blacks. Expensive." },
-                { k: "IPS LCD", v: "Better viewing angles/colors than TN." },
-                { k: "Digitizer", v: "Converts touch (analog) into digital signal." },
-                { k: "Inverter", v: "Converts DC (battery) to AC (screen backlight)." },
-                { k: "Tethering", v: "Sharing cellular internet via USB/Wi-Fi." },
-                { k: "NFC", v: "Near Field Comm. Contactless pay/pairing (4cm range)." },
-                { k: "IMSI", v: "Unique ID for the USER (Sim Card)." },
-                { k: "IMEI", v: "Unique ID for the DEVICE (Phone hardware)." }
-            ],
-            'PRINTERS': [
-                { k: "Laser Process", v: "Processing > Charging > Exposing > Developing > Transferring > Fusing > Cleaning." },
-                { k: "Corona Wire", v: "Applies high voltage charge (Laser)." },
-                { k: "Fuser", v: "Heats and presses toner to page (Laser)." },
-                { k: "Thermal", v: "Heat-sensitive paper. Receipts. Quiet. Fades over time." },
-                { k: "Impact", v: "Pins hit ribbon. Multi-part forms (Carbon copies)." },
-                { k: "Inkjet", v: "Liquid ink. Cheap HW, expensive ink. High res." },
-                { k: "3D Printer", v: "Filament. Fused Deposition Modeling (FDM)." }
-            ],
-            'CLOUD': [
-                { k: "IaaS", v: "Infrastructure. AWS EC2. You manage OS + Apps." },
-                { k: "PaaS", v: "Platform. Heroku/SQL. You manage Apps only." },
-                { k: "SaaS", v: "Software. Gmail/Dropbox. Vendor manages ALL." },
-                { k: "Type 1 Hypervisor", v: "Bare Metal (ESXi). OS runs ON hypervisor." },
-                { k: "Type 2 Hypervisor", v: "Hosted (VirtualBox). Hypervisor runs ON OS." },
-                { k: "Rapid Elasticity", v: "Scale resources up/down instantly." },
-                { k: "Resource Pooling", v: "Multiple customers share same physical HW." }
-            ],
-            'TROUBLESHOOT': [
-                { k: "1. Identify", v: "Ask user. Check logs. Duplicate issue. Backup." },
-                { k: "2. Theory", v: "Question the obvious. Research." },
-                { k: "3. Test Theory", v: "Confirm cause. If fails, new theory." },
-                { k: "4. Plan of Action", v: "Create plan to fix. Consider side effects." },
-                { k: "5. Verify", v: "Test full system. Implement preventive measures." },
-                { k: "6. Document", v: "Log findings, actions, and outcomes." },
-                { k: "S.M.A.R.T.", v: "Self-Monitoring Analysis. Disk drive health check." }
-            ]
-        },
-        'CORE2': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
-        'NET': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] },
-        'SEC': { 'COMING SOON': [{ k: "STATUS", v: "UNDER CONSTRUCTION" }] }
-    };
-    let currentGlossaryExam = null;
-
-    function toggleGlossary() {
-        const ui = document.getElementById('glossary-ui');
-        if (ui.classList.contains('hidden')) {
-            ui.classList.remove('hidden');
-            showExamSelection(); // Always reset to main menu on open
-            AudioEngine.playSFX('click');
-        } else {
-            ui.classList.add('hidden');
-            AudioEngine.playSFX('error');
-        }
-    }
-
-    function showExamSelection() {
-        document.getElementById('gloss-select-view').classList.remove('hidden');
-        document.getElementById('gloss-content-view').classList.add('hidden');
-        document.getElementById('gloss-back-btn').classList.add('hidden');
-        document.getElementById('gloss-title').innerText = ">> SELECT_DATABASE";
-    }
-
-    function loadGlossaryExam(examKey) {
-        currentGlossaryExam = examKey;
-        
-        // 1. Switch Views
-        document.getElementById('gloss-select-view').classList.add('hidden');
-        document.getElementById('gloss-content-view').classList.remove('hidden');
-        document.getElementById('gloss-back-btn').classList.remove('hidden');
-        document.getElementById('gloss-title').innerText = `>> GUIDE ${examKey} (More >>)`;
-        
-        // 2. Generate Tabs Dynamically
-        const tabContainer = document.getElementById('gloss-tabs');
-        tabContainer.innerHTML = "";
-        
-        const categories = Object.keys(GLOSSARY_DATA[examKey]);
-        categories.forEach((cat, index) => {
-            const btn = document.createElement('button');
-            btn.className = 'tab-btn';
-            btn.innerText = cat;
-            btn.onclick = () => { AudioEngine.playSFX('click'); renderGlossaryCategory(cat); };
-            if(index === 0) { btn.classList.add('active'); }
-            tabContainer.appendChild(btn);
-        });
-
-        // 3. Render first category
-        if(categories.length > 0) renderGlossaryCategory(categories[0]);
-        
-        AudioEngine.playSFX('success');
-    }
-
-    function renderGlossaryCategory(category) {
-        // Highlight Tab
-        document.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('active');
-            if(b.innerText === category) b.classList.add('active');
-        });
-
-        // Render Grid
-        const container = document.getElementById('glossary-content');
-        container.innerHTML = "";
-        
-        const data = GLOSSARY_DATA[currentGlossaryExam][category];
-        if(data) {
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'gloss-item';
-                div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
-                container.appendChild(div);
-            });
-        }
-    } 
-  
-   // ON LOAD INIT
-    window.onload = function() {
-        bootSystem();
-    };
-</script>
-</body>
-</html>
+                                <div style="width: ${tagPct}%; background: ${color}; height: 100%; box-shadow: 0 0 5
