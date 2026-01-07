@@ -39,6 +39,40 @@
             cursor: auto !important; 
         }
 
+/* GLOSSARY INTERACTIVITY (MOBILE) */
+.gloss-item {
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s ease;
+    border-left: 3px solid transparent; /* Ready for highlight */
+    padding-right: 50px; /* Make room for the RUN text */
+}
+
+.gloss-item:active {
+    background: rgba(10, 255, 186, 0.2); 
+    border-left: 3px solid var(--term-color);
+}
+
+/* "RUN" GHOST TEXT */
+.gloss-item::after {
+    content: '[ RUN ]';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'VT323', monospace;
+    font-size: 0.9rem;
+    color: var(--term-color);
+    opacity: 0.3; /* Visible but dim so users know it's actionable */
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.gloss-item:active::after {
+    opacity: 1;
+    text-shadow: 0 0 5px var(--term-color);
+}
+      
         /* ============================    NO SCROLLBARS    ============================ */
         /* Hide scrollbar for Chrome, Safari and Opera */
         *::-webkit-scrollbar {
@@ -1763,26 +1797,62 @@ function fetchQuestionsByKeyword(keyword) {
     }
 
     function renderGlossaryCategory(category) {
-        // Highlight Tab
-        document.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('active');
-            if(b.innerText === category) b.classList.add('active');
-        });
+    // Highlight Tab
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        if(b.innerText === category) b.classList.add('active');
+    });
 
-        // Render Grid
-        const container = document.getElementById('glossary-content');
-        container.innerHTML = "";
-        
-        const data = GLOSSARY_DATA[currentGlossaryExam][category];
-        if(data) {
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'gloss-item';
-                div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
-                container.appendChild(div);
-            });
-        }
-    } 
+    // Render Grid
+    const container = document.getElementById('glossary-content');
+    container.innerHTML = "";
+    
+    const data = GLOSSARY_DATA[currentGlossaryExam][category];
+    if(data) {
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'gloss-item';
+            div.innerHTML = `<span class="gloss-key">${item.k}</span><span class="gloss-val">${item.v}</span>`;
+            
+            // --- NEW CLICK LOGIC ---
+            div.onclick = () => {
+                // 1. Clean the term 
+                let searchTerm = item.k.split('(')[0].trim();
+                if(searchTerm.includes('/')) searchTerm = searchTerm.split('/')[0].trim();
+
+                // 2. Construct the query (e.g., "CORE1 + FTP")
+                const query = `${currentGlossaryExam} + ${searchTerm}`;
+                
+                // 3. Run the helper
+                runGlossaryTopic(query);
+            };
+            // -----------------------
+
+            container.appendChild(div);
+        });
+    }
+} 
+function runGlossaryTopic(fullQuery) {
+    AudioEngine.playSFX('click'); 
+
+    // 1. Close the modal
+    toggleGlossary();
+
+    // 2. Populate the search box
+    // Note: On mobile, even if the root menu is hidden behind another menu,
+    // this input still exists and can be written to.
+    const searchInput = document.getElementById('topic-search-input');
+    if(searchInput) {
+        searchInput.value = fullQuery;
+    }
+
+    // 3. Trigger the simulation
+    // We add a delay to allow the UI to close smoothly before the heavy lifting starts
+    setTimeout(() => {
+        startTopicRun(); 
+    }, 300);
+}
+
   
    // ON LOAD INIT
     window.onload = function() {
