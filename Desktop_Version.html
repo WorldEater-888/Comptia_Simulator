@@ -1810,21 +1810,25 @@ function startTopicRun() {
     }
 // UTILITY: Fetch questions by text content (Keyword Search)
 function fetchQuestionsByKeyword(keyword) {
-    // Clean the input (lowercase, remove extra spaces)
-    const term = keyword.toLowerCase().trim();
-    
+    const term = keyword.trim();
     if (!term) return [];
 
+    // 1. Escape special characters so terms like "C++", "A+", or "802.11" don't break the code
+    const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // 2. Create a "Smart Regex"
+    // (?:^|[^a-z0-9]) -> Ensures the character BEFORE the match is NOT a letter or number (or it's the start of the line)
+    // (?:$|[^a-z0-9]) -> Ensures the character AFTER the match is NOT a letter or number
+    // 'i' flag        -> Makes it case-insensitive
+    const regex = new RegExp(`(?:^|[^a-z0-9])${safeTerm}(?:$|[^a-z0-9])`, 'i');
+
     return MASTER_DATABASE.filter(q => {
-        // Combine all searchable text into one string for easy checking
-        // We check Question text, Explanation, and Hint.
         const content = (
             q.question + " " + 
             (q.explanation || "") + " " + 
             (q.hint || "")
-        ).toLowerCase();
-
-        return content.includes(term);
+        );
+        return regex.test(content);
     });
 }
     /* ========================================================================= */
