@@ -2266,17 +2266,22 @@ html {
     }
     
     function switchScreen(fromId, toId, cb) {
-        setTimeout(() => {
-            document.getElementById('root-menu').classList.add('hidden');
-            document.getElementById('core1-menu').classList.add('hidden');
-            document.getElementById('core2-menu').classList.add('hidden');
-            document.getElementById('net-menu').classList.add('hidden');
-            document.getElementById('sec-menu').classList.add('hidden');
-            
-            document.getElementById(toId).classList.remove('hidden');
-            if(cb) cb();
-        }, 250);
-    }
+    setTimeout(() => {
+        // 1. Force hide the screen we are coming FROM
+        if(fromId) document.getElementById(fromId).classList.add('hidden');
+
+        // 2. Safety: Hide menus (Keep your existing logic here)
+        document.getElementById('root-menu').classList.add('hidden');
+        document.getElementById('core1-menu').classList.add('hidden');
+        document.getElementById('core2-menu').classList.add('hidden');
+        document.getElementById('net-menu').classList.add('hidden');
+        document.getElementById('sec-menu').classList.add('hidden');
+        
+        // 3. Show the new screen
+        document.getElementById(toId).classList.remove('hidden');
+        if(cb) cb();
+    }, 250);
+}
 
 /* ========================================================================= */
 /* SECTION: GLOSSARY LOGIC                                                   */
