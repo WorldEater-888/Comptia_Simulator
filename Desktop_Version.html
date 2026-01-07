@@ -1248,15 +1248,29 @@ html {
 <div id="dungeon-ui" class="hidden">
         
         <div id="dungeon-mission-select">
-            <h2 style="margin-bottom: 20px; text-decoration: underline;">>> SELECT TARGET SYSTEM <<</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <button class="btn" onclick="Dungeon.loadMission('CORE1')">CORE 1 (Hardware)</button>
-                <button class="btn" onclick="Dungeon.loadMission('CORE2')">CORE 2 (Software)</button>
-                <button class="btn" onclick="Dungeon.loadMission('NET')">NETWORK+</button>
-                <button class="btn" onclick="Dungeon.loadMission('SEC')">SECURITY+</button>
-                <button class="btn" style="grid-column: span 2; border-color: #ffd700; color: #ffd700;" onclick="Dungeon.loadMission('ALL')">>> CHAOS MODE (ALL) <<</button>
+            <h2 style="margin-bottom: 10px; text-decoration: underline; color:#fff;">>> STEP 1: INITIALIZE CLASS <<</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; width: 90%;">
+                <button class="btn" onclick="Dungeon.selectClass('netadmin')" id="btn-c1">
+                    NET_ADMIN<br><span style="font-size:0.7em; color:#0af;">MP++ / HP--</span>
+                </button>
+                <button class="btn" onclick="Dungeon.selectClass('tank')" id="btn-c2">
+                    HELP_DESK<br><span style="font-size:0.7em; color:#0f0;">HP++ / MP--</span>
+                </button>
+                <button class="btn" onclick="Dungeon.selectClass('analyst')" id="btn-c3">
+                    ANALYST<br><span style="font-size:0.7em; color:#ffd700;">BALANCED</span>
+                </button>
             </div>
-            <p style="margin-top: 20px; color: #888;">* Enemies will scale indefinitely.</p>
+
+            <div id="mission-area" style="display:none; width: 100%; text-align: center;">
+                <h2 style="margin-bottom: 10px; text-decoration: underline; color:#fff;">>> STEP 2: SELECT TARGET <<</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <button class="btn" onclick="Dungeon.loadMission('CORE1')">CORE 1</button>
+                    <button class="btn" onclick="Dungeon.loadMission('CORE2')">CORE 2</button>
+                    <button class="btn" onclick="Dungeon.loadMission('NET')">NETWORK+</button>
+                    <button class="btn" onclick="Dungeon.loadMission('SEC')">SECURITY+</button>
+                    <button class="btn" style="grid-column: span 2; border-color: #ffd700; color: #ffd700;" onclick="Dungeon.loadMission('ALL')">>> CHAOS MODE <<</button>
+                </div>
+            </div>
         </div>
 
         <div class="dungeon-header">
@@ -2674,19 +2688,26 @@ function runGlossaryTopic(fullQuery) {
         startTopicRun(); 
     }, 200);
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /* ========================================================================= */
-/* SECTION: DUNGEON CRAWLER ENGINE                                           */
+/* SECTION: DUNGEON CRAWLER ENGINE (V2 - WITH CLASSES)                       */
 /* ========================================================================= */
 const Dungeon = {
     // --- STATE VARIABLES ---
-    player: { hp: 100, maxHp: 100, ram: 50, maxRam: 50, layer: 1, xp: 0, lvl: 1 },
+    player: { hp: 100, maxHp: 100, ram: 50, maxRam: 50, layer: 1, xp: 0, lvl: 1, classId: null },
     inventory: [],
     equipped: { weapon: null, accessory: null },
     currentEnemy: null,
     inCombat: false,
     pendingAction: null, 
     activeMissionTag: 'ALL',
+
+    // --- DATABASE: CLASSES ---
+    classes: {
+        'netadmin': { name: "NET_ADMIN", hp: 80, ram: 80, startItem: 'w1' }, // Starts with Crimper
+        'tank':     { name: "HELP_DESK", hp: 150, ram: 30, startItem: 'p1' }, // Starts with Energy Drink
+        'analyst':  { name: "SEC_ANALYST", hp: 100, ram: 50, startItem: 'a2' } // Starts with VPN Shield
+    },
 
     // --- DATABASE: ITEMS ---
     itemsDB: [
@@ -2720,384 +2741,233 @@ const Dungeon = {
 
     // --- INITIALIZATION ---
     init: function() {
-        // HIDE ALL SCREENS FIRST
         document.getElementById('root-menu').classList.add('hidden');
-        document.getElementById('core1-menu').classList.add('hidden');
-        document.getElementById('core2-menu').classList.add('hidden');
-        document.getElementById('net-menu').classList.add('hidden');
-        document.getElementById('sec-menu').classList.add('hidden');
-        document.getElementById('quiz-ui').classList.add('hidden');
+        document.getElementById('dungeon-ui').classList.remove('hidden'); 
         
-        // SHOW DUNGEON UI
-        const ui = document.getElementById('dungeon-ui');
-        ui.classList.remove('hidden');
+        // Reset Selection UI
+        document.getElementById('dungeon-mission-select').style.display = 'flex';
+        document.getElementById('mission-area').style.display = 'none';
         
-        // SHOW MISSION SELECT
-        const selectScreen = document.getElementById('dungeon-mission-select');
-        selectScreen.style.display = 'flex';
+        // Reset Buttons
+        ['btn-c1','btn-c2','btn-c3'].forEach(b => document.getElementById(b).style.borderColor = '');
+        
+        this.player.classId = null;
     },
 
-    // --- MISSION LOADER ---
+    // --- STEP 1: SELECT CLASS ---
+    selectClass: function(clsId) {
+        this.player.classId = clsId;
+        
+        // Highlight Selection
+        ['btn-c1','btn-c2','btn-c3'].forEach(b => document.getElementById(b).style.borderColor = '');
+        if(clsId === 'netadmin') document.getElementById('btn-c1').style.borderColor = '#0affba';
+        if(clsId === 'tank') document.getElementById('btn-c2').style.borderColor = '#0affba';
+        if(clsId === 'analyst') document.getElementById('btn-c3').style.borderColor = '#0affba';
+
+        AudioEngine.playSFX('click');
+        
+        // Show Step 2
+        document.getElementById('mission-area').style.display = 'block';
+    },
+
+    // --- STEP 2: LOAD MISSION ---
     loadMission: function(tag) {
+        if(!this.player.classId) { alert("SELECT A CLASS FIRST"); return; }
+        
         this.activeMissionTag = tag;
         
+        // Question Loading
         if (tag === 'ALL') {
             qQueue = [...(typeof MASTER_DATABASE !== 'undefined' ? MASTER_DATABASE : [])];
         } else {
             qQueue = (typeof MASTER_DATABASE !== 'undefined' ? MASTER_DATABASE : []).filter(q => q.tags.includes(tag));
         }
-
-        // Shuffle
         for (let i = qQueue.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]];
         }
+        if (qQueue.length === 0) { alert("NO DATA FOUND."); return; }
 
-        if (qQueue.length === 0) {
-            alert("NO DATA FOUND. CHECK DATABASE FILE.");
-            return;
-        }
-
-        // HIDE SELECT, START GAME
+        // START GAME
         document.getElementById('dungeon-mission-select').style.display = 'none';
         
-        this.player = { hp: 100, maxHp: 100, ram: 50, maxRam: 50, layer: 1, xp: 0, lvl: 1 };
-        this.inventory = [];
-        this.equipped = { weapon: this.itemsDB[0], accessory: null };
+        // APPLY CLASS STATS
+        const cls = this.classes[this.player.classId];
+        this.player.hp = cls.hp;
+        this.player.maxHp = cls.hp;
+        this.player.ram = cls.ram;
+        this.player.maxRam = cls.ram;
+        this.player.layer = 1; 
+        this.player.xp = 0; 
+        this.player.lvl = 1;
         
+        this.inventory = [];
+        this.equipped = { weapon: null, accessory: null };
+
+        // GRANT STARTING ITEM
+        const startItem = this.itemsDB.find(i => i.id === cls.startItem);
+        if(startItem) {
+            this.inventory.push(startItem);
+            this.equipItem(startItem, 0); // Auto equip
+        }
+        
+        this.log(`>> CLASS: ${cls.name} INITIALIZED.`, 'log-good');
         this.log(">> MISSION START: " + tag, 'log-good');
         setTimeout(() => this.encounter(), 500);
         this.updateUI();
     },
 
-    // --- ENCOUNTER LOGIC ---
     encounter: function() {
-        if(this.player.layer > 7) {
-            this.setArt("ACCESS GRANTED\n\nYOU ARE ROOT.");
-            this.log(">> SYSTEM HACKED. YOU WIN.", 'log-good');
-            return;
-        }
-
-        if(this.player.layer < 7 && Math.random() > 0.7) {
-            this.triggerEvent();
-        } else {
-            this.spawnMonster();
-        }
+        if(this.player.layer > 7) { this.log(">> YOU WIN.", 'log-good'); return; }
+        if(this.player.layer < 7 && Math.random() > 0.7) this.triggerEvent();
+        else this.spawnMonster();
     },
 
     triggerEvent: function() {
         this.inCombat = false;
-        this.setArt("\n      [ ? ]\n\n   DATA NODE FOUND");
+        document.getElementById('ascii-art-container').innerText = "\n      [ ? ]\n\n   DATA NODE FOUND";
         document.getElementById('monster-name').innerText = "UNKNOWN NODE";
         document.getElementById('monster-hp-bar').style.width = "0%";
         
-        const loot = this.getLoot(this.player.layer);
-        if(loot) {
-            this.inventory.push(loot);
-            this.log(`>> LOOT: You found [${loot.name}]!`, 'log-loot');
-        } else {
-            this.player.hp = Math.min(this.player.hp + 20, this.player.maxHp);
-            this.log(">> You patch your firewall. HP +20", 'log-good');
-        }
+        const loot = this.itemsDB[Math.floor(Math.random()*this.itemsDB.length)];
+        this.inventory.push(loot);
+        this.log(`>> LOOT: You found [${loot.name}]!`, 'log-loot');
         
-        setTimeout(() => {
-            this.player.layer++;
-            this.log(">> ASCENDING TO LAYER " + this.player.layer);
-            setTimeout(() => this.encounter(), 2000);
-        }, 2000);
+        setTimeout(() => { this.player.layer++; this.encounter(); }, 2000);
         this.updateUI();
     },
 
     spawnMonster: function() {
         this.inCombat = true;
-        let pool = [];
+        let idx = this.player.layer <= 2 ? 0 : (this.player.layer <= 5 ? 2 : 3);
+        if(idx >= this.enemiesDB.length) idx = this.enemiesDB.length-1;
         
-        if (this.player.layer <= 2) pool = [this.enemiesDB[0], this.enemiesDB[1]];
-        else if (this.player.layer <= 5) pool = [this.enemiesDB[2], this.enemiesDB[3], this.enemiesDB[4]];
-        else if (this.player.layer === 6) pool = [this.enemiesDB[5]]; 
-        else pool = [this.enemiesDB[6]]; 
-
-        const template = pool[Math.floor(Math.random() * pool.length)];
-        this.currentEnemy = JSON.parse(JSON.stringify(template));
-        
-        this.setArt(this.currentEnemy.art);
+        this.currentEnemy = JSON.parse(JSON.stringify(this.enemiesDB[idx]));
+        document.getElementById('ascii-art-container').innerText = this.currentEnemy.art;
         document.getElementById('monster-name').innerText = this.currentEnemy.name;
         this.updateEnemyHP();
         this.log(`>> A wild ${this.currentEnemy.name} appears!`);
         this.updateUI();
     },
 
-    // --- COMBAT LOOP ---
     preCombat: function(actionType, skillObj = null) {
         if (!this.inCombat) return;
-
         if (actionType === 'skill' && skillObj) {
-            if (this.player.ram < skillObj.cost) {
-                this.log(">> INSUFFICIENT RAM!", 'log-bad');
-                return;
-            }
+            if (this.player.ram < skillObj.cost) { this.log(">> NO RAM!", 'log-bad'); return; }
             this.pendingAction = { type: 'skill', data: skillObj };
         } else {
             this.pendingAction = { type: 'attack' };
         }
 
-        // HIDE DUNGEON, SHOW QUIZ
         document.getElementById('dungeon-ui').classList.add('hidden');
-        
-        // --- QUESTION LOGIC ---
-        let q;
-        if (qQueue.length > 0) {
-            q = qQueue.pop();
-        } else {
-            // Fallback for infinite ammo
-            let pool = (typeof MASTER_DATABASE !== 'undefined' ? MASTER_DATABASE : []);
-            if(this.activeMissionTag !== 'ALL') {
-                pool = pool.filter(x => x.tags.includes(this.activeMissionTag));
-            }
-            if(pool.length === 0) pool = MASTER_DATABASE; 
-            q = pool[Math.floor(Math.random() * pool.length)];
-        }
-        
-        // Show Quiz
         document.getElementById('quiz-ui').classList.remove('hidden');
         
-        document.getElementById('q-text').innerText = ">> DECRYPT PACKET TO ATTACK:\n" + q.question;
+        let q = qQueue.length > 0 ? qQueue.pop() : MASTER_DATABASE[Math.floor(Math.random()*MASTER_DATABASE.length)];
         
-        const optsList = document.getElementById('opts-list');
-        optsList.innerHTML = '';
-        optsList.style.display = 'flex';
+        document.getElementById('q-text').innerText = ">> DECRYPT PACKET TO ATTACK:\n" + q.question;
+        document.getElementById('opts-list').innerHTML = '';
         
         let opts = q.options.map((t, i) => ({ t, isC: i === q.answer }));
-        for (let k = opts.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [opts[k], opts[j]] = [opts[j], opts[k]]; }
+        opts.sort(()=>Math.random()-0.5);
 
         opts.forEach(o => {
-            const b = document.createElement('button'); 
-            b.className = 'option-btn'; 
-            b.innerText = `> ${o.t}`;
-            b.onclick = () => {
-                this.resolveRound(o.isC);
-            };
-            optsList.appendChild(b);
+            const b = document.createElement('button'); b.className = 'option-btn'; b.innerText = `> ${o.t}`;
+            b.onclick = () => this.resolveRound(o.isC);
+            document.getElementById('opts-list').appendChild(b);
         });
-
-        document.getElementById('pbq-area').style.display = 'none';
-        document.getElementById('explanation-box').style.display = 'none';
+        document.getElementById('pbq-area').style.display='none';
+        document.getElementById('explanation-box').style.display='none';
         document.getElementById('next-btn').classList.add('hidden');
     },
 
     resolveRound: function(isCorrect) {
-        // RETURN TO DUNGEON
         document.getElementById('quiz-ui').classList.add('hidden');
         document.getElementById('dungeon-ui').classList.remove('hidden');
         
-        const action = this.pendingAction;
-        let playerDmg = 0;
-
-        // 1. PLAYER TURN
         if (isCorrect) {
-            if(window.AudioEngine) AudioEngine.playSFX('success');
+            AudioEngine.playSFX('success');
+            let dmg = this.pendingAction.type === 'attack' ? (this.equipped.weapon ? this.equipped.weapon.dmg : 2) : this.pendingAction.data.dmg || 0;
+            if(this.pendingAction.type === 'skill') this.player.ram -= this.pendingAction.data.cost;
             
-            if (action.type === 'attack') {
-                const base = this.equipped.weapon ? this.equipped.weapon.dmg : 2;
-                playerDmg = base + Math.floor(Math.random() * 5);
-                this.log(`>> ATTACK SUCCESS! You deal ${playerDmg} DMG.`, 'log-good');
-            } else if (action.type === 'skill') {
-                this.player.ram -= action.data.cost;
-                if (action.data.dmg) playerDmg = action.data.dmg;
-                if (action.data.heal) {
-                    this.player.hp = Math.min(this.player.hp + action.data.heal, this.player.maxHp);
-                    this.log(`>> HEAL SUCCESS! Recovered ${action.data.heal} HP.`, 'log-good');
-                }
-                this.log(`>> EXECUTED ${action.data.name}!`, 'log-good');
-            }
-            
-            if (playerDmg > 0) {
-                this.currentEnemy.hp -= playerDmg;
-                this.showDamage(playerDmg, '#ff0000');
+            // Critical Hit Chance for Analyst Class
+            if(this.player.classId === 'analyst' && Math.random() > 0.8) {
+                dmg *= 2;
+                this.log(">> CRITICAL HIT!", 'log-loot');
             }
 
+            this.currentEnemy.hp -= dmg;
+            this.log(`>> ATTACK SUCCESS! ${dmg} DMG.`, 'log-good');
         } else {
-            if(window.AudioEngine) AudioEngine.playSFX('error');
-            this.log(">> DECRYPTION FAILED! Attack missed.", 'log-bad');
+            AudioEngine.playSFX('error');
+            this.log(">> DECRYPTION FAILED!", 'log-bad');
         }
-
         this.updateEnemyHP();
 
         if (this.currentEnemy.hp <= 0) {
-            this.winFight();
-            return;
-        }
-
-        // 3. ENEMY TURN
-        setTimeout(() => {
-            if (this.currentEnemy.hp > 0) {
-                let dmg = this.currentEnemy.dmg;
-                if (this.equipped.accessory && this.equipped.accessory.effect === 'def') {
-                    dmg -= this.equipped.accessory.val;
-                }
-                if (dmg < 0) dmg = 0;
-
-                this.player.hp -= dmg;
-                this.log(`>> ENEMY ATTACKS! You take ${dmg} DMG.`, 'log-bad');
-                
-                const vp = document.getElementById('monster-viewport');
-                vp.classList.remove('shake-screen');
-                void vp.offsetWidth;
-                vp.classList.add('shake-screen');
-                
-                if (this.player.hp <= 0) {
-                    this.log(">> CRITICAL ERROR: SYSTEM DESTROYED.");
-                    alert("GAME OVER. REBOOTING...");
-                    location.reload();
-                }
+            this.log(">> ENEMY DEFEATED.", 'log-loot');
+            // XP Gain
+            this.player.xp += this.currentEnemy.xp;
+            if (this.player.xp > this.player.lvl * 100) {
+                this.player.lvl++;
+                this.player.maxHp += 20;
+                this.player.hp = this.player.maxHp;
+                this.log(`>> LEVEL UP! LVL ${this.player.lvl}`, 'log-good');
+            }
+            setTimeout(() => { this.player.layer++; this.encounter(); }, 1500);
+        } else {
+            setTimeout(() => {
+                this.player.hp -= this.currentEnemy.dmg;
+                this.log(`>> ENEMY HITS FOR ${this.currentEnemy.dmg} DMG`, 'log-bad');
+                if(this.player.hp<=0) { alert("GAME OVER"); location.reload(); }
                 this.updateUI();
-            }
-        }, 800);
-    },
-
-    winFight: function() {
-        this.inCombat = false;
-        this.log(`>> TARGET DELETED. +${this.currentEnemy.xp} XP.`, 'log-loot');
-        
-        if(Math.random() > 0.5) {
-            const loot = this.getLoot(this.player.layer);
-            if(loot) {
-                this.inventory.push(loot);
-                this.log(`>> LOOT DROP: [${loot.name}]`, 'log-loot');
-            }
+            }, 800);
         }
-
-        this.player.ram = Math.min(this.player.ram + 10, this.player.maxRam);
-        
-        this.player.xp += this.currentEnemy.xp;
-        if (this.player.xp > this.player.lvl * 100) {
-            this.player.lvl++;
-            this.player.maxHp += 20;
-            this.player.hp = this.player.maxHp;
-            this.log(`>> LEVEL UP! YOU ARE NOW LVL ${this.player.lvl}`, 'log-good');
-        }
-
-        setTimeout(() => {
-            this.player.layer++;
-            this.log(">> ASCENDING TO LAYER " + this.player.layer + "...");
-            this.setArt("\n\n   ...LOADING NEXT LAYER...");
-            document.getElementById('monster-hp-bar').style.width = "0%";
-            setTimeout(() => this.encounter(), 2000);
-        }, 1500);
         this.updateUI();
     },
 
-    getLoot: function(tier) {
-        const pool = this.itemsDB.filter(i => i.tier <= tier + 1);
-        return pool[Math.floor(Math.random() * pool.length)];
-    },
-
-    showDamage: function(val, color) {
-        const el = document.createElement('div');
-        el.className = 'dmg-number';
-        el.innerText = "-" + val;
-        el.style.color = color;
-        document.getElementById('monster-viewport').appendChild(el);
-        setTimeout(() => el.remove(), 1000);
-    },
-
-    setArt: function(txt) {
-        document.getElementById('ascii-art-container').innerText = txt;
-    },
-
     updateEnemyHP: function() {
-        if(!this.currentEnemy) return;
         const pct = Math.max(0, (this.currentEnemy.hp / this.currentEnemy.maxHp) * 100);
         document.getElementById('monster-hp-bar').style.width = pct + "%";
     },
-
     updateUI: function() {
         document.getElementById('p-hp').innerText = this.player.hp;
         document.getElementById('p-max-hp').innerText = this.player.maxHp;
         document.getElementById('p-mana').innerText = this.player.ram;
         document.getElementById('p-layer').innerText = this.player.layer;
-        
-        const wName = this.equipped.weapon ? this.equipped.weapon.name : "FISTS";
-        document.getElementById('p-wep').innerText = wName;
-        
-        const log = document.getElementById('combat-log');
-        log.scrollTop = log.scrollHeight;
+        document.getElementById('p-wep').innerText = this.equipped.weapon ? this.equipped.weapon.name : "FISTS";
+        const log = document.getElementById('combat-log'); log.scrollTop = log.scrollHeight;
     },
-
-    log: function(msg, cssClass = '') {
-        const div = document.createElement('div');
-        div.className = 'log-entry ' + cssClass;
-        div.innerText = msg;
+    log: function(msg, cls) {
+        const div = document.createElement('div'); div.className = 'log-entry ' + cls; div.innerText = msg;
         document.getElementById('combat-log').appendChild(div);
     },
-
     openInventory: function() {
-        const modal = document.getElementById('inv-modal');
-        const list = document.getElementById('inv-list');
-        list.innerHTML = '';
-        modal.style.display = 'flex';
-
-        this.inventory.forEach((item, idx) => {
-            const div = document.createElement('div');
-            div.className = 'inv-item';
-            div.innerHTML = `<b>${item.name}</b><br><small>${item.type.toUpperCase()}</small>`;
-            div.onclick = () => {
-                this.equipItem(item, idx);
-                modal.style.display = 'none';
-            };
-            list.appendChild(div);
+        document.getElementById('inv-modal').style.display = 'flex';
+        const list = document.getElementById('inv-list'); list.innerHTML = '';
+        this.inventory.forEach((item, i) => {
+            const d = document.createElement('div'); d.className='inv-item'; d.innerText=item.name;
+            d.onclick=()=>{ this.equipItem(item, i); document.getElementById('inv-modal').style.display='none'; };
+            list.appendChild(d);
         });
-        
-        if(this.inventory.length === 0) list.innerHTML = "<p>INVENTORY EMPTY</p>";
     },
-
-    equipItem: function(item, idx) {
-        if (item.type === 'wep') {
-            this.equipped.weapon = item;
-            this.log(`>> EQUIPPED [${item.name}]`, 'log-good');
-        } else if (item.type === 'acc') {
-            this.equipped.accessory = item;
-            this.log(`>> EQUIPPED [${item.name}]`, 'log-good');
-        } else if (item.type === 'pot') {
-            if (item.effect === 'ram') this.player.ram += item.val;
-            this.inventory.splice(idx, 1);
-            this.log(">> CONSUMED ENERGY DRINK.", 'log-good');
-        }
+    equipItem: function(item, i) {
+        if(item.type==='wep') this.equipped.weapon = item;
+        if(item.type==='acc') this.equipped.accessory = item;
+        if(item.type==='pot') { this.player.ram+=item.val; this.inventory.splice(i,1); }
         this.updateUI();
     },
-
     openSkills: function() {
-        const modal = document.getElementById('inv-modal');
-        const list = document.getElementById('inv-list');
-        list.innerHTML = '';
-        modal.style.display = 'flex';
-
-        this.skills.forEach(skill => {
-            const div = document.createElement('div');
-            div.className = 'inv-item';
-            div.innerHTML = `<b>${skill.name}</b><br><small>COST: ${skill.cost} RAM</small><br><em style="font-size:0.8em">${skill.desc}</em>`;
-            div.onclick = () => {
-                this.preCombat('skill', skill);
-                modal.style.display = 'none';
-            };
-            list.appendChild(div);
+        document.getElementById('inv-modal').style.display = 'flex';
+        const list = document.getElementById('inv-list'); list.innerHTML = '';
+        this.skills.forEach(s => {
+            const d = document.createElement('div'); d.className='inv-item'; d.innerText=s.name;
+            d.onclick=()=>{ this.preCombat('skill', s); document.getElementById('inv-modal').style.display='none'; };
+            list.appendChild(d);
         });
     },
-
     flee: function() {
-        if(Math.random() > 0.5) {
-            this.log(">> FLEE SUCCESSFUL!", 'log-good');
-            this.inCombat = false;
-            this.setArt("\n\n   ESCAPED...");
-            setTimeout(() => {
-                 this.player.layer++;
-                 this.encounter();
-            }, 1000);
-        } else {
-            this.log(">> FLEE FAILED! ENEMY ATTACKS!", 'log-bad');
-            this.player.hp -= 10;
-            this.updateUI();
-        }
+        this.log(">> FLEEING...", 'log-bad');
+        setTimeout(() => { this.player.layer++; this.encounter(); }, 1000);
     }
 };    
 </script>
