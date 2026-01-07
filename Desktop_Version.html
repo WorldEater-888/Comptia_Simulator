@@ -742,19 +742,25 @@ html {
 
         /* --- RESULTS BREAKDOWN UI (Fixed Scrolling & Button Clipping) --- */
 #results-ui {
-    display: none;
+    display: none; 
     flex-direction: column;
-    justify-content: flex-start;
+    /* Keeps content at the top, but allows scrolling if needed */
+    justify-content: flex-start; 
     align-items: center;
-    /* FIX START */
-    flex: 1;        /* Take remaining space instead of 100% */
-    min-height: 0;  /* Critical for flex scrolling to work */
-    width: 100%;    /* Ensure it spans width */
-    /* FIX END */
+    
+    /* FIX 1: Use flex-grow instead of height: 100% */
+    /* This fills ONLY the remaining space, so the button stays visible */
+    flex: 1;
+    width: 100%;
+    min-height: 0; 
+
     text-align: center;
-    overflow-y: auto;
-    padding-top: 20px;    /* Reduced to fit better */
-    padding-bottom: 40px; /* Reduced so button isn't buried */
+    overflow-y: auto; 
+    
+    /* FIX 2: Reduce Top Padding */
+    /* Changed from 60px to 0px to close the gap between Score and Content */
+    padding-top: 0px; 
+    padding-bottom: 40px;
 }
 
         #breakdown-container {
@@ -1005,8 +1011,8 @@ html {
     <div style="display: flex; gap: 10px; align-items: center;">
         <div style="flex-grow: 1; position: relative;">
             <input type="text" id="topic-search-input" 
-                   placeholder='TRY: "CORE 1 + RAID" OR "NET + WIFI"' 
-                   style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.6rem; padding: 10px; outline: none; text-transform: uppercase; padding-right: 40px;">
+                   placeholder='TRY: "RAM" or "CORE 1 + RAID" etc.
+                   style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--term-color); color: #fff; font-family: 'VT323'; font-size: 1.3rem; padding: 10px; outline: none; text-transform: uppercase; padding-right: 40px;">
             <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); opacity: 0.5; font-size: 0.8rem; pointer-events: none;">
                 [?]
             </span>
