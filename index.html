@@ -1213,9 +1213,6 @@ function fetchQuestionsByKeyword(keyword) {
             [qQueue[i], qQueue[j]] = [qQueue[j], qQueue[i]]; 
         }
         
-        // Optional: Limit custom runs to 25 questions if there are too many
-        if (qQueue.length > 25) qQueue = qQueue.slice(0, 25);
-        window.sessionTotal = qQueue.length; // Save for the counter
         
         // 5. Trigger Mobile Start Sequence
         startQuiz();
