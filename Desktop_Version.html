@@ -744,16 +744,18 @@ html {
 #results-ui {
     display: none; 
     flex-direction: column;
-    /* Changed from center to flex-start so long lists don't get cut off at the top */
     justify-content: flex-start; 
     align-items: center;
-    height: 100%;
+    /* FIX: Changed height:100% to flex:1 to account for the Header space */
+    flex: 1;
+    min-height: 0; /* Critical for flexbox scrolling */
+    width: 100%;
     text-align: center;
     /* ENABLE SCROLLING */
     overflow-y: auto; 
-    /* Add breathing room at top and bottom */
-    padding-top: 60px;
-    padding-bottom: 120px; 
+    padding-top: 40px;
+    padding-bottom: 60px; 
+}  padding-bottom: 120px; 
 }
 
         #breakdown-container {
@@ -1148,8 +1150,7 @@ html {
         
         <div id="breakdown-container"></div>
 
-        <button class="btn nav-btn" style="margin-top: 20px;" onmouseenter="AudioEngine.playMenuHover()" onclick="location.reload()">>> REBOOT_SYSTEM <<</button>
-    </div>
+        <button class="btn nav-btn" style="margin-top: 20px; margin-bottom: 40px;" onmouseenter="AudioEngine.playMenuHover()" onclick="location.reload()">>> REBOOT_SYSTEM <<</button>
 
     <div id="fail-ui">
         <h1 class="fail-text">CORRUPTION</h1>
